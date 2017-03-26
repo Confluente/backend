@@ -1,0 +1,27 @@
+{
+  "name": "hsaconfluente.nl-backend",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "NODE_ENV=test mocha --recursive",
+    "dev": "NODE_ENV=test mocha --recursive --reporter min -w -A --throw-deprecation"
+  },
+  "author": "H.S.A. Confluente",
+  "license": "",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "bunyan": "^1.8.8",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.15.2",
+    "marked": "^0.3.6",
+    "morgan": "^1.8.1",
+    "q": "^1.4.1",
+    "sequelize": "^3.30.2",
+    "sqlite3": "^3.1.8"
+  },
+  "devDependencies": {
+    "supertest": "^3.0.0"
+  }
+}
