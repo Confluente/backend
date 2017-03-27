@@ -12,7 +12,7 @@ router.route("/")
     return res.sendStatus(401);
   }
   User.findById(res.locals.session.user, {
-    attributes: ["id", "email", "displayName"],
+    attributes: ["id", "email", "displayName", "isAdmin"],
     include: [{
       model: Group,
       attributes: ["id", "displayName", "fullname", "description", "canOrganize", "email"]
@@ -25,7 +25,7 @@ router.route("/")
   }).then(function (groups) {
     //console.log(groups[0].user_group);
     */
-    profile.canOrganize = profile.groups.some(function (e) {return e.canOrganize;});
+    profile.canOrganize = profile.isAdmin || profile.groups.some(function (e) {return e.canOrganize;});
 
     res.send(profile);
   });

@@ -1,5 +1,6 @@
 var request = require("supertest");
 var assert = require("assert");
+var Q = require("q");
 
 var testData = require("../testData");
 var authenticate = require("../tester").authenticate;
@@ -53,14 +54,23 @@ describe("routes/user", function () {
       });
     });
     it("has #groups and #canOrganize accordingly", function () {
-      return testData.activeUserAgent
-      .get("/api/user")
-      .expect(200)
-      .then(function (res) {
-        //console.log(res.body);
-        assert(res.body.groups);
-        assert(res.body.canOrganize);
-      });
+      return Q.all([
+        testData.activeUserAgent
+        .get("/api/user")
+        .expect(200)
+        .then(function (res) {
+          //console.log(res.body);
+          assert(res.body.groups);
+          assert(res.body.canOrganize);
+        }),
+        testData.adminUserAgent
+        .get("/api/user")
+        .expect(200)
+        .then(function (res) {
+          assert(res.body.canOrganize);
+          assert.deepStrictEqual(res.body.groups, []);
+        })
+      ]);
     });
   });
 
