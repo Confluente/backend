@@ -19,6 +19,7 @@ function getPasswordHash(password, salt) {
 
 module.exports = {
   authenticate: function (email, password) {
+    email = email.toLowerCase();
     return User.findOne({where: {email: email}}).then(function (user) {
       if (!user) {
         //wrong username/password
