@@ -1,5 +1,6 @@
 var request = require("supertest");
 var assert = require("assert");
+var Q = require("q");
 
 var testData = require("../testData");
 var authenticate = require("../tester").authenticate;
@@ -113,9 +114,12 @@ describe("routes/page", function () {
       .then(function (res) {
         //console.log(res.body);
         assert(res.body.length > 0);
-        res.body.forEach(function (activity) {
-          assertPage(activity);
-        });
+        var promises = [];
+        for (var i = 0; i < res.body.length; i++) {
+          var page = res.body[i];
+          promises.push(assertPage(page));
+        }
+        return Q.all(promises);
       });
     });
 

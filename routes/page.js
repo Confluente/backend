@@ -54,7 +54,9 @@ router.get("/:url/view", function (req, res) {
 });
 
 router.get("/", permissions.requireAll({type: "PAGE_MANAGE"}), function (req, res) {
-  return Page.findAll().then(function (results) {
+  return Page.findAll({
+    attributes: ["url", "title", "content", "author"]
+  }).then(function (results) {
     res.send(results);
   });
 });
