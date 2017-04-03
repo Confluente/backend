@@ -17,6 +17,11 @@ router.route("/:url")
     if (!page) {
       return res.sendStatus(404);
     }
+    if (req.query.render === "true") {
+      page.dataValues.html = marked(page.dataValues.content);
+      page.dataValues.content = undefined;
+    }
+    //console.log(page);
     res.send(page);
   });
 })

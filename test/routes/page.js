@@ -79,6 +79,18 @@ describe("routes/page", function () {
       return assertPage(testPage);
     });
 
+    it("Renders the page when ?render=true is set", function () {
+      var renderedPage = JSON.parse(JSON.stringify(testPage));
+      renderedPage.html = "<p>" + renderedPage.content + "</p>\n";
+      delete renderedPage.content;
+      return testData.testUserAgent.get("/api/page/" + renderedPage.url)
+      .query({render: true})
+      .expect(200)
+      .then(function (res) {
+        assert.deepStrictEqual(res.body, renderedPage);
+      });
+    });
+
   });
 
   describe("GET /page/:url/view", function () {
