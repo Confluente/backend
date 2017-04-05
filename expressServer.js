@@ -62,7 +62,7 @@ app.use(function (req, res, next) {
 });
 
 //app.use("/admin", require("./admin"));
-app.use("/api/user", require("./routes/user"));
+app.use("/api/auth", require("./routes/auth"));
 app.use("/api/activities", require("./routes/activities"));
 app.use("/api/page", require("./routes/page"));
 app.use("/api/*", function (req, res) {

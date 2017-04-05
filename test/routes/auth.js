@@ -6,7 +6,7 @@ var testData = require("../testData");
 var authenticate = require("../tester").authenticate;
 var app = require("../../expressServer");
 
-describe("routes/user", function () {
+describe("routes/auth", function () {
 
   before(function () {
     //return User.truncate();
@@ -19,10 +19,10 @@ describe("routes/user", function () {
   });
 
 
-  describe("POST /user/login", function () {
+  describe("POST /auth/login", function () {
     it("starts a session", function () {
       return agent
-      .post("/api/user/login")
+      .post("/api/auth/login")
       .send({email: testData.testUser.email, password: testData.testUser.password})
       .expect(200)
       //.expect('set-cookie', 'cookie=hey; Path=/', done);
@@ -36,17 +36,17 @@ describe("routes/user", function () {
 
     it("fails when the password is wrong", function () {
       return agent
-      .post("/api/user/login")
+      .post("/api/auth/login")
       .send({email: testData.testUser.email, password: "NotTHePassword"})
       .expect(401);
     });
 
   });
 
-  describe("GET /user", function () {
+  describe("GET /auth", function () {
     it("gets the user details ", function () {
       return testData.testUserAgent
-      .get("/api/user")
+      .get("/api/auth")
       .expect(200)
       .then(function (res) {
         assert(!res.body.canOrganize);
@@ -56,7 +56,7 @@ describe("routes/user", function () {
     it("has #groups and #canOrganize accordingly", function () {
       return Q.all([
         testData.activeUserAgent
-        .get("/api/user")
+        .get("/api/auth")
         .expect(200)
         .then(function (res) {
           //console.log(res.body);
@@ -64,7 +64,7 @@ describe("routes/user", function () {
           assert(res.body.canOrganize);
         }),
         testData.adminUserAgent
-        .get("/api/user")
+        .get("/api/auth")
         .expect(200)
         .then(function (res) {
           assert(res.body.canOrganize);

@@ -29,7 +29,7 @@ router.route("/")
 
     res.send(profile);
   });
-});
+})
 
 router.route("/login")
 .post(function (req, res, next) {

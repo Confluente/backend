@@ -2,7 +2,7 @@
 
 function authenticate(agent, credentials) {
   return agent
-  .post("/api/user/login")
+  .post("/api/auth/login")
   .send(credentials)
   .expect(200);
 }
