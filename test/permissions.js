@@ -27,6 +27,33 @@ describe("permissions", function () {
     });
   });
 
+  describe("#requireAll", function () {
+
+    it("returns a permission checking middleware function", function (done) {
+      var middleware = permissions.requireAll({type: "PAGE_VIEW"});
+      assert.equal(typeof middleware, "function");
+      done();
+    });
+
+    it("calls next() when all permissions are in place", function (done) {
+      var user = testData.testUser.id;
+      var req = {};
+      var res = {locals: {session: {user: user}}};
+      permissions.requireAll({type: "PAGE_VIEW"})(req, res, done);
+    });
+
+    it("passes errors to next()", function (done) {
+      var user = testData.testUser.id;
+      var req = {};
+      var res = {locals: {session: {user: user}}};
+      permissions.requireAll({type: "INVALID_PERMISSION"})(req, res, function next(err) {
+        assert.equal(err.message, "Unknown scope type");
+        done();
+      });
+    });
+
+  });
+
   describe("PAGE_VIEW", function () {
 
     it("true for everyone", function () {

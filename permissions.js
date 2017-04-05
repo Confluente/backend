@@ -46,10 +46,9 @@ function check(user, scope) {
           return user.hasGroup(group.id);
         });
       default:
-        console.log("AAA");
         throw new Error("Unknown scope type");
     }
-  }).fail(console.error);
+  });
 }
 
 function all(promises) {
@@ -71,7 +70,9 @@ function requireAll(scopes) {
         return res.sendStatus(403);
       }
       return next();
-    });
+    }).fail(function (err) {
+      next(err);
+    }).done();
   };
 }
 
