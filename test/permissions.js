@@ -124,4 +124,14 @@ describe("permissions", function () {
     });
   });
 
+  describe("USER_MANAGE", function () {
+    it("true for administrators", function () {
+      return assertPermission(testData.admin.id, {type: "PAGE_MANAGE"});
+    });
+
+    it("false otherwise", function () {
+      return assertPermission(testData.testUser.id, {type: "PAGE_MANAGE"}, false);
+    });
+  });
+
 });

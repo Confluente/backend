@@ -45,6 +45,8 @@ function check(user, scope) {
           if (!group.canOrganize) return false;
           return user.hasGroup(group.id);
         });
+      case "USER_MANAGE":
+        return false;
       default:
         throw new Error("Unknown scope type");
     }
