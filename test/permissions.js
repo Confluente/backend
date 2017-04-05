@@ -52,6 +52,12 @@ describe("permissions", function () {
       });
     });
 
+    it("works when user is not logged in", function (done) {
+      var req = {};
+      var res = {locals: {}};
+      permissions.requireAll({type: "PAGE_VIEW"})(req, res, done);
+    });
+
   });
 
   describe("PAGE_VIEW", function () {

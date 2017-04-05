@@ -63,7 +63,7 @@ function all(promises) {
 function requireAll(scopes) {
   if (!scopes.length) {scopes = [scopes];}
   return function (req, res, next) {
-    var user = res.locals.session.user;
+    var user = res.locals.session ? res.locals.session.user : null;
     var promises = scopes.map(function (scope) {
       return check(user, scope);
     });
