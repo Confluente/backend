@@ -1,10 +1,6 @@
-var request = require("supertest");
 var assert = require("assert");
 
 var testData = require("../testData");
-var authenticate = require("../tester").authenticate;
-
-var app = require("../../expressServer");
 
 describe("routes/activities", function () {
 
@@ -47,7 +43,7 @@ describe("routes/activities", function () {
   describe("GET /activities", function () {
 
     it("lists all activities", function () {
-      return request(app)
+      return testData.nobodyUserAgent
       .get("/api/activities")
       .expect('Content-Type', /json/)
       .expect(200)
@@ -68,7 +64,7 @@ describe("routes/activities", function () {
   describe("GET /activities/:id", function () {
 
     it("returns an activity", function () {
-      return request(app)
+      return testData.nobodyUserAgent
       .get("/api/activities/" + activityId)
       .expect(200)
       .then(function (res) {
@@ -77,7 +73,7 @@ describe("routes/activities", function () {
     });
 
     it("handles non-existing activities", function () {
-      return request(app)
+      return testData.nobodyUserAgent
       .get("/api/activities/1984")
       .expect(404);
     });
@@ -109,7 +105,7 @@ describe("routes/activities", function () {
     });
 
     it("handles non-existing activities", function () {
-      return request(app)
+      return testData.nobodyUserAgent
       .put("/api/activities/1984")
       .expect(404);
     });
@@ -126,20 +122,26 @@ describe("routes/activities", function () {
   describe("DELETE /activities/:id", function () {
 
     it("deletes an activity", function () {
-      return request(app)
+      return testData.activeUserAgent
       .delete("/api/activities/" + activityId)
       .expect(204)
       .then(function (res) {
-        return request(app)
+        return testData.nobodyUserAgent
         .get("/api/activities/" + activityId)
         .expect(404);
       });
     });
 
     it("handles non-existing activities", function () {
-      return request(app)
+      return testData.activeUserAgent
       .delete("/api/activities/1984")
       .expect(404);
+    });
+
+    it("requires permission", function () {
+      return testData.nobodyUserAgent
+      .delete("/api/activities/" + testData.testActivity.id)
+      .expect(403);
     });
 
   });

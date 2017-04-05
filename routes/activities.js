@@ -81,7 +81,16 @@ router.route("/:id")
   });
 })
 .delete(function (req, res) {
-  res.locals.activity.destroy().then(function () {
+  var user = res.locals.session ? res.locals.session.user : null;
+  permissions.check(user, {
+    type: "ACTIVITY_EDIT",
+    value: res.locals.activity.id
+  }).then(function (result) {
+    if (!result) {
+      return res.sendStatus(403);
+    }
+    return res.locals.activity.destroy();
+  }).then(function () {
     res.status(204).send({status: "Successful"});
   });
 });
