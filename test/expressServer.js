@@ -33,4 +33,11 @@ describe("expressServer", function () {
     .get("/api/page/invalid/view")
     .expect(302);
   });
+
+  it("checks the session token", function () {
+    return request.agent(app)
+    .get("/")
+    .set("Cookie", "session=vRN4oAXh")
+    .expect('set-cookie', /session=;/);
+  });
 });

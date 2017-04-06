@@ -38,7 +38,11 @@ app.use(function (req, res, next) {
   if (req.cookies.session) {
     var token = Buffer.from(req.cookies.session, "base64");
     Session.findOne({where: {token: token}}).then(function (session) {
-      res.locals.session = session.dataValues;
+      if (session) {
+        res.locals.session = session.dataValues;
+      } else {
+        res.clearCookie("session");
+      }
       next();
     });
   } else {
@@ -64,6 +68,7 @@ app.use(function (req, res, next) {
 //app.use("/admin", require("./admin"));
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/activities", require("./routes/activities"));
+app.use("/api/group", require("./routes/group"));
 app.use("/api/user", require("./routes/user"));
 app.use("/api/page", require("./routes/page"));
 app.use("/api/*", function (req, res) {
