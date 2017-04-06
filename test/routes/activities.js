@@ -53,6 +53,7 @@ describe("routes/activities", function () {
           //console.log(activity);
           assert(typeof activity.name === "string");
           assert(typeof activity.description === "string");
+          assert.equal(typeof activity.Organizer, "object");
           assert(typeof activity.canSubscribe === "boolean");
           assert(activity.approved);
         });
@@ -68,7 +69,9 @@ describe("routes/activities", function () {
       .get("/api/activities/" + activityId)
       .expect(200)
       .then(function (res) {
-        //console.log(res.body);
+        var activity = res.body;
+        //console.log(activity);
+        assert.equal(typeof activity.Organizer, "object");
       });
     });
 

@@ -11,7 +11,12 @@ var router = express.Router();
 router.route("/")
 .get(function (req, res, next) {
   Activity.findAll({
-    attributes: ["id", "name", "description", "location", "approved"]
+    attributes: ["id", "name", "description", "location", "approved"],
+    include: [{
+      model: Group,
+      as: "Organizer",
+      attributes: ["id", "displayName", "fullName", "email"]
+    }]
   }).then(function (activities) {
     var promises = activities.map(function (activity) {
       if (activity.approved) return Q(activity);
@@ -45,7 +50,13 @@ router.route("/")
 router.route("/:id")
 .all(function (req, res, next) {
   var id = req.params.id;
-  Activity.findById(req.params.id).then(function (activity) {
+  Activity.findById(req.params.id, {
+    include: [{
+      model: Group,
+      as: "Organizer",
+      attributes: ["id", "displayName", "fullName", "email"]
+    }]
+  }).then(function (activity) {
     if (activity === null) {
       res.status(404).send({status: "Not Found"});
     } else {

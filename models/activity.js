@@ -16,7 +16,10 @@ var Activity = sequelize.define('activity', {
       return true;
     }
   },
-  approved: Sequelize.BOOLEAN
+  approved: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false
+  }
 }, {
   instanceMethods: {
     isAwesome: function () {

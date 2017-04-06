@@ -79,6 +79,7 @@ before(function () {
   })
   .then(function () {
     unapprovedActivity.OrganizerId = testGroup.id;
+    testActivity.OrganizerId = testGroup.id;
     return Q.all([
       Activity.create(unapprovedActivity),
       Activity.create(testActivity)
