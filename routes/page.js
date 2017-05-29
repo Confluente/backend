@@ -6,7 +6,7 @@ var permissions = require("../permissions");
 
 var router = express.Router();
 
-router.route("/:url")
+router.route("/:url([^\?]+)")
 .get(function (req, res) {
   Page.find({
     where: {

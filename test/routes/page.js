@@ -94,7 +94,7 @@ describe("routes/page", function () {
 
   });
 
-  describe("GET /page/:url/view", function () {
+  describe.skip("GET /page/:url/view", function () {
     it("Returns the rendered page", function () {
       return testData.activeUserAgent
       .get("/api/page/" + testPage.url + "/view")

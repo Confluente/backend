@@ -31,7 +31,7 @@ describe("expressServer", function () {
   it("redirects to 404 for non-existing pages", function () {
     return request.agent(app)
     .get("/api/page/invalid/view")
-    .expect(302);
+    .expect(404);
   });
 
   it("checks the session token", function () {
