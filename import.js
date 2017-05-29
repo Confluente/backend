@@ -27,4 +27,5 @@ function commit(data) {
     //console.log(result);
     console.log("Inserted " + result.length + " row(s).");
   });
+  data = [];
 }
