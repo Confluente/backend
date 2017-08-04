@@ -6,15 +6,17 @@ var User = require("../models/user");
 var Group = require("../models/group");
 var Activity = require("../models/activity");
 
+var authHelper = require("../authHelper");
 var tester = require("./tester");
 
 var testUser = {
   displayName: "Bob",
   email: "bob@hsaconfluente.nl",
   password: "ILikeTrains",
-  passwordHash: Buffer.from("wxAqn6KKjPXCZWafvEDFcDmh9ZbJLU3TTzcnf9jKu3k=", "base64"),
   passwordSalt: new Buffer("BlahBlah")
 };
+testUser.passwordHash = authHelper.getPasswordHashSync(testUser.password, testUser.passwordSalt);
+
 var testUserAgent = request.agent(app);
 var activeUserAgent = request.agent(app);
 var adminUserAgent = request.agent(app);
@@ -34,18 +36,18 @@ var activeUser = {
   displayName: "Alice",
   email: "alice@hsaconfluente.nl",
   password: "ILikeTrains",
-  passwordHash: Buffer.from("wxAqn6KKjPXCZWafvEDFcDmh9ZbJLU3TTzcnf9jKu3k=", "base64"),
   passwordSalt: new Buffer("BlahBlah")
 };
+activeUser.passwordHash = authHelper.getPasswordHashSync(activeUser.password, activeUser.passwordSalt);
 
 var admin = {
   displayName: "Admin",
   email: "web@hsaconfluente.nl",
   password: "WcMqXcea56Bi2F9J",
-  passwordHash: Buffer.from("2VvpYmBlBCLfPy05cMqK0P8/+gz0d0d2631eyxBMjWU=", "base64"),
   passwordSalt: new Buffer(""),
   isAdmin: true
 };
+admin.passwordHash = authHelper.getPasswordHashSync(admin.password, admin.passwordSalt);
 
 var testActivity = {
   name: "Website testing",

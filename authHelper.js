@@ -6,15 +6,21 @@ var Session = require("./models/session");
 
 var getRandomBytes = Q.nfbind(crypto.randomBytes);
 
+var digest_iterations = (process.env.NODE_ENV === "test") ? 1 : 100000;
+
 function getPasswordHash(password, salt) {
   return Q.Promise(function (resolve, reject) {
-    crypto.pbkdf2(password, salt, 100000, 256 / 8, 'sha256', function (err, hash) {
+    crypto.pbkdf2(password, salt, digest_iterations, 256 / 8, 'sha256', function (err, hash) {
       if (err) {
         return reject(err);
       }
       return resolve(hash);
     });
   });
+}
+
+function getPasswordHashSync(password, salt) {
+  return crypto.pbkdf2Sync(password, salt, digest_iterations, 256 / 8, 'sha256');
 }
 
 module.exports = {
@@ -44,6 +50,9 @@ module.exports = {
       });
     });
     //.then(function ())
-  }
+  },
+
+  getPasswordHash: getPasswordHash,
+  getPasswordHashSync: getPasswordHashSync
 
 };
