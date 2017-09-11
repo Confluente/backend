@@ -78,6 +78,9 @@ app.use("/api/*", function (req, res) {
 app.use(express.static(webroot));
 
 app.get("*", function (req, res, next) {
+  if (req.originalUrl.includes(".")) {
+    return res.sendStatus(404);
+  }
   res.sendFile("/index.html", {root: webroot});
   //next();
 });
