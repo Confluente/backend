@@ -12,7 +12,10 @@ var router = express.Router();
 router.route("/")
 .get(function (req, res, next) {
   Activity.findAll({
-    attributes: ["id", "name", "description", "location", "approved"],
+    attributes: ["id", "name", "description", "location", "startTime", "approved"],
+    order: [
+      ["startTime", "DESC"]
+    ],
     include: [{
       model: Group,
       as: "Organizer",
