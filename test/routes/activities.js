@@ -53,6 +53,8 @@ describe("routes/activities", function () {
           //console.log(activity);
           assert(typeof activity.name === "string");
           assert(typeof activity.description === "string");
+          assert(typeof activity.description_html === "string");
+          assert(activity.description_html.includes("<p>"));
           assert.equal(typeof activity.Organizer, "object");
           assert(typeof activity.canSubscribe === "boolean");
           assert(activity.approved);
@@ -71,6 +73,9 @@ describe("routes/activities", function () {
       .then(function (res) {
         var activity = res.body;
         //console.log(activity);
+        assert(typeof activity.description === "string");
+        assert(typeof activity.description_html === "string")
+        assert(activity.description_html.includes("<p>"));
         assert.equal(typeof activity.Organizer, "object");
       });
     });

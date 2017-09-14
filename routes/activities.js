@@ -1,5 +1,6 @@
 var express = require("express");
 var Q = require("q");
+var marked = require("marked");
 
 var permissions = require("../permissions");
 var Activity = require("../models/activity");
@@ -27,6 +28,10 @@ router.route("/")
     });
     Q.all(promises).then(function (activities) {
       activities = activities.filter(function (e) {return e !== null;});
+      activities = activities.map(function (activity) {
+        activity.dataValues.description_html = marked(activity.description);
+        return activity;
+      });
       res.send(activities);
     }).done();
   });
@@ -71,7 +76,9 @@ router.route("/:id")
     if (!result) {
       return res.sendStatus(403);
     }
-    res.send(res.locals.activity);
+    var activity = res.locals.activity;
+    activity.dataValues.description_html = marked(activity.description);
+    res.send(activity);
   });
 })
 .put(function (req, res) {
