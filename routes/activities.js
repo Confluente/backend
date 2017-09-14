@@ -29,7 +29,7 @@ router.route("/")
     Q.all(promises).then(function (activities) {
       activities = activities.filter(function (e) {return e !== null;});
       activities = activities.map(function (activity) {
-        activity.dataValues.description_html = marked(activity.description);
+        activity.dataValues.description_html = marked(activity.description || "");
         return activity;
       });
       res.send(activities);
@@ -40,9 +40,10 @@ router.route("/")
   if (!res.locals.session) {
     return res.sendStatus(401);
   }
-  if (!req.body.organizer) {
+  if (!req.body.organizer || !req.body.description || !req.body.startTime || isNaN(Date.parse(req.body.startTime))) {
     return res.sendStatus(400);
   }
+
   permissions.check(res.locals.session.user, {type: "GROUP_ORGANIZE", value: req.body.organizer}).then(function (result) {
     if (!result) return res.sendStatus(403);
     req.body.OrganizerId = req.body.organizer;

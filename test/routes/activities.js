@@ -13,6 +13,7 @@ describe("routes/activities", function () {
     name: "foo",
     description: "bar",
     approved: true,
+    startTime: new Date()
   };
 
   var activityId;
