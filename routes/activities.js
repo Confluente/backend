@@ -14,7 +14,7 @@ router.route("/")
   Activity.findAll({
     attributes: ["id", "name", "description", "location", "startTime", "approved"],
     order: [
-      ["startTime", "DESC"]
+      ["startTime", "ASC"]
     ],
     include: [{
       model: Group,
