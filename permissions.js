@@ -4,11 +4,17 @@ var User = require("./models/user");
 var Group = require("./models/group");
 var Activity = require("./models/activity");
 
-
+/**
+ * Checks whether user has required permissions for a given scope
+ * @param user
+ * @param scope
+ * @returns boolean
+ */
 function check(user, scope) {
   var loggedIn = true;
   return Q.Promise(function (resolve, reject) {
     if (!user) {
+      // User undefined
       loggedIn = false;
       resolve();
     } else if (typeof user === 'number') {
@@ -18,34 +24,42 @@ function check(user, scope) {
       resolve(user);
     }
   }).then(function (user) {
-    //console.log(user);
     if (loggedIn && user.dataValues.isAdmin) {
+      // Admin has all permissions
       return true;
     }
     switch (scope.type) {
       case "PAGE_VIEW":
+        // Everyone allowed to view pages
         return true;
       case "PAGE_MANAGE":
+        // Only admins allowed to manage pages
         return false;
       case "ACTIVITY_VIEW":
         return Activity.findById(scope.value).then(function (activity) {
           if (!activity) {return false;}
           if (activity.approved) {
+            // Approved activities allowed to be viewed by anyone
             return true;
           }
+          // Unapproved activities only allowed to be viewed by organizers and admins
           return loggedIn ? user.hasGroup(activity.OrganizerId) : false;
         });
       case "ACTIVITY_EDIT":
         return Activity.findById(scope.value).then(function (activity) {
+          // Activities only allowed to be edited by organizers and admins
           return loggedIn ? user.hasGroup(activity.OrganizerId) : false;
         });
       case "GROUP_ORGANIZE":
         if (!loggedIn) return false;
         return Group.findById(scope.value).then(function (group) {
+          // Check whether group is allowed to organize
           if (!group.canOrganize) return false;
+          // If the group is allowed to organize, return whether user is member of the group
           return user.hasGroup(group.id);
         });
       case "USER_MANAGE":
+        // Only admins allowed to manage users
         return false;
       default:
         throw new Error("Unknown scope type");

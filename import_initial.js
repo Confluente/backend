@@ -3,6 +3,7 @@ var Q = require("q");
 var User = require("./models/user");
 var Group = require("./models/group");
 
+// Initial administrator account
 var users = [
   {
     id: 1,
@@ -15,6 +16,7 @@ var users = [
   }
 ];
 
+// Initial group (board)
 var groups = [
   {
     id: 2,
@@ -25,6 +27,7 @@ var groups = [
   }
 ];
 
+// Import initial administrator and initial group to database
 Q.all([
   User.bulkCreate(users).then(function (result) {
     console.log("Created user(s)");
