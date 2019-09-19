@@ -18,7 +18,7 @@ function check(user, scope) {
       loggedIn = false;
       resolve();
     } else if (typeof user === 'number') {
-      resolve(User.findById(user));
+      resolve(User.findByPk(user));
     } else {
       console.log("easy going");
       resolve(user);
@@ -36,7 +36,7 @@ function check(user, scope) {
         // Only admins allowed to manage pages
         return false;
       case "ACTIVITY_VIEW":
-        return Activity.findById(scope.value).then(function (activity) {
+        return Activity.findByPk(scope.value).then(function (activity) {
           if (!activity) {return false;}
           if (activity.approved) {
             // Approved activities allowed to be viewed by anyone
@@ -46,13 +46,13 @@ function check(user, scope) {
           return loggedIn ? user.hasGroup(activity.OrganizerId) : false;
         });
       case "ACTIVITY_EDIT":
-        return Activity.findById(scope.value).then(function (activity) {
+        return Activity.findByPk(scope.value).then(function (activity) {
           // Activities only allowed to be edited by organizers and admins
           return loggedIn ? user.hasGroup(activity.OrganizerId) : false;
         });
       case "GROUP_ORGANIZE":
         if (!loggedIn) return false;
-        return Group.findById(scope.value).then(function (group) {
+        return Group.findByPk(scope.value).then(function (group) {
           // Check whether group is allowed to organize
           if (!group.canOrganize) return false;
           // If the group is allowed to organize, return whether user is member of the group

@@ -59,7 +59,7 @@ router.route("/")
 router.route("/:id")
 .all(function (req, res, next) {
   var id = req.params.id;
-  Activity.findById(req.params.id, {
+  Activity.findByPk(req.params.id, {
     include: [{
       model: Group,
       as: "Organizer",

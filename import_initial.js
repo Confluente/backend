@@ -39,7 +39,7 @@ Q.all([
   var promises = [];
 
   users.forEach(function (userData) {
-    var promise = User.findById(userData.id).then(function (user) {
+    var promise = User.findByPk(userData.id).then(function (user) {
       console.log("Adding groups " + JSON.toString(groups) + " to " + userData.id);
       return user.addGroups(userData.groups).then(console.log);
     });

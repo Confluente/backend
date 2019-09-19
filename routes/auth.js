@@ -11,7 +11,7 @@ router.route("/")
   if (!res.locals.session) {
     return res.sendStatus(401);
   }
-  User.findById(res.locals.session.user, {
+  User.findByPk(res.locals.session.user, {
     attributes: ["id", "email", "displayName", "isAdmin"],
     include: [{
       model: Group,
