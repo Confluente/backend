@@ -2,6 +2,7 @@ var stringify = require("csv-stringify");
 
 var User = require("./models/user");
 
+// Columns for stringify'd table
 var columns = [
   "id",
   "email",
@@ -10,6 +11,9 @@ var columns = [
   "isAdmin"
 ];
 
+/**
+ * Script for exporting (logging) all fields of all users to console
+ */
 User.findAll({attributes: columns}).then(function (users) {
   if (users.length < 1) throw Error();
   stringify(users, {
