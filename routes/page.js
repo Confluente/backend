@@ -21,7 +21,6 @@ router.route("/:url([^\?]+)")
       page.dataValues.html = marked(page.dataValues.content);
       page.dataValues.content = undefined;
     }
-    //console.log(page);
     res.send(page);
   });
 })
