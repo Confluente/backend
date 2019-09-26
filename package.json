@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "nodemon index.js",
     "export": "node export.js",
     "test": "NODE_ENV=test mocha --recursive",
     "dev": "NODE_ENV=test mocha --recursive --reporter min -w -A --throw-deprecation"
@@ -26,6 +26,7 @@
     "uglifyjs-webpack-plugin": "^2.2.0"
   },
   "devDependencies": {
+    "nodemon": "^1.19.2",
     "supertest": "^4.0.2"
   }
 }
