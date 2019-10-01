@@ -8,9 +8,9 @@ function reqSerializer(req) {
   return {
     method: req.method,
     url: req.url,
-    headers: req.headers,
-    remoteAddress: req.connection.remoteAddress,
-    remotePort: req.connection.remotePort
+    headers: req.headers
+    // remoteAddress: req.connection.remoteAddress,
+    // remotePort: req.connection.remotePort
   };
 }
 

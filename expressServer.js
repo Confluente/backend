@@ -23,7 +23,7 @@ if (process.env.NODE_ENV === "test") {
   app.use(morgan("combined", {stream: require("fs").createWriteStream("./access.log", {flags: "a"})}));
 
   app.use(function (req, res, next) {
-    log.info({req: req}, "express_request");
+    // log.info({req: req}, "express_request");
     next();
   });
 }

@@ -61,6 +61,9 @@ function check(user, scope) {
       case "USER_MANAGE":
         // Only admins allowed to manage users
         return false;
+      case "CREATE_USER":
+        // Only admins are allowed to create users
+        return false;
       default:
         throw new Error("Unknown scope type");
     }
