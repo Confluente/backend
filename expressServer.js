@@ -65,6 +65,18 @@ app.use(function (req, res, next) {
         }).done();
 });
 
+// Crashes the management Dashboard
+// //Check for AJAX header, helps protect against CSRF
+// //This header is set by default by javascript libraries such as Angular or jQuery
+// //but cannot be set by pages from a different origin
+// app.use("/api/*", function (req, res, next) {
+//     if (req.headers["x-requested-with"] !== "XMLHttpRequest") {
+//         return res.sendStatus(403);
+//     }
+//     return next();
+// });
+//
+
 //app.use("/admin", require("./admin"));
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/activities", require("./routes/activities"));

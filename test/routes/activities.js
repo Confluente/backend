@@ -57,7 +57,7 @@ describe("routes/activities", function () {
           assert(typeof activity.description_html === "string");
           assert(activity.description_html.includes("<p>"));
           assert.equal(typeof activity.Organizer, "object");
-          assert(typeof activity.canSubscribe === "boolean");
+          // assert(typeof activity.canSubscribe === "boolean");
           assert(activity.approved);
         });
       });
