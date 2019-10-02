@@ -11,7 +11,7 @@ router.route("/")
     .all(permissions.requireAll({type: "USER_MANAGE"}))
     .get(function (req, res, next) {
         User.findAll({
-          attributes: ["id", "displayName", "email"],
+          attributes: ["id", "displayName", "email", "isAdmin"],
           order: [
             ["id", "ASC"]
           ]

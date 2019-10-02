@@ -4,3 +4,4 @@ node_modules/**
 *.db
 *.csv
 .idea/**
+package-lock.json

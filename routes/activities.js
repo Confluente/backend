@@ -7,11 +7,9 @@ var Activity = require("../models/activity");
 var Group = require("../models/group");
 var User = require("../models/user");
 
-var log = require("../logger");
 var router = express.Router();
 
 router.route("/")
-    .all(permissions.requireAll({type: "USER_MANAGE"}))
     .get(function (req, res, next) {
         Activity.findAll({
             attributes: ["id", "name", "description", "location", "startTime", "approved"],
@@ -55,13 +53,12 @@ router.route("/")
         }
 
         permissions.check(res.locals.session.user, {
-            type: "CREATE_USER",
+            type: "GROUP_ORGANIZE",
             value: req.body.organizer
         }).then(function (result) {
             if (!result) return res.sendStatus(403);
             req.body.OrganizerId = req.body.organizer;
             return Activity.create(req.body).then(function (result) {
-                log.info({req: req.body}, "SELFFFFREQUEST")
                 res.status(201).send(result);
             });
         }).done();
