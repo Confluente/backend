@@ -107,7 +107,7 @@ describe("permissions", function () {
   });
 
   describe("ACTIVITY_APPROVE", function () {
-    it();
+    // it();
   });
 
   describe("ACTIVITY_SUBSCRIBE", function () {
@@ -117,7 +117,7 @@ describe("permissions", function () {
   });
 
   describe("ACTIVITY_UNSUBSCRIBE", function () {
-    it();
+    // it();
   });
 
   describe("PAGE_MANAGE", function () {

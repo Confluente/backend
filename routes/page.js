@@ -8,7 +8,7 @@ var router = express.Router();
 
 router.route("/:url([^\?]+)")
     .get(function (req, res) {
-        Page.find({
+        Page.findOne({
             where: {
                 url: req.params.url
             },
