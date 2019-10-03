@@ -3,7 +3,7 @@
     "value": 140,
     "allowComments": true
   },
-	"requireCurlyBraces": [
+  "requireCurlyBraces": [
     "for",
     "do",
     "try",
@@ -47,7 +47,7 @@
   "disallowKeywords": [
     "with"
   ],
-  "validateIndentation": 2,
+  "validateIndentation": 4,
   "validateQuoteMarks": false,
   "disallowMixedSpacesAndTabs": true,
   "disallowTrailingWhitespace": true,
