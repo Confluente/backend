@@ -4,9 +4,9 @@ var db = require("../../models/db");
 
 describe("models/db", function () {
 
-  it("Returns a sequelize handle", function (done) {
-    assert(typeof db.Sequelize === "function");
-    done();
-  });
+    it("Returns a sequelize handle", function (done) {
+        assert(typeof db.Sequelize === "function");
+        done();
+    });
 
 });
