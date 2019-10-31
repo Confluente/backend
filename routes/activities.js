@@ -12,9 +12,9 @@ var router = express.Router();
 router.route("/")
     .get(function (req, res, next) {
         Activity.findAll({
-            attributes: ["id", "name", "description", "location", "startTime", "approved"],
+            attributes: ["id", "name", "description", "location", "date", "time", "approved"],
             order: [
-                ["startTime", "ASC"]
+                ["date", "ASC"]
             ],
             include: [{
                 model: Group,
@@ -48,7 +48,7 @@ router.route("/")
         if (!res.locals.session) {
             return res.sendStatus(401);
         }
-        if (!req.body.organizer || !req.body.description || !req.body.startTime || isNaN(Date.parse(req.body.startTime))) {
+        if (!req.body.organizer || !req.body.description || !req.body.date || isNaN(Date.parse(req.body.date))) {
             return res.sendStatus(400);
         }
 
