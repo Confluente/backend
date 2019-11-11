@@ -41,6 +41,22 @@ router.route("/")
                 res.status(201).send(result);
             });
         }).done();
+    })
+    .put(function (req, res) {
+        var user = res.locals.session ? res.locals.session.user : null;
+        //permissions.check(user, {type: "ACTIVITY_APPROVE"});
+        permissions.check(user, {
+            type: "USER_MANAGE"
+        }).then(function (result) {
+            if (!result) {
+                return res.sendStatus(403);
+            }
+            return res.locals.user.update(req.body).then(function (user) {
+                res.send(user);
+            }, function (err) {
+                console.error(err);
+            });
+        });
     });
 
 module.exports = router;
