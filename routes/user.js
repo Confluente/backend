@@ -44,7 +44,6 @@ router.route("/")
     })
     .put(function (req, res) {
         var user = res.locals.session ? res.locals.session.user : null;
-        //permissions.check(user, {type: "ACTIVITY_APPROVE"});
         permissions.check(user, {
             type: "USER_MANAGE"
         }).then(function (result) {
@@ -58,5 +57,64 @@ router.route("/")
             });
         });
     });
+
+router.route("/:id")
+    .all(function (req, res, next) {
+        var id = req.params.id;
+        User.findByPk(req.params.id, {
+            include: [{
+                attributes: ["id", "displayName", "email", "isAdmin"]
+            }]
+        }).then(function (user) {
+            if (user === null) {
+                res.status(404).send({status: "Not Found"});
+            } else {
+                res.locals.user = user;
+                next();
+            }
+        });
+    })
+    .get(function (req, res) {
+        var user = res.locals.session ? res.locals.session.user : null;
+        permissions.check(user, {type: "USER_VIEW", value: req.params.id}).then(function (result) {
+            if (!result) {
+                return res.sendStatus(403);
+            }
+            var user = res.locals.user;
+            res.send(user);
+        });
+    })
+    .put(function (req, res) {
+        var user = res.locals.session ? res.locals.session.user : null;
+        //permissions.check(user, {type: "ACTIVITY_APPROVE"});
+        permissions.check(user, {
+            type: "USER_MANAGE",
+            value: res.locals.user.id
+        }).then(function (result) {
+            if (!result) {
+                return res.sendStatus(403);
+            }
+            return res.locals.user.update(req.body).then(function (user) {
+                res.send(user);
+            }, function (err) {
+                console.error(err);
+            });
+        });
+    })
+    .delete(function (req, res) {
+        var user = res.locals.session ? res.locals.session.user : null;
+        permissions.check(user, {
+            type: "USER_MANAGE",
+            value: res.locals.user.id
+        }).then(function (result) {
+            if (!result) {
+                return res.sendStatus(403);
+            }
+            return res.locals.user.destroy();
+        }).then(function () {
+            res.status(204).send({status: "Successful"});
+        });
+    });
+
 
 module.exports = router;
