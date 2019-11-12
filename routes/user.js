@@ -62,9 +62,7 @@ router.route("/:id")
     .all(function (req, res, next) {
         var id = req.params.id;
         User.findByPk(req.params.id, {
-            include: [{
-                attributes: ["id", "displayName", "email", "isAdmin"]
-            }]
+            attributes: ["id", "displayName", "email", "isAdmin"]
         }).then(function (user) {
             if (user === null) {
                 res.status(404).send({status: "Not Found"});
@@ -86,7 +84,6 @@ router.route("/:id")
     })
     .put(function (req, res) {
         var user = res.locals.session ? res.locals.session.user : null;
-        //permissions.check(user, {type: "ACTIVITY_APPROVE"});
         permissions.check(user, {
             type: "USER_MANAGE",
             value: res.locals.user.id
