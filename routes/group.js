@@ -76,5 +76,19 @@ router.route("/:id")
                 console.error(err);
             });
         });
+    })
+    .delete(function (req, res) {
+        var user = res.locals.session ? res.locals.session.user : null;
+        permissions.check(user, {
+            type: "GROUP_MANAGE",
+            value: res.locals.group.id
+        }).then(function (result) {
+            if (!result) {
+                return res.sendStatus(403);
+            }
+            return res.locals.group.destroy();
+        }).then(function () {
+            res.status(204).send({status: "Successful"});
+        });
     });
 module.exports = router;
