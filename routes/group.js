@@ -60,5 +60,21 @@ router.route("/:id")
             var group = res.locals.group;
             res.send(group);
         });
+    })
+    .put(function (req, res) {
+        var user = res.locals.session ? res.locals.session.user : null;
+        permissions.check(user, {
+            type: "GROUP_MANAGE",
+            value: res.locals.group.id
+        }).then(function (result) {
+            if (!result) {
+                return res.sendStatus(403);
+            }
+            return res.locals.group.update(req.body).then(function (group) {
+                res.send(group);
+            }, function (err) {
+                console.error(err);
+            });
+        });
     });
 module.exports = router;
