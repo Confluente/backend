@@ -19,7 +19,7 @@
     "csv-stringify": "^5.3.3",
     "express": "^4.17.1",
     "marked": "^0.7.0",
-    "mocha": "^6.2.0",
+    "mocha": "^6.2.2",
     "morgan": "^1.9.1",
     "q": "^1.5.1",
     "sequelize": "^5.19.0",
