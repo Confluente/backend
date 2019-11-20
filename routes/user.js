@@ -1,6 +1,7 @@
 var express = require("express");
 
 var User = require("../models/user");
+var Group = require("../models/group");
 var permissions = require("../permissions");
 var authHelper = require("../authHelper");
 
@@ -62,7 +63,7 @@ router.route("/:id")
     .all(function (req, res, next) {
         var id = req.params.id;
         User.findByPk(req.params.id, {
-            attributes: ["id", "displayName", "email", "isAdmin"]
+            attributes: ["id", "displayName", "email", "isAdmin"],
         }).then(function (user) {
             if (user === null) {
                 res.status(404).send({status: "Not Found"});
@@ -78,8 +79,28 @@ router.route("/:id")
             if (!result) {
                 return res.sendStatus(403);
             }
-            var user = res.locals.user;
-            res.send(user);
+            var groups;
+            Group.findAll({
+                attributes: ["id", "fullName"],
+                include: [
+                    {
+                        model: User,
+                        as: "members",
+                        attributes: ["id"],
+                        where: {
+                            id: req.params.id
+                        }
+                    }
+                ]
+            }).then(function (group) {
+                if (group === null) {
+                    res.status(404).send({status: "Not Found"});
+                } else {
+                    groups = group;
+                    var user = res.locals.user;
+                    res.send([user,groups]);
+                }
+            });
         });
     })
     .put(function (req, res) {
