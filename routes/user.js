@@ -79,7 +79,6 @@ router.route("/:id")
             if (!result) {
                 return res.sendStatus(403);
             }
-            var groups;
             Group.findAll({
                 attributes: ["id", "fullName"],
                 include: [
@@ -96,7 +95,7 @@ router.route("/:id")
                 if (group === null) {
                     res.status(404).send({status: "Not Found"});
                 } else {
-                    groups = group;
+                    var groups = group;
                     var user = res.locals.user;
                     res.send([user,groups]);
                 }
