@@ -103,6 +103,7 @@ router.route("/:id")
         });
     })
     .put(function (req, res) {
+        // console.log(req.body[1]); // prints all groups and if they were selected
         var user = res.locals.session ? res.locals.session.user : null;
         permissions.check(user, {
             type: "USER_MANAGE",
@@ -111,6 +112,32 @@ router.route("/:id")
             if (!result) {
                 return res.sendStatus(403);
             }
+            Group.findAll({
+                attributes: ["id", "fullName"],
+                include: [
+                    {
+                        model: User,
+                        as: "members",
+                        attributes: ["id"],
+                        where: {
+                            id: req.params.id
+                        }
+                    }
+                ]
+            }).then(function (group) {
+                var i;
+                for (i = 0; i < group.length; i++) {
+                    group[i].members[0].user_group.destroy();
+                }
+
+                req.body[1].forEach(function(groupData) {
+                    if (groupData.selected) {
+                        Group.findByPk(groupData.id).then(function (specificGroup) {
+                            return res.locals.user.addGroups(specificGroup).then(console.log);
+                        })
+                    } else return null
+                })
+            });
             return res.locals.user.update(req.body).then(function (user) {
                 res.send(user);
             }, function (err) {
