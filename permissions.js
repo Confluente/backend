@@ -62,11 +62,11 @@ function check(user, scope) {
                 });
             case "USER_VIEW":
                 return User.findByPk(scope.value).then(function (user_considered) {
-                   if (!user_considered) {
-                       return false;
-                   }
-                   // Non-admin users can only view their own account
-                   return user === user_considered;
+                    if (!user_considered) {
+                        return false;
+                    }
+                    // Non-admin users can only view their own account
+                    return user.id === user_considered.id;
                 });
             case "USER_MANAGE":
                 // Only admins allowed to manage users
