@@ -161,5 +161,38 @@ router.route("/:id")
         });
     });
 
+router.route("/changePassword/:id")
+    .put(function (req, res) {
+        var user = res.locals.session ? res.locals.session.user : null;
+        permissions.check(user, {type: "CHANGE_PASSWORD", value: req.params.id}).then(function (result) {
+            if (!result) {
+                return res.sendStatus(403);
+            }
+            User.findByPk(req.params.id, {
+                attributes: ["id", "displayName", "email", "isAdmin", "passwordHash", "passwordSalt"],
+            }).then(function (userFound) {
+                if (userFound === null) {
+                    return res.status(404).send({status: "Not Found"});
+                } else {
+                    var inputtedPassword = authHelper.getPasswordHashSync(req.body.password, userFound.passwordSalt);
+
+                    if (Buffer.compare(inputtedPassword, userFound.passwordHash) !== 0) {
+                        return res.status(403).send({status: "Not equal passwords"});
+                    }
+                    if (req.body.passwordNew !== req.body.passwordNew2) {
+                        return res.status(404).send({status: "Not equal new passwords"});
+                    }
+                    var passwordSal = authHelper.generateSalt(16); // Create salt of 16 characters
+                    var passwordHas = authHelper.getPasswordHashSync(req.body.passwordNew, passwordSal); // Get password hash
+
+                    return userFound.update({passwordHash: passwordHas, passwordSalt: passwordSal}).then(function (user) {
+                        return res.send(user);
+                    }, function (err) {
+                        console.error(err);
+                    });
+                }
+            });
+        });
+    });
 
 module.exports = router;
