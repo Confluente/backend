@@ -133,16 +133,17 @@ router.route("/:id")
                 req.body[1].forEach(function(groupData) {
                     if (groupData.selected) {
                         Group.findByPk(groupData.id).then(function (specificGroup) {
-                            return res.locals.user.addGroups(specificGroup).then(console.log);
+                            res.locals.user.addGroups(specificGroup).then(console.log);
                         })
-                    } else return null
-                })
+                    }
+                });
+                return res.locals.user.update(req.body[0]).then(function (user) {
+                    res.send(user);
+                }, function (err) {
+                    console.error(err);
+                });
             });
-            return res.locals.user.update(req.body).then(function (user) {
-                res.send(user);
-            }, function (err) {
-                console.error(err);
-            });
+
         });
     })
     .delete(function (req, res) {
