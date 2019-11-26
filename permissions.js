@@ -24,7 +24,7 @@ function check(user, scope) {
             resolve(user);
         }
     }).then(function (user) {
-        if (loggedIn && user.dataValues.isAdmin) {
+        if (loggedIn && user.dataValues.isAdmin && scope.type !== "CHANGE_PASSWORD") {
             // Admin has all permissions
             return true;
         }
@@ -66,6 +66,14 @@ function check(user, scope) {
                         return false;
                     }
                     // Non-admin users can only view their own account
+                    return user.id === user_considered.id;
+                });
+            case "CHANGE_PASSWORD":
+                return User.findByPk(scope.value).then(function (user_considered) {
+                    if (!user_considered) {
+                        return false;
+                    }
+                    // Everyone can only change their own password
                     return user.id === user_considered.id;
                 });
             case "USER_MANAGE":
