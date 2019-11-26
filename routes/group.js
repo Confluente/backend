@@ -41,7 +41,14 @@ router.route("/:id")
     .all(function (req, res, next) {
         var id = req.params.id;
         Group.findByPk(req.params.id, {
-            attributes: ["id", "fullName", "displayName", "description", "email", "canOrganize"]
+            attributes: ["id", "fullName", "displayName", "description", "email", "canOrganize"],
+            include: [
+                {
+                    model: User,
+                    as: "members",
+                    attributes: ["displayName"]
+                }
+            ]
         }).then(function (group) {
             if (group === null) {
                 res.status(404).send({status: "Not Found"});

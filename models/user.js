@@ -18,7 +18,7 @@ var UserGroup = sequelize.define('user_group', {
 });
 
 User.belongsToMany(Group, {through: UserGroup});
-Group.belongsToMany(User, {through: UserGroup});
+Group.belongsToMany(User, {as: "members", through: UserGroup});
 UserGroup.sync();
 User.sync();
 Group.sync();
