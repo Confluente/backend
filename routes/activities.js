@@ -1,13 +1,14 @@
 var express = require("express");
 var Q = require("q");
 var marked = require("marked");
-
+var Sequelize = require("sequelize");
 var permissions = require("../permissions");
 var Activity = require("../models/activity");
 var Group = require("../models/group");
 var User = require("../models/user");
 
 var router = express.Router();
+const Op = Sequelize.Op;
 
 router.route("/")
     .get(function (req, res, next) {
@@ -16,6 +17,9 @@ router.route("/")
             order: [
                 ["date", "ASC"]
             ],
+            where: {
+                date: {[Op.between]: [new Date(), new Date(2023, 1, 1)]}
+            },
             include: [{
                 model: Group,
                 as: "Organizer",
