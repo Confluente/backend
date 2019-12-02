@@ -33,6 +33,8 @@ router.route("/")
             if (!result) return res.sendStatus(403);
             return Group.create(req.body).then(function (result) {
                 res.status(201).send(result);
+            }).catch(function (err) {
+                console.error(err)
             });
         }).done();
     });

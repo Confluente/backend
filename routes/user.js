@@ -40,6 +40,8 @@ router.route("/")
             log.info({req: req.body}, "EVENTUAL REQUEST");
             return User.create(req.body).then(function (result) {
                 res.status(201).send(result);
+            }).catch(function (err) {
+                console.error(err);
             });
         }).done();
     })
