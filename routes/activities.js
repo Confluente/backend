@@ -13,7 +13,7 @@ const Op = Sequelize.Op;
 router.route("/")
     .get(function (req, res, next) {
         Activity.findAll({
-            attributes: ["id", "name", "description", "location", "date", "time", "approved"],
+            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "approved"],
             order: [
                 ["date", "ASC"]
             ],
@@ -64,6 +64,8 @@ router.route("/")
             req.body.OrganizerId = req.body.organizer;
             return Activity.create(req.body).then(function (result) {
                 res.status(201).send(result);
+            }).catch(function (err) {
+                console.error(err);
             });
         }).done();
     });

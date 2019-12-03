@@ -9,7 +9,8 @@ var Activity = sequelize.define('activity', {
     description: Sequelize.STRING,
     location: Sequelize.STRING,
     date: Sequelize.DATE,
-    time: Sequelize.TIME,
+    startTime: Sequelize.TIME,
+    endTime: Sequelize.TIME,
     subscribeBefore: Sequelize.DATE,
     canSubscribe: {
         type: Sequelize.VIRTUAL,
