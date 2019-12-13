@@ -12,13 +12,14 @@ const Op = Sequelize.Op;
 
 router.route("/")
     .get(function (req, res, next) {
+        d = new Date();
         Activity.findAll({
             attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "approved"],
             order: [
                 ["date", "ASC"]
             ],
             where: {
-                date: {[Op.between]: [new Date(), new Date(2023, 1, 1)]}
+                date: {[Op.between]: [d.setDate(d.getDate()-1), new Date(2023, 1, 1)]}
             },
             include: [{
                 model: Group,
