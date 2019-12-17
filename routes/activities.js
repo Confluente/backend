@@ -71,6 +71,48 @@ router.route("/")
         }).done();
     });
 
+// This route is for getting the activities for the manage page
+// For the manage page, you should only get the activities which you are allowed to edit
+router.route("/manage")
+    .get(function (req, res, next) {
+        d = new Date();
+        Activity.findAll({
+            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "approved"],
+            order: [
+                ["date", "ASC"]
+            ],
+            where: {
+                date: {[Op.between]: [d.setDate(d.getDate()-1), new Date(2023, 1, 1)]}
+            },
+            include: [{
+                model: Group,
+                as: "Organizer",
+                attributes: ["id", "displayName", "fullName", "email"]
+            }]
+        }).then(function (activities) {
+            if (!res.locals.session) return res.sendStatus(403);
+            var promises = activities.map(function (activity) {
+                if (!res.locals.session) return Q(null);
+                return permissions.check(res.locals.session.user, {
+                    type: "ACTIVITY_EDIT",
+                    value: activity.id
+                }).then(function (result) {
+                    return result ? activity : null;
+                });
+            });
+            Q.all(promises).then(function (activities) {
+                activities = activities.filter(function (e) {
+                    return e !== null;
+                });
+                activities = activities.map(function (activity) {
+                    activity.dataValues.description_html = marked(activity.description || "");
+                    return activity;
+                });
+                res.send(activities);
+            }).done();
+        });
+    });
+
 router.route("/:id")
     .all(function (req, res, next) {
         var id = req.params.id;
