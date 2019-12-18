@@ -68,7 +68,7 @@ router.route("/:id")
             }
             var group = res.locals.group;
             res.send(group);
-        });
+        }).done();
     })
     .put(function (req, res) {
         var user = res.locals.session ? res.locals.session.user : null;

@@ -4,6 +4,13 @@ var testData = require("../testData");
 
 describe("routes/user", function () {
 
+    var testUser = {
+        displayName: "check",
+        email: "security@hsaconfluente.nl",
+        password: "password",
+        isAdmin: false
+    };
+
     describe("GET /user", function () {
         it("lists all users", function () {
             return testData.adminUserAgent
@@ -20,5 +27,4 @@ describe("routes/user", function () {
                 .expect(403);
         });
     });
-
 });

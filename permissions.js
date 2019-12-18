@@ -85,6 +85,9 @@ function check(user, scope) {
             case "GROUP_MANAGE":
                 // Only admins are allowed to manage groups
                 return false;
+            case "GROUP_VIEW":
+                // Everyone is allowed to see groups
+                return true;
             default:
                 throw new Error("Unknown scope type");
         }

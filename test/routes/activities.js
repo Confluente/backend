@@ -65,6 +65,34 @@ describe("routes/activities", function () {
 
     });
 
+    describe("GET /activities/manage", function () {
+        it("lists all activities in manage", function () {
+            return testData.adminUserAgent
+                .get("/api/activities/manage")
+                .expect('Content-Type', /json/)
+                .expect(200)
+                .then(function (res) {
+                    assert(res.body.length > 0);
+                    res.body.forEach(function (activity) {
+                        //console.log(activity);
+                        assert(typeof activity.name === "string");
+                        assert(typeof activity.description === "string");
+                        assert(typeof activity.description_html === "string");
+                        assert(activity.description_html.includes("<p>"));
+                        assert.equal(typeof activity.Organizer, "object");
+                        // assert(typeof activity.canSubscribe === "boolean");
+                        assert(activity.approved);
+                    });
+                });
+        });
+
+        it("requires permission", function () {
+            return testData.testUserAgent
+                .get("/api/activities/manage")
+                .expect(403);
+        });
+    });
+
     describe("GET /activities/:id", function () {
 
         it("returns an activity", function () {
@@ -73,7 +101,6 @@ describe("routes/activities", function () {
                 .expect(200)
                 .then(function (res) {
                     var activity = res.body;
-                    //console.log(activity);
                     assert(typeof activity.description === "string");
                     assert(typeof activity.description_html === "string")
                     assert(activity.description_html.includes("<p>"));
