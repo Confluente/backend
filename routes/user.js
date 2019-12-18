@@ -44,21 +44,6 @@ router.route("/")
                 console.error(err);
             });
         }).done();
-    })
-    .put(function (req, res) {
-        var user = res.locals.session ? res.locals.session.user : null;
-        permissions.check(user, {
-            type: "USER_MANAGE"
-        }).then(function (result) {
-            if (!result) {
-                return res.sendStatus(403);
-            }
-            return res.locals.user.update(req.body).then(function (user) {
-                res.send(user);
-            }, function (err) {
-                console.error(err);
-            });
-        });
     });
 
 router.route("/:id")
@@ -144,7 +129,7 @@ router.route("/:id")
                 }, function (err) {
                     console.error(err);
                 });
-            });
+            }).done();
 
         });
     })
@@ -179,10 +164,10 @@ router.route("/changePassword/:id")
                     var inputtedPassword = authHelper.getPasswordHashSync(req.body.password, userFound.passwordSalt);
 
                     if (Buffer.compare(inputtedPassword, userFound.passwordHash) !== 0) {
-                        return res.status(403).send({status: "Not equal passwords"});
+                        return res.status(406).send({status: "Not equal passwords"});
                     }
                     if (req.body.passwordNew !== req.body.passwordNew2) {
-                        return res.status(404).send({status: "Not equal new passwords"});
+                        return res.status(406).send({status: "Not equal new passwords"});
                     }
                     var passwordSal = authHelper.generateSalt(16); // Create salt of 16 characters
                     var passwordHas = authHelper.getPasswordHashSync(req.body.passwordNew, passwordSal); // Get password hash
@@ -191,9 +176,9 @@ router.route("/changePassword/:id")
                         return res.send(user);
                     }, function (err) {
                         console.error(err);
-                    });
+                    })
                 }
-            });
+            }).done();
         });
     });
 
