@@ -87,7 +87,7 @@ describe("routes/activities", function () {
         });
 
         it("requires permission", function () {
-            return testData.testUserAgent
+            return testData.getAgent()
                 .get("/api/activities/manage")
                 .expect(403);
         });
