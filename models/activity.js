@@ -14,6 +14,7 @@ var Activity = sequelize.define('activity', {
     endTime: Sequelize.TIME,
     subscribeBefore: Sequelize.DATE,
     canSubscribe: Sequelize.BOOLEAN,
+    participationFee: Sequelize.DECIMAL,
 
     numberOfQuestions: Sequelize.INTEGER,
     titlesOfQuestions: Sequelize.STRING, // list of strings
