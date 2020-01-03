@@ -19,7 +19,7 @@ router.route("/")
                 ["date", "ASC"]
             ],
             where: {
-                date: {[Op.between]: [d.setDate(d.getDate()-1), new Date(2023, 1, 1)]}
+                date: {[Op.between]: [d.setDate(d.getDate() - 1), new Date(2023, 1, 1)]}
             },
             include: [{
                 model: Group,
@@ -50,20 +50,43 @@ router.route("/")
         });
     })
     .post(function (req, res, next) {
+        let activity = req.body;
+
         if (!res.locals.session) {
             return res.sendStatus(401);
         }
-        if (!req.body.organizer || !req.body.description || !req.body.date || isNaN(Date.parse(req.body.date))) {
+        if (!activity.organizer || !activity.description || !activity.date || isNaN(Date.parse(activity.date))) {
             return res.sendStatus(400);
         }
 
         permissions.check(res.locals.session.user, {
             type: "GROUP_ORGANIZE",
-            value: req.body.organizer
+            value: activity.organizer
         }).then(function (result) {
+            // Convert lists of form to strings
+            let titlesOfQuestions = "name,TU/e email";
+            let typeOfQuestion = "text,text";
+            let questionDescriptions = "Name,TU/e Email";
+            let formOptions = ", ";
+            if (activity.canSubscribe) {
+                for (let i = 0; i < activity.numberOfQuestions; i++) {
+                    titlesOfQuestions += "," + activity.titlesOfQuestions[i];
+                    typeOfQuestion += "," + activity.typeOfQuestion[i];
+                    questionDescriptions += "," + activity.questionDescriptions;
+                    // TODO: implement checkbox and radio
+                    formOptions += ", "
+                }
+            }
+
+            activity.titlesOfQuestions = titlesOfQuestions;
+            activity.typeOfQuestion = typeOfQuestion;
+            activity.questionDescriptions = questionDescriptions;
+            activity.formOptions = formOptions;
+            activity.numberOfQuestions += 2;
+
             if (!result) return res.sendStatus(403);
-            req.body.OrganizerId = req.body.organizer;
-            return Activity.create(req.body).then(function (result) {
+            activity.OrganizerId = activity.organizer;
+            return Activity.create(activity).then(function (result) {
                 res.status(201).send(result);
             }).catch(function (err) {
                 console.error(err);
@@ -82,7 +105,7 @@ router.route("/manage")
                 ["date", "ASC"]
             ],
             where: {
-                date: {[Op.between]: [d.setDate(d.getDate()-1), new Date(2023, 1, 1)]}
+                date: {[Op.between]: [d.setDate(d.getDate() - 1), new Date(2023, 1, 1)]}
             },
             include: [{
                 model: Group,
@@ -113,6 +136,34 @@ router.route("/manage")
         });
     });
 
+router.route("/subscriptions/:id")
+    .post(function (req, res, next) {
+        // check if user is logged in
+        var user = res.locals.session ? res.locals.session.user : null;
+        if (user == null) return res.status(403).send({status: "Not logged in"});
+        // get activity
+        Activity.findByPk(req.params.id, {
+            include: [{
+                model: Group,
+                as: "Organizer",
+                attributes: ["id", "displayName", "fullName", "email"]
+            }]
+        }).then(function (activity) {
+            let answerString = req.body[0];
+            for (var i = 1; i < activity.numberOfQuestions; i++) {
+                answerString += "," + req.body[i];
+            }
+            return User.findByPk(user).then(function (dbUser) {
+                console.log(activity);
+                console.log(answerString);
+                dbUser.addActivity(activity, {through: {answers: answerString}}).then(function (result) {
+                    console.log(result);
+                    res.send(result);
+                })
+            });
+        })
+    });
+
 router.route("/:id")
     .all(function (req, res, next) {
         var id = req.params.id;
@@ -121,12 +172,24 @@ router.route("/:id")
                 model: Group,
                 as: "Organizer",
                 attributes: ["id", "displayName", "fullName", "email"]
+
+            }, {
+                model: User,
+                as: "participants"
             }]
         }).then(function (activity) {
             if (activity === null) {
                 res.status(404).send({status: "Not Found"});
             } else {
+                activity.participants.forEach(function (participant) {
+                    participant.subscription.answers = participant.subscription.answers.split(',');
+                });
+                activity.titlesOfQuestions = activity.titlesOfQuestions.split(',');
+                activity.typeOfQuestion = activity.typeOfQuestion.split(',');
+                activity.questionDescriptions = activity.questionDescriptions.split(',');
+                activity.formOptions = activity.formOptions.split(',');
                 res.locals.activity = activity;
+                console.log(activity);
                 next();
             }
         });
@@ -144,7 +207,6 @@ router.route("/:id")
     })
     .put(function (req, res) {
         var user = res.locals.session ? res.locals.session.user : null;
-        //permissions.check(user, {type: "ACTIVITY_APPROVE"});
         permissions.check(user, {
             type: "ACTIVITY_EDIT",
             value: res.locals.activity.id

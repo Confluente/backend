@@ -1,6 +1,7 @@
 var Q = require("q");
 var Sequelize = require("sequelize");
 var sequelize = require("./db");
+var User = require("./user");
 
 var Group = require("./group");
 
@@ -12,12 +13,14 @@ var Activity = sequelize.define('activity', {
     startTime: Sequelize.TIME,
     endTime: Sequelize.TIME,
     subscribeBefore: Sequelize.DATE,
-    canSubscribe: {
-        type: Sequelize.VIRTUAL,
-        get: function () {
-            return true;
-        }
-    },
+    canSubscribe: Sequelize.BOOLEAN,
+
+    numberOfQuestions: Sequelize.INTEGER,
+    titlesOfQuestions: Sequelize.STRING, // list of strings
+    typeOfQuestion: Sequelize.STRING, // list of strings
+    questionDescriptions: Sequelize.STRING, // list of strings
+    formOptions: Sequelize.STRING, // list of list of strings
+
     approved: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
