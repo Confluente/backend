@@ -65,7 +65,7 @@ router.route("/")
         }).then(function (result) {
             // Convert lists of form to strings
             let titlesOfQuestions = "name,TU/e email";
-            let typeOfQuestion = "text,text";
+            let typeOfQuestion = "name,TU/e email";
             let questionDescriptions = "Name,TU/e Email";
             let formOptions = ",";
             let required = "true,true";
