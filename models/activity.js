@@ -20,6 +20,7 @@ var Activity = sequelize.define('activity', {
     typeOfQuestion: Sequelize.STRING, // list of strings
     questionDescriptions: Sequelize.STRING, // list of strings
     formOptions: Sequelize.STRING, // list of list of strings
+    required: Sequelize.STRING,
 
     approved: {
         type: Sequelize.BOOLEAN,

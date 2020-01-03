@@ -68,6 +68,7 @@ router.route("/")
             let typeOfQuestion = "text,text";
             let questionDescriptions = "Name,TU/e Email";
             let formOptions = ",";
+            let required = "true,true";
             if (activity.canSubscribe) {
                 for (let i = 0; i < activity.numberOfQuestions; i++) {
                     titlesOfQuestions += "," + activity.titlesOfQuestions[i];
@@ -75,6 +76,7 @@ router.route("/")
                     questionDescriptions += "," + activity.questionDescriptions[i];
                     // TODO: implement checkbox and radio
                     formOptions += "," + activity.options[i];
+                    required += "," + activity.required[i];
                 }
             }
 
@@ -82,6 +84,7 @@ router.route("/")
             activity.typeOfQuestion = typeOfQuestion;
             activity.questionDescriptions = questionDescriptions;
             activity.formOptions = formOptions;
+            activity.required = required;
             activity.numberOfQuestions += 2;
 
             if (!result) return res.sendStatus(403);
@@ -185,6 +188,7 @@ router.route("/:id")
                 activity.typeOfQuestion = activity.typeOfQuestion.split(',');
                 activity.questionDescriptions = activity.questionDescriptions.split(',');
                 activity.formOptions = activity.formOptions.split(',');
+                activity.required = activity.required.split(',');
                 var newOptions = [];
                 activity.formOptions.forEach(function (question) {
                     newOptions.push(question.split(';'));
