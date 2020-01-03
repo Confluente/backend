@@ -193,21 +193,24 @@ router.route("/:id")
             }
             var activity = res.locals.activity;
             activity.dataValues.description_html = marked(activity.description);
-            activity.participants.forEach(function (participant) {
-                participant.subscription.answers = participant.subscription.answers.split(',');
-            });
-            activity.titlesOfQuestions = activity.titlesOfQuestions.split(',');
-            activity.typeOfQuestion = activity.typeOfQuestion.split(',');
-            activity.questionDescriptions = activity.questionDescriptions.split(',');
-            activity.formOptions = activity.formOptions.split(',');
-            activity.required = activity.required.split(',');
-            var newOptions = [];
-            activity.formOptions.forEach(function (question) {
-                newOptions.push(question.split(';'));
-            });
-            activity.formOptions = newOptions;
+            if (activity.canSubscribe) {
+                activity.participants.forEach(function (participant) {
+                    participant.subscription.answers = participant.subscription.answers.split(',');
+                });
+
+                activity.titlesOfQuestions = activity.titlesOfQuestions.split(',');
+                activity.typeOfQuestion = activity.typeOfQuestion.split(',');
+                activity.questionDescriptions = activity.questionDescriptions.split(',');
+                activity.formOptions = activity.formOptions.split(',');
+                activity.required = activity.required.split(',');
+                var newOptions = [];
+                activity.formOptions.forEach(function (question) {
+                    newOptions.push(question.split(';'));
+                });
+                activity.formOptions = newOptions;
+            }
             res.send(activity);
-        });
+        }).done();
     })
     .put(function (req, res) {
         var user = res.locals.session ? res.locals.session.user : null;
@@ -223,14 +226,12 @@ router.route("/:id")
             let questionDescriptions = "Name,TU/e Email";
             let formOptions = ",";
             let required = "true,true";
-            console.log(req.body);
             if (req.body.canSubscribe) {
                 for (let i = 0; i < req.body.numberOfQuestions; i++) {
                     titlesOfQuestions += "," + req.body.titlesOfQuestions[i];
                     typeOfQuestion += "," + req.body.typeOfQuestion[i];
                     questionDescriptions += "," + req.body.questionDescriptions[i];
                     formOptions += "," + req.body.formOptions[i];
-                    console.log(i);
                     required += "," + req.body.required[i];
                 }
                 req.body.titlesOfQuestions = titlesOfQuestions;
@@ -245,7 +246,7 @@ router.route("/:id")
             }, function (err) {
                 console.error(err);
             });
-        });
+        }).done();
     })
     .delete(function (req, res) {
         var user = res.locals.session ? res.locals.session.user : null;
