@@ -74,7 +74,6 @@ router.route("/")
                     titlesOfQuestions += "," + activity.titlesOfQuestions[i];
                     typeOfQuestion += "," + activity.typeOfQuestion[i];
                     questionDescriptions += "," + activity.questionDescriptions[i];
-                    // TODO: implement checkbox and radio
                     formOptions += "," + activity.options[i];
                     required += "," + activity.required[i];
                 }
@@ -181,19 +180,6 @@ router.route("/:id")
             if (activity === null) {
                 res.status(404).send({status: "Not Found"});
             } else {
-                activity.participants.forEach(function (participant) {
-                    participant.subscription.answers = participant.subscription.answers.split(',');
-                });
-                activity.titlesOfQuestions = activity.titlesOfQuestions.split(',');
-                activity.typeOfQuestion = activity.typeOfQuestion.split(',');
-                activity.questionDescriptions = activity.questionDescriptions.split(',');
-                activity.formOptions = activity.formOptions.split(',');
-                activity.required = activity.required.split(',');
-                var newOptions = [];
-                activity.formOptions.forEach(function (question) {
-                    newOptions.push(question.split(';'));
-                });
-                activity.formOptions = newOptions;
                 res.locals.activity = activity;
                 next();
             }
@@ -207,6 +193,19 @@ router.route("/:id")
             }
             var activity = res.locals.activity;
             activity.dataValues.description_html = marked(activity.description);
+            activity.participants.forEach(function (participant) {
+                participant.subscription.answers = participant.subscription.answers.split(',');
+            });
+            activity.titlesOfQuestions = activity.titlesOfQuestions.split(',');
+            activity.typeOfQuestion = activity.typeOfQuestion.split(',');
+            activity.questionDescriptions = activity.questionDescriptions.split(',');
+            activity.formOptions = activity.formOptions.split(',');
+            activity.required = activity.required.split(',');
+            var newOptions = [];
+            activity.formOptions.forEach(function (question) {
+                newOptions.push(question.split(';'));
+            });
+            activity.formOptions = newOptions;
             res.send(activity);
         });
     })
@@ -218,6 +217,28 @@ router.route("/:id")
         }).then(function (result) {
             if (!result) {
                 return res.sendStatus(403);
+            }
+            let titlesOfQuestions = "name,TU/e email";
+            let typeOfQuestion = "name,TU/e email";
+            let questionDescriptions = "Name,TU/e Email";
+            let formOptions = ",";
+            let required = "true,true";
+            console.log(req.body);
+            if (req.body.canSubscribe) {
+                for (let i = 0; i < req.body.numberOfQuestions; i++) {
+                    titlesOfQuestions += "," + req.body.titlesOfQuestions[i];
+                    typeOfQuestion += "," + req.body.typeOfQuestion[i];
+                    questionDescriptions += "," + req.body.questionDescriptions[i];
+                    formOptions += "," + req.body.formOptions[i];
+                    console.log(i);
+                    required += "," + req.body.required[i];
+                }
+                req.body.titlesOfQuestions = titlesOfQuestions;
+                req.body.typeOfQuestion = typeOfQuestion;
+                req.body.questionDescriptions = questionDescriptions;
+                req.body.formOptions = formOptions;
+                req.body.required = required;
+                req.body.numberOfQuestions += 2;
             }
             return res.locals.activity.update(req.body).then(function (activity) {
                 res.send(activity);
