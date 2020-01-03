@@ -3,6 +3,17 @@ var sequelize = require("./db");
 
 var User = sequelize.define('user', {
     email: {type: Sequelize.STRING, unique: true},
+    firstName: Sequelize.STRING,
+    lastName: Sequelize.STRING,
+    major: Sequelize.STRING,
+    track: Sequelize.STRING,
+    honorsGeneration: Sequelize.INTEGER,
+    campusCardNumber: Sequelize.STRING,
+    mobilePhoneNumber: Sequelize.STRING,
+    consentWithPrivacyPolicy: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+    },
     displayName: Sequelize.STRING,
     passwordHash: Sequelize.BLOB,
     passwordSalt: Sequelize.BLOB,

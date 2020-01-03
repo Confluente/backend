@@ -81,7 +81,7 @@ function check(user, scope) {
                 return false;
             case "CREATE_USER":
                 // Only admins are allowed to create users
-                return false;
+                return true;
             case "GROUP_MANAGE":
                 // Only admins are allowed to manage groups
                 return false;
