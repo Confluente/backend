@@ -67,14 +67,14 @@ router.route("/")
             let titlesOfQuestions = "name,TU/e email";
             let typeOfQuestion = "text,text";
             let questionDescriptions = "Name,TU/e Email";
-            let formOptions = ", ";
+            let formOptions = ",";
             if (activity.canSubscribe) {
                 for (let i = 0; i < activity.numberOfQuestions; i++) {
                     titlesOfQuestions += "," + activity.titlesOfQuestions[i];
                     typeOfQuestion += "," + activity.typeOfQuestion[i];
-                    questionDescriptions += "," + activity.questionDescriptions;
+                    questionDescriptions += "," + activity.questionDescriptions[i];
                     // TODO: implement checkbox and radio
-                    formOptions += ", "
+                    formOptions += "," + activity.options[i];
                 }
             }
 
@@ -150,14 +150,11 @@ router.route("/subscriptions/:id")
             }]
         }).then(function (activity) {
             let answerString = req.body[0];
-            for (var i = 1; i < activity.numberOfQuestions; i++) {
-                answerString += "," + req.body[i];
+                for (var i = 1; i < activity.numberOfQuestions; i++) {
+                    answerString += "," + req.body[i];
             }
             return User.findByPk(user).then(function (dbUser) {
-                console.log(activity);
-                console.log(answerString);
                 dbUser.addActivity(activity, {through: {answers: answerString}}).then(function (result) {
-                    console.log(result);
                     res.send(result);
                 })
             });
@@ -188,8 +185,12 @@ router.route("/:id")
                 activity.typeOfQuestion = activity.typeOfQuestion.split(',');
                 activity.questionDescriptions = activity.questionDescriptions.split(',');
                 activity.formOptions = activity.formOptions.split(',');
+                var newOptions = [];
+                activity.formOptions.forEach(function (question) {
+                    newOptions.push(question.split(';'));
+                });
+                activity.formOptions = newOptions;
                 res.locals.activity = activity;
-                console.log(activity);
                 next();
             }
         });
