@@ -20,7 +20,6 @@ var Activity = sequelize.define('activity', {
     participationFee: Sequelize.DECIMAL,
 
     numberOfQuestions: Sequelize.INTEGER,
-    titlesOfQuestions: Sequelize.STRING, // list of strings
     typeOfQuestion: Sequelize.STRING, // list of strings
     questionDescriptions: Sequelize.STRING, // list of strings
     formOptions: Sequelize.STRING, // list of list of strings

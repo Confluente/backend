@@ -64,14 +64,12 @@ router.route("/")
             value: activity.organizer
         }).then(function (result) {
             // Convert lists of form to strings
-            let titlesOfQuestions = "name,TU/e email";
             let typeOfQuestion = "name,TU/e email";
             let questionDescriptions = "Name,TU/e Email";
             let formOptions = ",";
             let required = "true,true";
             if (activity.canSubscribe) {
                 for (let i = 0; i < activity.numberOfQuestions; i++) {
-                    titlesOfQuestions += "," + activity.titlesOfQuestions[i];
                     typeOfQuestion += "," + activity.typeOfQuestion[i];
                     questionDescriptions += "," + activity.questionDescriptions[i];
                     formOptions += "," + activity.options[i];
@@ -79,7 +77,6 @@ router.route("/")
                 }
             }
 
-            activity.titlesOfQuestions = titlesOfQuestions;
             activity.typeOfQuestion = typeOfQuestion;
             activity.questionDescriptions = questionDescriptions;
             activity.formOptions = formOptions;
@@ -198,7 +195,6 @@ router.route("/:id")
                     participant.subscription.answers = participant.subscription.answers.split(',');
                 });
 
-                activity.titlesOfQuestions = activity.titlesOfQuestions.split(',');
                 activity.typeOfQuestion = activity.typeOfQuestion.split(',');
                 activity.questionDescriptions = activity.questionDescriptions.split(',');
                 activity.formOptions = activity.formOptions.split(',');
@@ -221,20 +217,17 @@ router.route("/:id")
             if (!result) {
                 return res.sendStatus(403);
             }
-            let titlesOfQuestions = "name,TU/e email";
             let typeOfQuestion = "name,TU/e email";
             let questionDescriptions = "Name,TU/e Email";
             let formOptions = ",";
             let required = "true,true";
             if (req.body.canSubscribe) {
                 for (let i = 0; i < req.body.numberOfQuestions; i++) {
-                    titlesOfQuestions += "," + req.body.titlesOfQuestions[i];
                     typeOfQuestion += "," + req.body.typeOfQuestion[i];
                     questionDescriptions += "," + req.body.questionDescriptions[i];
                     formOptions += "," + req.body.formOptions[i];
                     required += "," + req.body.required[i];
                 }
-                req.body.titlesOfQuestions = titlesOfQuestions;
                 req.body.typeOfQuestion = typeOfQuestion;
                 req.body.questionDescriptions = questionDescriptions;
                 req.body.formOptions = formOptions;

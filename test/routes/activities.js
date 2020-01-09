@@ -41,7 +41,6 @@ describe("routes/activities", function () {
                     activityId = res.body.id;
                     assert(res.body.name === testActivity.name);
                     assert(res.body.numberOfQuestions === 5);
-                    assert(typeof res.body.titlesOfQuestions === "string");
                     assert(typeof res.body.questionDescriptions === "string");
                     assert(typeof res.body.formOptions === "string")
                 });
