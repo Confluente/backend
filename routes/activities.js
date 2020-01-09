@@ -64,24 +64,24 @@ router.route("/")
             value: activity.organizer
         }).then(function (result) {
             // Convert lists of form to strings
-            let typeOfQuestion = "name,TU/e email";
-            let questionDescriptions = "Name,TU/e Email";
-            let formOptions = ",";
-            let required = "true,true";
             if (activity.canSubscribe) {
+                // transform lists to strings
+                let typeOfQuestion = "name,TU/e email";
+                let questionDescriptions = "Name,TU/e Email";
+                let formOptions = ",";
+                let required = "true,true";
                 for (let i = 0; i < activity.numberOfQuestions; i++) {
                     typeOfQuestion += "," + activity.typeOfQuestion[i];
                     questionDescriptions += "," + activity.questionDescriptions[i];
                     formOptions += "," + activity.options[i];
                     required += "," + activity.required[i];
                 }
+                activity.typeOfQuestion = typeOfQuestion;
+                activity.questionDescriptions = questionDescriptions;
+                activity.formOptions = formOptions;
+                activity.required = required;
+                activity.numberOfQuestions += 2;
             }
-
-            activity.typeOfQuestion = typeOfQuestion;
-            activity.questionDescriptions = questionDescriptions;
-            activity.formOptions = formOptions;
-            activity.required = required;
-            activity.numberOfQuestions += 2;
 
             if (!result) return res.sendStatus(403);
             activity.OrganizerId = activity.organizer;
@@ -148,10 +148,13 @@ router.route("/subscriptions/:id")
                 attributes: ["id", "displayName", "fullName", "email"]
             }]
         }).then(function (activity) {
+            // format answer string
             let answerString = req.body[0];
             for (var i = 1; i < activity.numberOfQuestions; i++) {
                     answerString += "," + req.body[i];
             }
+
+            // add relation
             return User.findByPk(user).then(function (dbUser) {
                 dbUser.addActivity(activity, {through: {answers: answerString}}).then(function (result) {
                     res.send(result);
@@ -191,10 +194,10 @@ router.route("/:id")
             var activity = res.locals.activity;
             activity.dataValues.description_html = marked(activity.description);
             if (activity.canSubscribe) {
+                // split strings into lists
                 activity.participants.forEach(function (participant) {
                     participant.subscription.answers = participant.subscription.answers.split(',');
                 });
-
                 activity.typeOfQuestion = activity.typeOfQuestion.split(',');
                 activity.questionDescriptions = activity.questionDescriptions.split(',');
                 activity.formOptions = activity.formOptions.split(',');
@@ -217,11 +220,12 @@ router.route("/:id")
             if (!result) {
                 return res.sendStatus(403);
             }
-            let typeOfQuestion = "name,TU/e email";
-            let questionDescriptions = "Name,TU/e Email";
-            let formOptions = ",";
-            let required = "true,true";
             if (req.body.canSubscribe) {
+                // transform lists to strings for db
+                let typeOfQuestion = "name,TU/e email";
+                let questionDescriptions = "Name,TU/e Email";
+                let formOptions = ",";
+                let required = "true,true";
                 for (let i = 0; i < req.body.numberOfQuestions; i++) {
                     typeOfQuestion += "," + req.body.typeOfQuestion[i];
                     questionDescriptions += "," + req.body.questionDescriptions[i];
