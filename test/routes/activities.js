@@ -13,7 +13,18 @@ describe("routes/activities", function () {
         name: "foo",
         description: "bar",
         approved: true,
-        date: new Date()
+        location: "honors room",
+        date: new Date(),
+        startTime: "18:00",
+        endTime: "20:00",
+        participationFee: "7",
+        canSubscribe: true,
+        numberOfQuestions: 3,
+        titlesOfQuestions: ["text", "checkbox", "radio"],
+        typeOfQuestion: ["text", "checkbox", "radio"],
+        questionDescriptions: ["What are you thinking about?", "What vegetables do you like?", "Is this requried?"],
+        options: ["", "car;bike", "maybe;sort of"],
+        required: ["yes", "no", "no"]
     };
 
     var activityId;
@@ -29,6 +40,10 @@ describe("routes/activities", function () {
                     //console.log(res.body);
                     activityId = res.body.id;
                     assert(res.body.name === testActivity.name);
+                    assert(res.body.numberOfQuestions === 5);
+                    assert(typeof res.body.titlesOfQuestions === "string");
+                    assert(typeof res.body.questionDescriptions === "string");
+                    assert(typeof res.body.formOptions === "string")
                 });
         });
 
@@ -91,6 +106,23 @@ describe("routes/activities", function () {
                 .get("/api/activities/manage")
                 .expect(403);
         });
+    });
+
+    describe("POST /activities/subscriptions/:id", function () {
+
+        var answers = ["myName", "myEmail", "testCases", "car;bike", "maybe"];
+
+        it("adds a subscription", function() {
+            return testData.activeUserAgent
+                .post("/api/activities/subscriptions/" + activityId)
+                .send(answers)
+                .then(function (res) {
+                    console.log(res.body);
+                    assert(typeof res.body[0].answers === "string");
+                    assert(res.body[0].userId === testData.activeUser.id);
+                    assert(res.body[0].activityId === activityId);
+                })
+        })
     });
 
     describe("GET /activities/:id", function () {

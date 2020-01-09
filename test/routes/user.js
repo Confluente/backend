@@ -47,13 +47,6 @@ describe("routes/user", function () {
                 });
         });
 
-        it("requires permission", function() {
-            return testData.testUserAgent
-                .post("/api/user/")
-                .send(testUser)
-                .expect(403);
-        });
-
         it("requires displayName", function() {
             const testUser1 = {
                 email: "security@hsaconfluente.nl",
@@ -100,8 +93,11 @@ describe("routes/user", function () {
                 .get("/api/user/" + userId)
                 .expect(200)
                 .then(function(res) {
+                    console.log(res.body);
                     let user = res.body[0];
                     assert(user.id === userId);
+                    console.log(testUser.displayName);
+                    console.log(user.displayName);
                     assert(testUser.displayName === user.displayName);
                     assert(testUser.email === user.email);
                     assert(testUser.isAdmin === user.isAdmin);

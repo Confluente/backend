@@ -152,7 +152,7 @@ router.route("/subscriptions/:id")
             }]
         }).then(function (activity) {
             let answerString = req.body[0];
-                for (var i = 1; i < activity.numberOfQuestions; i++) {
+            for (var i = 1; i < activity.numberOfQuestions; i++) {
                     answerString += "," + req.body[i];
             }
             return User.findByPk(user).then(function (dbUser) {

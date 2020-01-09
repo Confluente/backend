@@ -49,7 +49,7 @@ router.route("/:id")
     .all(function (req, res, next) {
         var id = req.params.id;
         User.findByPk(req.params.id, {
-            attributes: ["id", "firstName", "lastName", "major", "track", "honorsGeneration", "campusCardNumber", "mobilePhoneNumber", "email", "isAdmin"],
+            attributes: ["id", "firstName", "lastName", "displayName", "major", "track", "honorsGeneration", "campusCardNumber", "mobilePhoneNumber", "email", "isAdmin"],
         }).then(function (user) {
             if (user === null) {
                 res.status(404).send({status: "Not Found"});
