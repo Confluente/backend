@@ -100,4 +100,17 @@ router.route("/:id")
             res.status(204).send({status: "Successful"});
         });
     });
+
+router.route("/type/:type")
+    .get(function (req, res) {
+        Group.findAll({
+            attributes: ["id", "fullName", "displayName", "description", "email"],
+            where: {type: req.params.type},
+            order: [
+                ["id", "ASC"]
+            ]
+        }).then(function (results) {
+            res.send(results);
+        });
+    });
 module.exports = router;
