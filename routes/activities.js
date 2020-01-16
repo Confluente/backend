@@ -103,9 +103,6 @@ router.route("/manage")
             order: [
                 ["date", "ASC"]
             ],
-            where: {
-                date: {[Op.between]: [d.setDate(d.getDate() - 1), new Date(2023, 1, 1)]}
-            },
             include: [{
                 model: Group,
                 as: "Organizer",
