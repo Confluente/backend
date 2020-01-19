@@ -47,6 +47,11 @@ router.route("/login")
                 console.log("login failed for ", credentials);
                 return res.status(401).send({error: "Incorrect username/password"});
             }
+
+            if (user.approved === false) {
+                console.log("login failed because user is not approved");
+                return res.status(401).send({error: "not approved yet!"});
+            }
             res.locals.user = user;
             return authHelper.startSession(user.id, req.ip)
                 .then(function (session) {

@@ -1,4 +1,5 @@
 var express = require("express");
+const nodemailer = require("nodemailer");
 
 var User = require("../models/user");
 var Group = require("../models/group");
@@ -28,17 +29,50 @@ router.route("/")
         }).done();
     })
     .post(function (req, res, next) {
-        log.info({req: req.body}, "INITIAL REQUEST");
+        var makeLink = function (length) {
+            var result = '';
+            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            var charactersLength = characters.length;
+            for (var i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            return result;
+        };
+
         if (!req.body.displayName || !req.body.email || !req.body.password) {
             return res.sendStatus(400);
         }
-
+        req.body.approvingHash = makeLink(12);
         req.body.passwordSalt = authHelper.generateSalt(16); // Create salt of 16 characters
         req.body.passwordHash = authHelper.getPasswordHashSync(req.body.password, req.body.passwordSalt); // Get password hash
         delete req.body.password; // Delete password permanently
         req.body.isAdmin = false;
         log.info({req: req.body}, "EVENTUAL REQUEST");
         return User.create(req.body).then(function (result) {
+            nodemailer.createTestAccount().then(function () {
+                let transporter = nodemailer.createTransport({
+                    service: 'gmail',
+                    type: "SMTP",
+                    host: "smtp.gmail.com",
+                    secure: true,
+                    // Never fill this data in and add it to git! Only filled in locally or on the server!
+                    auth: {
+                        user: 'web@hsaconfluente.nl',
+                        pass: ''
+                    }
+                });
+                const link = "www.hsaconfluente.nl/api/user/approve/" + req.body.approvingHash;
+                transporter.sendMail({
+                    from: '"website" <web@hsaconfluente.nl>',
+                    to: req.body.email,
+                    subject: "Registration H.S.A. Confluente",
+                    text: "Thank you for making an account on our website hsaconfluente.nl! \n To fully activate your account, please visit this link: www.hsaconfluente.nl/api/user/approve/" + req.body.approvingHash,
+                    html: "Thank you for making an account on our website hsaconfluente.nl! To fully activate your account, please click <a href='" + link + "'>here!</a>"
+                }).then(function (info) {
+                    console.log("message sent: %s", info.messageId);
+                    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+                })
+            });
             res.status(201).send(result);
         }).catch(function (err) {
             console.error(err);
@@ -182,6 +216,25 @@ router.route("/changePassword/:id")
                 }
             }).done();
         });
+    });
+
+router.route("/approve/:approvalS")
+    .all(function (req, res) {
+        const approvalString = req.params.approvalS;
+        User.findOne({where: {approvingHash: approvalString}}).then(function (user) {
+            if (!user) {
+                return res.sendStatus(404).send("Not found!")
+            }
+
+            user.update({approved: true}).then(function (result) {
+                console.log("succes!!");
+                console.log(result);
+                res.writeHead(301, {
+                    'location': '/completed_registration'
+                });
+                res.send();
+            })
+        })
     });
 
 module.exports = router;

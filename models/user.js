@@ -20,7 +20,12 @@ var User = sequelize.define('user', {
     isAdmin: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
-    }
+    },
+    approved: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+    },
+    approvingHash: Sequelize.STRING
 });
 var Group = require("./group");
 var Activity = require("./activity");

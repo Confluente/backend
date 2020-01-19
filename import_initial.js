@@ -12,6 +12,7 @@ var users = [
         passwordHash: Buffer.from("tfExQFTNNT/gMWGfe5Z8CGz2bvBjoAoE7Mz7pmWd6/g=", "base64"),
         passwordSalt: Buffer.from("LAFU0L7mQ0FhEmPybJfHDiF11OAyBFjEIj8/oBzVZrM=", "base64"),
         isAdmin: true,
+        approved: true,
         groups: [2]
     }
 ];
