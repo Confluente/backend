@@ -12,7 +12,7 @@ router.route("/")
             return res.sendStatus(401);
         }
         User.findByPk(res.locals.session.user, {
-            attributes: ["id", "email", "displayName", "isAdmin"],
+            attributes: ["id", "email", "displayName", "isAdmin", "consentWithPortraitRight"],
             include: [{
                 model: Group,
                 attributes: ["id", "displayName", "fullname", "description", "canOrganize", "email"]
