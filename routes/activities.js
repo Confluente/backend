@@ -66,21 +66,26 @@ router.route("/")
             // Convert lists of form to strings
             if (activity.canSubscribe) {
                 // transform lists to strings
-                let typeOfQuestion = "name,TU/e email";
-                let questionDescriptions = "Name,TU/e Email";
-                let formOptions = ",";
-                let required = "true,true";
+                let typeOfQuestion = "";
+                let questionDescriptions = "";
+                let formOptions = "";
+                let required = "";
                 for (let i = 0; i < activity.numberOfQuestions; i++) {
-                    typeOfQuestion += "," + activity.typeOfQuestion[i];
-                    questionDescriptions += "," + activity.questionDescriptions[i];
-                    formOptions += "," + activity.options[i];
-                    required += "," + activity.required[i];
+                    if (i !== 0) {
+                        typeOfQuestion += ",";
+                        questionDescriptions += ",";
+                        formOptions += ",";
+                        required += ",";
+                    }
+                    typeOfQuestion += activity.typeOfQuestion[i];
+                    questionDescriptions += activity.questionDescriptions[i];
+                    formOptions += activity.options[i];
+                    required += activity.required[i];
                 }
                 activity.typeOfQuestion = typeOfQuestion;
                 activity.questionDescriptions = questionDescriptions;
                 activity.formOptions = formOptions;
                 activity.required = required;
-                activity.numberOfQuestions += 2;
             }
 
             if (!result) return res.sendStatus(403);
@@ -219,21 +224,26 @@ router.route("/:id")
             }
             if (req.body.canSubscribe) {
                 // transform lists to strings for db
-                let typeOfQuestion = "name,TU/e email";
-                let questionDescriptions = "Name,TU/e Email";
-                let formOptions = ",";
-                let required = "true,true";
+                let typeOfQuestion = "";
+                let questionDescriptions = "";
+                let formOptions = "";
+                let required = "";
                 for (let i = 0; i < req.body.numberOfQuestions; i++) {
-                    typeOfQuestion += "," + req.body.typeOfQuestion[i];
-                    questionDescriptions += "," + req.body.questionDescriptions[i];
-                    formOptions += "," + req.body.formOptions[i];
-                    required += "," + req.body.required[i];
+                    if (i !== 0) {
+                        typeOfQuestion += ",";
+                        questionDescriptions += ",";
+                        formOptions += ",";
+                        required += ",";
+                    }
+                    typeOfQuestion += req.body.typeOfQuestion[i];
+                    questionDescriptions += req.body.questionDescriptions[i];
+                    formOptions += req.body.formOptions[i];
+                    required += req.body.required[i];
                 }
                 req.body.typeOfQuestion = typeOfQuestion;
                 req.body.questionDescriptions = questionDescriptions;
                 req.body.formOptions = formOptions;
                 req.body.required = required;
-                req.body.numberOfQuestions += 2;
             }
             return res.locals.activity.update(req.body).then(function (activity) {
                 res.send(activity);
