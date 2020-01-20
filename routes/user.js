@@ -42,7 +42,7 @@ router.route("/")
         if (!req.body.displayName || !req.body.email || !req.body.password) {
             return res.sendStatus(400);
         }
-        req.body.approvingHash = makeLink(12);
+        req.body.approvingHash = makeLink(24);
         req.body.passwordSalt = authHelper.generateSalt(16); // Create salt of 16 characters
         req.body.passwordHash = authHelper.getPasswordHashSync(req.body.password, req.body.passwordSalt); // Get password hash
         delete req.body.password; // Delete password permanently
@@ -220,13 +220,24 @@ router.route("/changePassword/:id")
 
 router.route("/approve/:approvalS")
     .all(function (req, res) {
+        var makeLink = function (length) {
+            var result = '';
+            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            var charactersLength = characters.length;
+            for (var i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            return result;
+        };
+
         const approvalString = req.params.approvalS;
+        if (approvalString.length !== 24) return res.send(401);
         User.findOne({where: {approvingHash: approvalString}}).then(function (user) {
             if (!user) {
                 return res.sendStatus(404).send("Not found!")
             }
 
-            user.update({approved: true}).then(function (result) {
+            user.update({approved: true, approvingHash: makeLink(23)}).then(function (result) {
                 console.log("succes!!");
                 console.log(result);
                 res.writeHead(301, {

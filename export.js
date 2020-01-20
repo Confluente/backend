@@ -6,9 +6,20 @@ var User = require("./models/user");
 var columns = [
     "id",
     "email",
+    "firstName",
+    "lastName",
+    "major",
+    "track",
+    "honorsGeneration",
+    "campusCardNumber",
+    "mobilePhoneNumber",
+    "consentWithPortraitRight",
+    "displayName",
     "passwordHash",
     "passwordSalt",
-    "isAdmin"
+    "isAdmin",
+    "approved",
+    "approvingHash"
 ];
 
 /**
