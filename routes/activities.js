@@ -229,7 +229,7 @@ router.route("/:id")
                 });
                 activity.formOptions = newOptions;
             }
-            
+
             res.send(activity);
         }).done();
     })
@@ -242,12 +242,12 @@ router.route("/:id")
             if (!result) {
                 return res.sendStatus(403);
             }
+            let typeOfQuestion = "";
+            let questionDescriptions = "";
+            let formOptions = "";
+            let required = "";
             if (req.body.canSubscribe) {
                 // transform lists to strings for db
-                let typeOfQuestion = "";
-                let questionDescriptions = "";
-                let formOptions = "";
-                let required = "";
                 for (let i = 0; i < req.body.numberOfQuestions; i++) {
                     if (i !== 0) {
                         typeOfQuestion += ",";
@@ -260,11 +260,11 @@ router.route("/:id")
                     formOptions += req.body.formOptions[i];
                     required += req.body.required[i];
                 }
-                req.body.typeOfQuestion = typeOfQuestion;
-                req.body.questionDescriptions = questionDescriptions;
-                req.body.formOptions = formOptions;
-                req.body.required = required;
             }
+            req.body.typeOfQuestion = typeOfQuestion;
+            req.body.questionDescriptions = questionDescriptions;
+            req.body.formOptions = formOptions;
+            req.body.required = required;
 
             return res.locals.activity.update(req.body).then(function (activity) {
                 res.send(activity);
