@@ -24,7 +24,7 @@ var Activity = sequelize.define('activity', {
     questionDescriptions: Sequelize.STRING, // list of strings
     formOptions: Sequelize.STRING, // list of list of strings
     required: Sequelize.STRING,
-
+    subscriptionDeadline: Sequelize.DATE,
     approved: {
         type: Sequelize.BOOLEAN,
         defaultValue: false

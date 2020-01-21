@@ -14,7 +14,7 @@ router.route("/")
     .get(function (req, res, next) {
         d = new Date();
         Activity.findAll({
-            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "approved"],
+            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "approved", "subscriptionDeadline"],
             order: [
                 ["date", "ASC"]
             ],
@@ -104,7 +104,7 @@ router.route("/manage")
     .get(function (req, res, next) {
         d = new Date();
         Activity.findAll({
-            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "approved"],
+            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "approved", "subscriptionDeadline"],
             order: [
                 ["date", "ASC"]
             ],
@@ -229,6 +229,7 @@ router.route("/:id")
                 });
                 activity.formOptions = newOptions;
             }
+            
             res.send(activity);
         }).done();
     })
@@ -264,6 +265,7 @@ router.route("/:id")
                 req.body.formOptions = formOptions;
                 req.body.required = required;
             }
+
             return res.locals.activity.update(req.body).then(function (activity) {
                 res.send(activity);
             }, function (err) {
