@@ -163,6 +163,25 @@ router.route("/subscriptions/:id")
                 })
             });
         })
+    })
+    .delete(function (req, res) {
+        var userId = res.locals.session ? res.locals.session.user : null;
+        if (userId == null) return res.status(403).send({status: "Not logged in"});
+        // get activity
+        Activity.findByPk(req.params.id, {
+            include: [{
+                model: User,
+                as: "participants"
+            }]
+        }).then(function (activity) {
+            // console.log(activity.dataValues.participants[0].dataValues.subsc)
+            for (var i = 0; i < activity.dataValues.participants.length; i++) {
+                if (activity.dataValues.participants[i].dataValues.id === userId) {
+                    activity.dataValues.participants[i].dataValues.subscription.destroy();
+                }
+            }
+            return res.send(201)
+        }).done()
     });
 
 router.route("/:id")
