@@ -19,10 +19,11 @@ var Activity = sequelize.define('activity', {
     },
     participationFee: Sequelize.DECIMAL,
 
+    // all form variables
     numberOfQuestions: Sequelize.INTEGER,
-    typeOfQuestion: Sequelize.STRING, // list of strings
-    questionDescriptions: Sequelize.STRING, // list of strings
-    formOptions: Sequelize.STRING, // list of list of strings
+    typeOfQuestion: Sequelize.STRING,
+    questionDescriptions: Sequelize.STRING,
+    formOptions: Sequelize.STRING,
     required: Sequelize.STRING,
     subscriptionDeadline: Sequelize.DATE,
     approved: {
