@@ -200,7 +200,6 @@ router.route("/:id")
                 model: Group,
                 as: "Organizer",
                 attributes: ["id", "displayName", "fullName", "email"]
-
             }, {
                 model: User,
                 as: "participants"

@@ -10,7 +10,6 @@ var router = express.Router();
 var log = require("../logger");
 
 router.route("/")
-// .all(permissions.requireAll({type: "USER_MANAGE"}))
     .get(function (req, res, next) {
         var userId = res.locals.session ? res.locals.session.user : null;
         permissions.check(userId, {
@@ -47,7 +46,6 @@ router.route("/")
         req.body.passwordHash = authHelper.getPasswordHashSync(req.body.password, req.body.passwordSalt); // Get password hash
         delete req.body.password; // Delete password permanently
         req.body.isAdmin = false;
-        log.info({req: req.body}, "EVENTUAL REQUEST");
         return User.create(req.body).then(function (result) {
             nodemailer.createTestAccount().then(function () {
                 let transporter = nodemailer.createTransport({
@@ -55,7 +53,7 @@ router.route("/")
                     type: "SMTP",
                     host: "smtp.gmail.com",
                     secure: true,
-                    // Never fill this data in and add it to git! Only filled in locally or on the server!
+                    // Never fill this password in and add it to git! Only filled in locally or on the server!
                     auth: {
                         user: 'web@hsaconfluente.nl',
                         pass: ''
@@ -69,8 +67,6 @@ router.route("/")
                     text: "Thank you for making an account on our website hsaconfluente.nl! \n To fully activate your account, please visit this link: www.hsaconfluente.nl/api/user/approve/" + req.body.approvingHash,
                     html: "Thank you for making an account on our website hsaconfluente.nl! To fully activate your account, please click <a href='" + link + "'>here!</a>"
                 }).then(function (info) {
-                    console.log("message sent: %s", info.messageId);
-                    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
                 })
             });
             res.status(201).send(result);
@@ -81,6 +77,8 @@ router.route("/")
 
 router.route("/:id")
     .all(function (req, res, next) {
+        var user = res.locals.session ? res.locals.session.user : null;
+        if (user === null) return res.send(403);
         var id = req.params.id;
         User.findByPk(req.params.id, {
             attributes: ["id", "firstName", "lastName", "displayName", "major", "track", "honorsGeneration", "campusCardNumber", "mobilePhoneNumber", "email", "isAdmin", "consentWithPortraitRight"],
@@ -123,7 +121,6 @@ router.route("/:id")
         });
     })
     .put(function (req, res) {
-        // console.log(req.body[1]); // prints all groups and if they were selected
         var user = res.locals.session ? res.locals.session.user : null;
         permissions.check(user, {
             type: "USER_MANAGE",
@@ -218,7 +215,7 @@ router.route("/changePassword/:id")
         });
     });
 
-router.route("/approve/:approvalS")
+router.route("/approve/:approvalString")
     .all(function (req, res) {
         var makeLink = function (length) {
             var result = '';
@@ -230,7 +227,7 @@ router.route("/approve/:approvalS")
             return result;
         };
 
-        const approvalString = req.params.approvalS;
+        const approvalString = req.params.approvalString;
         if (approvalString.length !== 24) return res.send(401);
         User.findOne({where: {approvingHash: approvalString}}).then(function (user) {
             if (!user) {
@@ -238,8 +235,6 @@ router.route("/approve/:approvalS")
             }
 
             user.update({approved: true, approvingHash: makeLink(23)}).then(function (result) {
-                console.log("succes!!");
-                console.log(result);
                 res.writeHead(301, {
                     'location': '/completed_registration'
                 });

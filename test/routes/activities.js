@@ -22,7 +22,7 @@ describe("routes/activities", function () {
         numberOfQuestions: 3,
         titlesOfQuestions: ["text", "checkbox", "radio"],
         typeOfQuestion: ["text", "checkbox", "radio"],
-        questionDescriptions: ["What are you thinking about?", "What vegetables do you like?", "Is this requried?"],
+        questionDescriptions: ["What are you thinking about?", "What vegetables do you like?", "Is this required?"],
         options: ["", "car;bike", "maybe;sort of"],
         required: ["yes", "no", "no"]
     };
