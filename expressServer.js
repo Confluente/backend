@@ -83,6 +83,7 @@ app.use("/api/activities", require("./routes/activities"));
 app.use("/api/group", require("./routes/group"));
 app.use("/api/user", require("./routes/user"));
 app.use("/api/page", require("./routes/page"));
+app.use("/api/notifications", require("./routes/notifications"));
 app.use("/api/*", function (req, res) {
     res.sendStatus(404);
 });

@@ -12,7 +12,7 @@ router.route("/")
             return res.sendStatus(401);
         }
         User.findByPk(res.locals.session.user, {
-            attributes: ["id", "email", "displayName", "isAdmin"],
+            attributes: ["id", "email", "displayName", "isAdmin", "consentWithPortraitRight"],
             include: [{
                 model: Group,
                 attributes: ["id", "displayName", "fullname", "description", "canOrganize", "email"]
@@ -44,8 +44,11 @@ router.route("/login")
         };
         authHelper.authenticate(req.body.email, req.body.password).then(function (user) {
             if (!user) {
-                console.log("login failed for ", credentials);
                 return res.status(401).send({error: "Incorrect username/password"});
+            }
+
+            if (user.approved === false) {
+                return res.status(401).send({error: "User account has not yet been approved"});
             }
             res.locals.user = user;
             return authHelper.startSession(user.id, req.ip)
