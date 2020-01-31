@@ -12,6 +12,7 @@ var Activity = sequelize.define('activity', {
     startTime: Sequelize.TIME,
     endTime: Sequelize.TIME,
     subscribeBefore: Sequelize.DATE,
+    pathToPicture: Sequelize.STRING,
     canSubscribe: {
         type: Sequelize.VIRTUAL,
         get: function () {
