@@ -76,10 +76,10 @@ router.route("/")
                 let required = "";
                 for (let i = 0; i < activity.numberOfQuestions; i++) {
                     if (i !== 0) {
-                        typeOfQuestion += ",";
-                        questionDescriptions += ",";
-                        formOptions += ",";
-                        required += ",";
+                        typeOfQuestion += "#,#";
+                        questionDescriptions += "#,#";
+                        formOptions += "#,#";
+                        required += "#,#";
                     }
                     typeOfQuestion += activity.typeOfQuestion[i];
                     questionDescriptions += activity.questionDescriptions[i];
@@ -158,7 +158,7 @@ router.route("/subscriptions/:id")
             // format answer string
             let answerString = req.body[0];
             for (var i = 1; i < activity.numberOfQuestions; i++) {
-                    answerString += "," + req.body[i];
+                    answerString += "#,#" + req.body[i];
             }
 
             // add relation
@@ -225,15 +225,15 @@ router.route("/:id")
             if (activity.canSubscribe) {
                 // split strings into lists
                 activity.participants.forEach(function (participant) {
-                    participant.subscription.answers = participant.subscription.answers.split(',');
+                    participant.subscription.answers = participant.subscription.answers.split('#,#');
                 });
-                activity.typeOfQuestion = activity.typeOfQuestion.split(',');
-                activity.questionDescriptions = activity.questionDescriptions.split(',');
-                activity.formOptions = activity.formOptions.split(',');
-                activity.required = activity.required.split(',');
+                activity.typeOfQuestion = activity.typeOfQuestion.split('#,#');
+                activity.questionDescriptions = activity.questionDescriptions.split('#,#');
+                activity.formOptions = activity.formOptions.split('#,#');
+                activity.required = activity.required.split('#,#');
                 var newOptions = [];
                 activity.formOptions.forEach(function (question) {
-                    newOptions.push(question.split(';'));
+                    newOptions.push(question.split('#;#'));
                 });
                 activity.formOptions = newOptions;
             }
@@ -260,10 +260,10 @@ router.route("/:id")
                 // transform lists to strings for db
                 for (let i = 0; i < req.body.numberOfQuestions; i++) {
                     if (i !== 0) {
-                        typeOfQuestion += ",";
-                        questionDescriptions += ",";
-                        formOptions += ",";
-                        required += ",";
+                        typeOfQuestion += "#,#";
+                        questionDescriptions += "#,#";
+                        formOptions += "#,#";
+                        required += "#,#";
                     }
                     typeOfQuestion += req.body.typeOfQuestion[i];
                     questionDescriptions += req.body.questionDescriptions[i];
