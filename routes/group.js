@@ -10,7 +10,7 @@ router.route("/")
     .all(permissions.requireAll({type: "GROUP_MANAGE"}))
     .get(function (req, res, next) {
         Group.findAll({
-            attributes: ["id", "fullName", "displayName", "description", "email", "canOrganize"],
+            attributes: ["id", "fullName", "displayName", "description", "email", "canOrganize", "type"],
             order: [
                 ["id", "ASC"]
             ]
@@ -43,7 +43,7 @@ router.route("/:id")
     .all(function (req, res, next) {
         var id = req.params.id;
         Group.findByPk(req.params.id, {
-            attributes: ["id", "fullName", "displayName", "description", "email", "canOrganize"],
+            attributes: ["id", "fullName", "displayName", "description", "email", "canOrganize", "type"],
             include: [
                 {
                     model: User,
