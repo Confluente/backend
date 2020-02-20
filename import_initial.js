@@ -14,6 +14,16 @@ var users = [
         isAdmin: true,
         approved: true,
         groups: [2]
+    },
+    {
+        id: 2,
+        email: "someemail",
+        displayName: "non admin",
+        passwordHash: Buffer.from("tfExQFTNNT/gMWGfe5Z8CGz2bvBjoAoE7Mz7pmWd6/g=", "base64"),
+        passwordSalt: Buffer.from("LAFU0L7mQ0FhEmPybJfHDiF11OAyBFjEIj8/oBzVZrM=", "base64"),
+        isAdmin: false,
+        approved: true,
+        groups: [2]
     }
 ];
 

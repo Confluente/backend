@@ -43,12 +43,12 @@ router.route("/login")
             password: req.body.password
         };
         authHelper.authenticate(req.body.email, req.body.password).then(function (user) {
-            if (!user) {
-                return res.status(401).send({error: "Incorrect username/password"});
+            if (user.error === 406) {
+                return res.status(406).send(user)
             }
 
             if (user.approved === false) {
-                return res.status(401).send({error: "User account has not yet been approved"});
+                return res.status(406).send({error: 406, data: "User account has not yet been approved"});
             }
             res.locals.user = user;
             return authHelper.startSession(user.id, req.ip)

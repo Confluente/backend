@@ -71,7 +71,7 @@ router.route("/")
             });
             res.status(201).send(result);
         }).catch(function (err) {
-            console.error(err);
+            res.status(406).send("Account with identical email already exists");
         }).done();
     });
 
