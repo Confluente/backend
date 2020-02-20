@@ -59,12 +59,12 @@ router.route("/")
                         pass: ''
                     }
                 });
-                const link = "www.hsaconfluente.nl/api/user/approve/" + req.body.approvingHash;
+                const link = "https://www.hsaconfluente.nl/api/user/approve/" + req.body.approvingHash;
                 transporter.sendMail({
                     from: '"website" <web@hsaconfluente.nl>',
                     to: req.body.email,
                     subject: "Registration H.S.A. Confluente",
-                    text: "Thank you for making an account on our website hsaconfluente.nl! \n To fully activate your account, please visit this link: www.hsaconfluente.nl/api/user/approve/" + req.body.approvingHash,
+                    text: "Thank you for making an account on our website hsaconfluente.nl! \n To fully activate your account, please visit this link: https://www.hsaconfluente.nl/api/user/approve/" + req.body.approvingHash,
                     html: "Thank you for making an account on our website hsaconfluente.nl! To fully activate your account, please click <a href='" + link + "'>here!</a>"
                 }).then(function (info) {
                 })
