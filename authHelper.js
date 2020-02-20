@@ -57,13 +57,12 @@ module.exports = {
         email = email.toLowerCase();
         return User.findOne({where: {email: email}}).then(function (user) {
             if (!user) {
-                //wrong username/password
-                return null;
+                return {error: 406, data: "Email adress not associated to any account"};
             }
             return getPasswordHash(password, user.dataValues.passwordSalt)
                 .then(function (hash) {
                     //console.log(email, password, user.dataValues.passwordHash, hash);
-                    return (hash.equals(user.dataValues.passwordHash)) ? user : null;
+                    return (hash.equals(user.dataValues.passwordHash)) ? user : {error: 406, data: "Password incorrect"};
                 });
         });
     },
