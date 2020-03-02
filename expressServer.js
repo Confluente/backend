@@ -50,6 +50,22 @@ app.use(function (req, res, next) {
     }
 });
 
+// HTTPS Rerouting (only for live website version
+// app.use(function (req, res, next) {
+//     if (req.secure) {
+//         // request was via https, so do no special handling
+//         next();
+//     } else {
+//         // acme challenge is used for certificate verification for HTTPS
+//         if (req.url === "/.well-known/acme-challenge/BxN1GUV7H3f-gduiddTwqx9OBx-a0wU_qIBz-cYoeR4") {
+//             res.redirect('http://hsaconfluente.nl/www/BxN1GUV7H3f-gduiddTwqx9OBx-a0wU_qIBz-cYoeR4');
+//         }
+//         res.redirect('https://' + req.headers.host + req.url);
+//         // request was via http, so redirect to https
+//     }
+// });
+
+
 app.use(function (req, res, next) {
     var user = res.locals.session ? res.locals.session.user : null;
     checkPermission(user, {type: "PAGE_VIEW", value: req.path})
