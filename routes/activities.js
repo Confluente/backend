@@ -66,6 +66,8 @@ router.route("/")
             type: "GROUP_ORGANIZE",
             value: activity.organizer
         }).then(function (result) {
+            if (!result) return res.sendStatus(403);
+
             // Format form correctly
             // Change all lists to , seperated strings
             if (activity.canSubscribe) {
@@ -92,8 +94,8 @@ router.route("/")
                 activity.required = required;
             }
 
-            if (!result) return res.sendStatus(403);
             activity.OrganizerId = activity.organizer;
+
             return Activity.create(activity).then(function (result) {
                 res.status(201).send(result);
             }).catch(function (err) {
@@ -251,35 +253,44 @@ router.route("/:id")
             if (!result) {
                 return res.sendStatus(403);
             }
-            // formatting the subscription form correctly for the database
-            let typeOfQuestion = "";
-            let questionDescriptions = "";
-            let formOptions = "";
-            let required = "";
-            if (req.body.canSubscribe) {
-                // transform lists to strings for db
-                for (let i = 0; i < req.body.numberOfQuestions; i++) {
-                    if (i !== 0) {
-                        typeOfQuestion += "#,#";
-                        questionDescriptions += "#,#";
-                        formOptions += "#,#";
-                        required += "#,#";
-                    }
-                    typeOfQuestion += req.body.typeOfQuestion[i];
-                    questionDescriptions += req.body.questionDescriptions[i];
-                    formOptions += req.body.formOptions[i];
-                    required += req.body.required[i];
-                }
-            }
-            req.body.typeOfQuestion = typeOfQuestion;
-            req.body.questionDescriptions = questionDescriptions;
-            req.body.formOptions = formOptions;
-            req.body.required = required;
 
-            return res.locals.activity.update(req.body).then(function (activity) {
-                res.send(activity);
-            }, function (err) {
-                console.error(err);
+            // Get the organizing group from the database
+            Group.findOne({where: {displayName: req.body.organizer}}).then(function (group) {
+                req.body.OrganizerId = group.id;
+                req.body.Organizer = group;
+
+                // formatting the subscription form correctly for the database
+                let typeOfQuestion = "";
+                let questionDescriptions = "";
+                let formOptions = "";
+                let required = "";
+                if (req.body.canSubscribe) {
+                    // transform lists to strings for db
+                    for (let i = 0; i < req.body.numberOfQuestions; i++) {
+                        if (i !== 0) {
+                            typeOfQuestion += "#,#";
+                            questionDescriptions += "#,#";
+                            formOptions += "#,#";
+                            required += "#,#";
+                        }
+                        typeOfQuestion += req.body.typeOfQuestion[i];
+                        questionDescriptions += req.body.questionDescriptions[i];
+                        formOptions += req.body.formOptions[i];
+                        required += req.body.required[i];
+                    }
+                }
+                req.body.typeOfQuestion = typeOfQuestion;
+                req.body.questionDescriptions = questionDescriptions;
+                req.body.formOptions = formOptions;
+                req.body.required = required;
+
+                console.log(req.body);
+
+                return res.locals.activity.update(req.body).then(function (activity) {
+                    res.send(activity);
+                }, function (err) {
+                    console.error(err);
+                });
             });
         }).done();
     })
