@@ -150,7 +150,7 @@ router.route("/:id")
                 req.body[1].forEach(function (groupData) {
                     if (groupData.selected) {
                         Group.findByPk(groupData.id).then(function (specificGroup) {
-                            res.locals.user.addGroups(specificGroup).then(console.log);
+                            res.locals.user.addGroups(specificGroup, {through: {func: groupData.role}}).then(console.log);
                         })
                     }
                 });
