@@ -69,7 +69,7 @@ router.route("/")
             if (!result) return res.sendStatus(403);
 
             // Format form correctly
-            // Change all lists to , seperated strings
+            // Change all lists to #,# seperated strings
             if (activity.canSubscribe) {
                 // transform lists to strings
                 let typeOfQuestion = "";
@@ -283,8 +283,6 @@ router.route("/:id")
                 req.body.questionDescriptions = questionDescriptions;
                 req.body.formOptions = formOptions;
                 req.body.required = required;
-
-                console.log(req.body);
 
                 return res.locals.activity.update(req.body).then(function (activity) {
                     res.send(activity);
