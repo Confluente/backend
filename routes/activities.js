@@ -3,6 +3,7 @@ var Q = require("q");
 var marked = require("marked");
 var Sequelize = require("sequelize");
 var permissions = require("../permissions");
+var arrayHelper = require("../arrayHelper");
 var Activity = require("../models/activity");
 var Group = require("../models/group");
 var User = require("../models/user");
@@ -69,29 +70,13 @@ router.route("/")
             if (!result) return res.sendStatus(403);
 
             // Format form correctly
-            // Change all lists to #,# seperated strings
+            // Change all lists database strings
             if (activity.canSubscribe) {
                 // transform lists to strings
-                let typeOfQuestion = "";
-                let questionDescriptions = "";
-                let formOptions = "";
-                let required = "";
-                for (let i = 0; i < activity.numberOfQuestions; i++) {
-                    if (i !== 0) {
-                        typeOfQuestion += "#,#";
-                        questionDescriptions += "#,#";
-                        formOptions += "#,#";
-                        required += "#,#";
-                    }
-                    typeOfQuestion += activity.typeOfQuestion[i];
-                    questionDescriptions += activity.questionDescriptions[i];
-                    formOptions += activity.options[i];
-                    required += activity.required[i];
-                }
-                activity.typeOfQuestion = typeOfQuestion;
-                activity.questionDescriptions = questionDescriptions;
-                activity.formOptions = formOptions;
-                activity.required = required;
+                activity.typeOfQuestion = arrayHelper.stringifyArrayOfStrings(activity.typeOfQuestion);
+                activity.questionDescriptions = arrayHelper.stringifyArrayOfStrings(activity.questionDescriptions);
+                activity.formOptions = arrayHelper.stringifyArrayOfStrings(activity.options);
+                activity.required = arrayHelper.stringifyArrayOfStrings(activity.required);
             }
 
             activity.OrganizerId = activity.organizer;
@@ -158,10 +143,7 @@ router.route("/subscriptions/:id")
             }]
         }).then(function (activity) {
             // format answer string
-            let answerString = req.body[0];
-            for (var i = 1; i < activity.numberOfQuestions; i++) {
-                    answerString += "#,#" + req.body[i];
-            }
+            let answerString = arrayHelper.stringifyArrayOfStrings(req.body);
 
             // add relation
             return User.findByPk(user).then(function (dbUser) {
@@ -227,12 +209,12 @@ router.route("/:id")
             if (activity.canSubscribe) {
                 // split strings into lists
                 activity.participants.forEach(function (participant) {
-                    participant.subscription.answers = participant.subscription.answers.split('#,#');
+                    participant.subscription.answers = arrayHelper.destringifyArrayOfStrings(participant.subscription.answers);
                 });
-                activity.typeOfQuestion = activity.typeOfQuestion.split('#,#');
-                activity.questionDescriptions = activity.questionDescriptions.split('#,#');
-                activity.formOptions = activity.formOptions.split('#,#');
-                activity.required = activity.required.split('#,#');
+                activity.typeOfQuestion = arrayHelper.destringifyArrayOfStrings(activity.typeOfQuestion);
+                activity.questionDescriptions = arrayHelper.destringifyArrayOfStrings(activity.questionDescriptions);
+                activity.formOptions = arrayHelper.destringifyArrayOfStrings(activity.formOptions);
+                activity.required = arrayHelper.destringifyArrayOfStrings(activity.required);
                 var newOptions = [];
                 activity.formOptions.forEach(function (question) {
                     newOptions.push(question.split('#;#'));
@@ -259,30 +241,11 @@ router.route("/:id")
                 req.body.OrganizerId = group.id;
                 req.body.Organizer = group;
 
-                // formatting the subscription form correctly for the database
-                let typeOfQuestion = "";
-                let questionDescriptions = "";
-                let formOptions = "";
-                let required = "";
-                if (req.body.canSubscribe) {
-                    // transform lists to strings for db
-                    for (let i = 0; i < req.body.numberOfQuestions; i++) {
-                        if (i !== 0) {
-                            typeOfQuestion += "#,#";
-                            questionDescriptions += "#,#";
-                            formOptions += "#,#";
-                            required += "#,#";
-                        }
-                        typeOfQuestion += req.body.typeOfQuestion[i];
-                        questionDescriptions += req.body.questionDescriptions[i];
-                        formOptions += req.body.formOptions[i];
-                        required += req.body.required[i];
-                    }
-                }
-                req.body.typeOfQuestion = typeOfQuestion;
-                req.body.questionDescriptions = questionDescriptions;
-                req.body.formOptions = formOptions;
-                req.body.required = required;
+                // formatting the subscription form into strings for the database
+                req.body.typeOfQuestion = arrayHelper.stringifyArrayOfStrings(req.body.typeOfQuestion);
+                req.body.questionDescriptions = arrayHelper.stringifyArrayOfStrings(req.body.questionDescriptions);
+                req.body.formOptions = arrayHelper.stringifyArrayOfStrings(req.body.formOptions);
+                req.body.required = arrayHelper.stringifyArrayOfStrings(req.body.required);
 
                 return res.locals.activity.update(req.body).then(function (activity) {
                     res.send(activity);
