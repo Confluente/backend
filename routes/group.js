@@ -79,7 +79,20 @@ router.route("/:id")
             if (!result) {
                 return res.sendStatus(403);
             }
-            return res.locals.group.update(req.body).then(function (group) {
+
+            return res.locals.group.update(req.body[0]).then(function (group) {
+                // remove all current group members
+                for (var i = 0; i < group.members.length; i++) {
+                    group.members[i].user_group.destroy();
+                }
+
+                // add all new group members
+                req.body[1].forEach(function (new_group_member) {
+                    User.findByPk(new_group_member.id).then(function (new_user) {
+                        new_user.addGroups(res.locals.group, {through: {func: new_group_member.func}}).then(console.log);
+                    })
+                });
+
                 res.send(group);
             }, function (err) {
                 console.error(err);
