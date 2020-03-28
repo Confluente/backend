@@ -34,7 +34,8 @@ var groups = [
         displayName: "Confluente",
         fullName: "H.S.A. Confluente",
         canOrganize: true,
-        email: "board@hsaconfluente.nl"
+        email: "board@hsaconfluente.nl",
+        type: "Board"
     }
 ];
 
