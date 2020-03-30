@@ -14,7 +14,8 @@ var users = [
         passwordSalt: Buffer.from("LAFU0L7mQ0FhEmPybJfHDiF11OAyBFjEIj8/oBzVZrM=", "base64"),
         isAdmin: true,
         approved: true,
-        groups: [2]
+        groups: [2],
+        functions: ["Member"]
     },
     {
         id: 2,
@@ -24,7 +25,8 @@ var users = [
         passwordSalt: Buffer.from("LAFU0L7mQ0FhEmPybJfHDiF11OAyBFjEIj8/oBzVZrM=", "base64"),
         isAdmin: false,
         approved: true,
-        groups: [2]
+        groups: [3, 4],
+        functions: ["Chair, Secretary"]
     },
     {
         id: 3,
@@ -34,7 +36,8 @@ var users = [
         passwordSalt: Buffer.from("LAFU0L7mQ0FhEmPybJfHDiF11OAyBFjEIj8/oBzVZrM=", "base64"),
         isAdmin: false,
         approved: true,
-        groups: [2]
+        groups: [3],
+        functions: ["Member"]
     },
     {
         id: 4,
@@ -44,7 +47,8 @@ var users = [
         passwordSalt: Buffer.from("LAFU0L7mQ0FhEmPybJfHDiF11OAyBFjEIj8/oBzVZrM=", "base64"),
         isAdmin: false,
         approved: true,
-        groups: [2]
+        groups: [4],
+        functions: ["Treasurer"]
     }
 ];
 
@@ -101,7 +105,7 @@ var activities = [
         canSubscribe: true,
         numberOfQuestions: 4,
         typeOfQuestions: "name#,#TU/e email#,#☰ text#,#◉ multiple choice",
-        questionDescriptions: "Name#,#TU/e email#,#What kind of dog breed do you like?#,#What sound does a dog make?"
+        questionDescriptions: "Name#,#TU/e email#,#What kind of dog breed do you like?#,#What sound does a dog make?",
         formOptions: "#,##,##,#Woof#;#Woofdiedoofdoof#;#Wafferdafdaf",
         required: "true#,#true#,#true#,#false",
         subscriptionDeadline: (new Date()).setDate((new Date()).getDate() + 1),
@@ -127,8 +131,15 @@ Q.all([
 
     users.forEach(function (userData) {
         var promise = User.findByPk(userData.id).then(function (user) {
-            console.log("Adding groups " + JSON.toString(groups) + " to " + userData.id);
-            return user.addGroups(userData.groups).then(console.log);
+            if (!userData.functions || !userData.groups) {
+            } else if (userData.functions.length !== userData.groups.length) {
+                assert(false);
+            } else {
+                for (var i = 0; i < userData.functions.length; i++) {
+                    user.addGroup(userData.groups[i], {through: {func: userData.functions[i]}})
+                }
+            }
+
         });
     });
 
