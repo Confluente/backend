@@ -209,12 +209,12 @@ router.route("/:id")
             if (activity.canSubscribe) {
                 // split strings into lists
                 activity.participants.forEach(function (participant) {
-                    participant.subscription.answers = arrayHelper.destringifyArrayOfStrings(participant.subscription.answers);
+                    participant.subscription.answers = arrayHelper.destringifyStringifiedArrayOfStrings(participant.subscription.answers);
                 });
-                activity.typeOfQuestion = arrayHelper.destringifyArrayOfStrings(activity.typeOfQuestion);
-                activity.questionDescriptions = arrayHelper.destringifyArrayOfStrings(activity.questionDescriptions);
-                activity.formOptions = arrayHelper.destringifyArrayOfStrings(activity.formOptions);
-                activity.required = arrayHelper.destringifyArrayOfStrings(activity.required);
+                activity.typeOfQuestion = arrayHelper.destringifyStringifiedArrayOfStrings(activity.typeOfQuestion);
+                activity.questionDescriptions = arrayHelper.destringifyStringifiedArrayOfStrings(activity.questionDescriptions);
+                activity.formOptions = arrayHelper.destringifyStringifiedArrayOfStrings(activity.formOptions);
+                activity.required = arrayHelper.destringifyStringifiedArrayOfStrings(activity.required);
                 var newOptions = [];
                 activity.formOptions.forEach(function (question) {
                     newOptions.push(question.split('#;#'));

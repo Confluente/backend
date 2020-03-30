@@ -22,7 +22,7 @@ module.exports = {
      * @param string
      * @returns {array}
      */
-    destringifyArrayOfStrings: function (string) {
+    destringifyStringifiedArrayOfStrings: function (string) {
         if (string.length === 0) return [];
 
         return string.split("#,#");
@@ -48,7 +48,7 @@ module.exports = {
      * @param string
      * @returns {array}
      */
-    destringifyArrayOfNumbers: function (string) {
+    destringifyStringifiedArrayOfNumbers: function (string) {
         if (string.length === 0) return [];
 
         let result = string.split("#,#");
