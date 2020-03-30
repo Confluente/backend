@@ -15,7 +15,7 @@ router.route("/")
     .get(function (req, res, next) {
         d = new Date();
         Activity.findAll({
-            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "approved", "subscriptionDeadline"],
+            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "approved", "subscriptionDeadline", "canSubscribe"],
             order: [
                 ["date", "ASC"]
             ],
@@ -26,6 +26,10 @@ router.route("/")
                 model: Group,
                 as: "Organizer",
                 attributes: ["id", "displayName", "fullName", "email"]
+            }, {
+                model: User,
+                as: "participants",
+                attributes: ["id", "displayName", "firstName", "lastName", "email"]
             }]
         }).then(function (activities) {
             var promises = activities.map(function (activity) {
@@ -186,7 +190,8 @@ router.route("/:id")
                 attributes: ["id", "displayName", "fullName", "email"]
             }, {
                 model: User,
-                as: "participants"
+                as: "participants",
+                attributes: ["id", "displayName", "firstName", "lastName", "email"]
             }]
         }).then(function (activity) {
             if (activity === null) {
