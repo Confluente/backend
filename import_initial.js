@@ -96,7 +96,8 @@ var activities = [
         date: new Date(),
         startTime: "18:00",
         endTime: "20:00",
-        participationFee: 8.5
+        participationFee: 8.5,
+        OrganizerId: 2
     },
     {
         id: 2,
@@ -113,7 +114,8 @@ var activities = [
         formOptions: "lk#,#lk#,#lk#,#Woof#;#Woofdiedoofdoof#;#Wafferdafdaf",
         required: "true#,#true#,#true#,#false",
         subscriptionDeadline: (new Date()).setDate((new Date()).getDate() + 1),
-        approved: true
+        approved: true,
+        OrganizerId: 3
     }
 ];
 
