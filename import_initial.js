@@ -26,7 +26,9 @@ var users = [
         isAdmin: false,
         approved: true,
         groups: [3, 4],
-        functions: ["Chair, Secretary"]
+        functions: ["Chair", "Secretary"],
+        activities: [2],
+        answers: ["Active1 Member#,#activemember1@student.tue.nl#,#Kapowowowskies#,#woof"]
     },
     {
         id: 3,
@@ -48,7 +50,9 @@ var users = [
         isAdmin: false,
         approved: true,
         groups: [4],
-        functions: ["Treasurer"]
+        functions: ["Treasurer"],
+        activities: [2],
+        answers: ["Active2 Member#,#activemember2@student.tue.nl#,#Kachawakaas#,#wooferdiedoofdoof"]
     }
 ];
 
@@ -97,16 +101,16 @@ var activities = [
     {
         id: 2,
         name: "The first activity that you can subscribe to!",
-        descrtion: "Subscription forms!! How advanced!!",
+        description: "Subscription forms!! How advanced!!",
         location: "Completely in the dark",
         date: (new Date()).setDate((new Date()).getDate() + 1),
         startTime: "01:00",
         endTime: "05:00",
         canSubscribe: true,
         numberOfQuestions: 4,
-        typeOfQuestions: "name#,#TU/e email#,#☰ text#,#◉ multiple choice",
+        typeOfQuestion: "name#,#TU/e email#,#☰ text#,#◉ multiple choice",
         questionDescriptions: "Name#,#TU/e email#,#What kind of dog breed do you like?#,#What sound does a dog make?",
-        formOptions: "#,##,##,#Woof#;#Woofdiedoofdoof#;#Wafferdafdaf",
+        formOptions: "lk#,#lk#,#lk#,#Woof#;#Woofdiedoofdoof#;#Wafferdafdaf",
         required: "true#,#true#,#true#,#false",
         subscriptionDeadline: (new Date()).setDate((new Date()).getDate() + 1),
         approved: true
@@ -133,13 +137,21 @@ Q.all([
         var promise = User.findByPk(userData.id).then(function (user) {
             if (!userData.functions || !userData.groups) {
             } else if (userData.functions.length !== userData.groups.length) {
-                assert(false);
             } else {
-                for (var i = 0; i < userData.functions.length; i++) {
+                for (let i = 0; i < userData.functions.length; i++) {
                     user.addGroup(userData.groups[i], {through: {func: userData.functions[i]}})
                 }
             }
 
+            if (!userData.activities) {
+
+            } else if (userData.activities && userData.activities.length === userData.answers.length) {
+                for (let i = 0; i < userData.activities.length; i++) {
+                    Activity.findByPk(userData.activities[i]).then(function (activity) {
+                        user.addActivity(activity, {through: {answers: userData.answers[i]}})
+                    });
+                }
+            }
         });
     });
 

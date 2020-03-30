@@ -12,7 +12,6 @@ var Activity = sequelize.define('activity', {
     date: Sequelize.DATE,
     startTime: Sequelize.TIME,
     endTime: Sequelize.TIME,
-    subscribeBefore: Sequelize.DATE,
     canSubscribe: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
