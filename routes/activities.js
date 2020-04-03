@@ -246,11 +246,13 @@ router.route("/:id")
                 req.body.OrganizerId = group.id;
                 req.body.Organizer = group;
 
-                // formatting the subscription form into strings for the database
-                req.body.typeOfQuestion = arrayHelper.stringifyArrayOfStrings(req.body.typeOfQuestion);
-                req.body.questionDescriptions = arrayHelper.stringifyArrayOfStrings(req.body.questionDescriptions);
-                req.body.formOptions = arrayHelper.stringifyArrayOfStrings(req.body.formOptions);
-                req.body.required = arrayHelper.stringifyArrayOfStrings(req.body.required);
+                if (req.body.canSubscribe) {
+                    // formatting the subscription form into strings for the database
+                    req.body.typeOfQuestion = arrayHelper.stringifyArrayOfStrings(req.body.typeOfQuestion);
+                    req.body.questionDescriptions = arrayHelper.stringifyArrayOfStrings(req.body.questionDescriptions);
+                    req.body.formOptions = arrayHelper.stringifyArrayOfStrings(req.body.formOptions);
+                    req.body.required = arrayHelper.stringifyArrayOfStrings(req.body.required);
+                }
 
                 return res.locals.activity.update(req.body).then(function (activity) {
                     res.send(activity);
