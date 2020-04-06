@@ -71,19 +71,19 @@ describe("permissions", function () {
     });
 
     describe("ACTIVITY_VIEW", function () {
-        it("true if activity.approved", function () {
+        it("true if activity.published", function () {
             return assertPermission(null, {type: "ACTIVITY_VIEW", value: testData.testActivity.id});
         });
 
         it("true when user is member of activity.Organizer", function () {
             return assertPermission(testData.activeUser.id, {
                 type: "ACTIVITY_VIEW",
-                value: testData.unapprovedActivity.id
+                value: testData.unpublishedActivity.id
             });
         });
 
         it("false otherwise", function () {
-            return assertPermission(null, {type: "ACTIVITY_VIEW", value: testData.unapprovedActivity.id}, false);
+            return assertPermission(null, {type: "ACTIVITY_VIEW", value: testData.unpublishedActivity.id}, false);
         });
     });
 
@@ -105,14 +105,14 @@ describe("permissions", function () {
         it("true when user is member of activity.Organizer", function () {
             return assertPermission(testData.activeUser.id, {
                 type: "ACTIVITY_EDIT",
-                value: testData.unapprovedActivity.id
+                value: testData.unpublishedActivity.id
             });
         });
 
         it("false otherwise", function () {
             return assertPermission(testData.testUser.id, {
                 type: "ACTIVITY_VIEW",
-                value: testData.unapprovedActivity.id
+                value: testData.unpublishedActivity.id
             }, false);
         });
     });

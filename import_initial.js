@@ -114,7 +114,7 @@ var activities = [
         formOptions: "lk#,#lk#,#lk#,#Woof#;#Woofdiedoofdoof#;#Wafferdafdaf",
         required: "true#,#true#,#true#,#false",
         subscriptionDeadline: (new Date()).setDate((new Date()).getDate() + 1),
-        approved: true,
+        published: true,
         OrganizerId: 3
     }
 ];

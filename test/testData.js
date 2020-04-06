@@ -58,13 +58,13 @@ admin.passwordHash = authHelper.getPasswordHashSync(admin.password, admin.passwo
 var testActivity = {
     name: "Website testing",
     description: "User and unit testing of the website",
-    approved: true
+    published: true
 };
 
-var unapprovedActivity = {
+var unpublishedActivity = {
     name: "Stealing indepencence",
     description: "Steal the declaration of independence for shits and giggles",
-    approved: false
+    published: false
 };
 
 before(function () {
@@ -94,13 +94,13 @@ before(function () {
         ]);
     })
         .then(function () {
-            unapprovedActivity.OrganizerId = testGroup.id;
+            unpublishedActivity.OrganizerId = testGroup.id;
             testActivity.OrganizerId = testGroup.id;
             return Q.all([
-                Activity.create(unapprovedActivity),
+                Activity.create(unpublishedActivity),
                 Activity.create(testActivity)
             ]).then(function (activities) {
-                unapprovedActivity.id = activities[0].id;
+                unpublishedActivity.id = activities[0].id;
                 testActivity.id = activities[1].id;
                 //return activity.setOrganizer(testGroup.id);
             });
@@ -125,7 +125,7 @@ module.exports = {
     testGroup: testGroup,
     membersGroup: membersGroup,
     testActivity: testActivity,
-    unapprovedActivity: unapprovedActivity,
+    unpublishedActivity: unpublishedActivity,
     testUserAgent: testUserAgent,
     activeUserAgent: activeUserAgent,
     adminUserAgent: adminUserAgent,
