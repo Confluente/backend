@@ -40,11 +40,11 @@ function check(user, scope) {
                     if (!activity) {
                         return false;
                     }
-                    if (activity.approved) {
-                        // Approved activities allowed to be viewed by anyone
+                    if (activity.published) {
+                        // published activities allowed to be viewed by anyone
                         return true;
                     }
-                    // Unapproved activities only allowed to be viewed by organizers and admins
+                    // Unpublished activities only allowed to be viewed by organizers and admins
                     return loggedIn ? user.hasGroup(activity.OrganizerId) : false;
                 });
             case "ACTIVITY_EDIT":

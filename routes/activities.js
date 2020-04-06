@@ -15,7 +15,7 @@ router.route("/")
     .get(function (req, res, next) {
         d = new Date();
         Activity.findAll({
-            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "approved", "subscriptionDeadline", "canSubscribe"],
+            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline", "canSubscribe"],
             order: [
                 ["date", "ASC"]
             ],
@@ -33,7 +33,7 @@ router.route("/")
             }]
         }).then(function (activities) {
             var promises = activities.map(function (activity) {
-                if (activity.approved) return Q(activity);
+                if (activity.published) return Q(activity);
                 if (!res.locals.session) return Q(null);
                 return permissions.check(res.locals.session.user, {
                     type: "ACTIVITY_VIEW",
@@ -99,7 +99,7 @@ router.route("/manage")
     .get(function (req, res, next) {
         d = new Date();
         Activity.findAll({
-            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "approved", "subscriptionDeadline"],
+            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline"],
             order: [
                 ["date", "ASC"]
             ],

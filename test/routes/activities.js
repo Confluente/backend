@@ -12,7 +12,7 @@ describe("routes/activities", function () {
     var testActivity = {
         name: "foo",
         description: "bar",
-        approved: true,
+        published: true,
         location: "honors room",
         date: new Date(),
         startTime: "18:00",
@@ -72,7 +72,7 @@ describe("routes/activities", function () {
                         assert(activity.description_html.includes("<p>"));
                         assert.equal(typeof activity.Organizer, "object");
                         // assert(typeof activity.canSubscribe === "boolean");
-                        assert(activity.approved);
+                        assert(activity.published);
                     });
                 });
         });
@@ -95,7 +95,7 @@ describe("routes/activities", function () {
                         assert(activity.description_html.includes("<p>"));
                         assert.equal(typeof activity.Organizer, "object");
                         // assert(typeof activity.canSubscribe === "boolean");
-                        assert(activity.approved);
+                        assert(activity.published);
                     });
                 });
         });
@@ -155,18 +155,18 @@ describe("routes/activities", function () {
 
         it("changes an activity", function () {
             return testData.activeUserAgent
-                .put("/api/activities/" + testData.unapprovedActivity.id)
+                .put("/api/activities/" + testData.unpublishedActivity.id)
                 .send(changedActivity)
                 .expect(200)
                 .then(function (res) {
                     assert(res.body.name === changedActivity.name);
-                    assert(res.body.description === testData.unapprovedActivity.description);
+                    assert(res.body.description === testData.unpublishedActivity.description);
                     return testData.activeUserAgent
-                        .get("/api/activities/" + testData.unapprovedActivity.id)
+                        .get("/api/activities/" + testData.unpublishedActivity.id)
                         .expect(200)
                         .then(function (res) {
                             assert(res.body.name === changedActivity.name);
-                            assert(res.body.description === testData.unapprovedActivity.description);
+                            assert(res.body.description === testData.unpublishedActivity.description);
                         });
                 });
         });
@@ -179,7 +179,7 @@ describe("routes/activities", function () {
 
         it("requires permission", function () {
             return testData.nobodyUserAgent
-                .put("/api/activities/" + testData.unapprovedActivity.id)
+                .put("/api/activities/" + testData.unpublishedActivity.id)
                 .send({description: "Jet fuel can't melt steel beams"})
                 .expect(403);
         });

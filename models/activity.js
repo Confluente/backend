@@ -25,7 +25,7 @@ var Activity = sequelize.define('activity', {
     formOptions: Sequelize.STRING,
     required: Sequelize.STRING,
     subscriptionDeadline: Sequelize.DATE,
-    approved: {
+    published: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
     }
