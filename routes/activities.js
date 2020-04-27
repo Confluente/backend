@@ -20,7 +20,8 @@ router.route("/")
                 ["date", "ASC"]
             ],
             where: {
-                date: {[Op.between]: [d.setDate(d.getDate() - 1), new Date(2023, 1, 1)]}
+                date: {[Op.between]: [d.setDate(d.getDate() - 1), new Date(2023, 1, 1)]},
+                published: true
             },
             include: [{
                 model: Group,
