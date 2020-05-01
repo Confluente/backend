@@ -7,9 +7,22 @@ var arrayHelper = require("../arrayHelper");
 var Activity = require("../models/activity");
 var Group = require("../models/group");
 var User = require("../models/user");
+var multer = require("multer");
+const path = require("path");
 
 var router = express.Router();
 const Op = Sequelize.Op;
+
+var multer  = require('multer');
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './images/')
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname+ '-' + Date.now()+'.png')
+    }
+});
+var upload = multer({ storage: storage });
 
 router.route("/")
     .get(function (req, res, next) {
@@ -56,6 +69,12 @@ router.route("/")
     })
     // Creating a new activity
     .post(function (req, res, next) {
+        console.log(req.body);
+        var fd = req.body[0];
+        upload.single(fd);
+
+        req.body = req.body[1];
+
         let activity = req.body;
 
         if (!res.locals.session) {
@@ -99,7 +118,7 @@ router.route("/manage")
     .get(function (req, res, next) {
         d = new Date();
         Activity.findAll({
-            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline"],
+            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline", "coverImage"],
             order: [
                 ["date", "ASC"]
             ],

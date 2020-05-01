@@ -28,7 +28,8 @@ var Activity = sequelize.define('activity', {
     published: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
-    }
+    },
+    coverImage: Sequelize.STRING,
 }, {
     instanceMethods: {
         isAwesome: function () {
