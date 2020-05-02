@@ -8,25 +8,45 @@ var Activity = require("../models/activity");
 var Group = require("../models/group");
 var User = require("../models/user");
 var multer = require("multer");
-const path = require("path");
+var mime = require('mime-types');
+var fs = require('fs');
 
 var router = express.Router();
 const Op = Sequelize.Op;
 
-var multer  = require('multer');
-var storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, './images/')
-    },
+// Set The Storage Engine
+const storage = multer.diskStorage({
+    destination: './public/uploads/',
     filename: function (req, file, cb) {
-        cb(null, file.originalname+ '-' + Date.now()+'.png')
+        cb(null, file.fieldname + '-' + Date.now() + "." + mime.extension(file.mimetype));
     }
 });
-var upload = multer({ storage: storage });
+
+// Init Upload
+const upload = multer({
+    storage: storage,
+    limits: {fileSize: 1000000},
+    fileFilter: function (req, file, cb) {
+        checkFileType(file, cb);
+    }
+});
+
+// Check File Type
+function checkFileType(file, cb) {
+    // Allowed ext
+    const filetypes = /jpeg|jpg|png|gif/;
+    // Check mime
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (mimetype) {
+        return cb(null, true);
+    } else {
+        cb('Error: Images Only!');
+    }
+}
 
 router.route("/")
     .get(function (req, res, next) {
-        d = new Date();
         Activity.findAll({
             attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline", "canSubscribe"],
             order: [
@@ -69,12 +89,6 @@ router.route("/")
     })
     // Creating a new activity
     .post(function (req, res, next) {
-        console.log(req.body);
-        var fd = req.body[0];
-        upload.single(fd);
-
-        req.body = req.body[1];
-
         let activity = req.body;
 
         if (!res.locals.session) {
@@ -112,11 +126,19 @@ router.route("/")
         }).done();
     });
 
+router.route("/postPicture/:id")
+    .post(upload.single("image"),
+        (req, res) => {
+            fs.rename(req.file.destination + req.file.filename, req.file.destination + req.params.id + "." + mime.extension(req.file.mimetype), () => {
+                res.send();
+            })
+        }
+    );
+
 // This route is for getting the activities for the manage page
 // For the manage page, you should only get the activities which you are allowed to edit
 router.route("/manage")
     .get(function (req, res, next) {
-        d = new Date();
         Activity.findAll({
             attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline", "coverImage"],
             order: [
@@ -152,7 +174,7 @@ router.route("/manage")
     });
 
 router.route("/subscriptions/:id")
-    // adding a subscription to a specific activity
+// adding a subscription to a specific activity
     .post(function (req, res, next) {
         // check if user is logged in
         var user = res.locals.session ? res.locals.session.user : null;
