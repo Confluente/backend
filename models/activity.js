@@ -29,7 +29,7 @@ var Activity = sequelize.define('activity', {
         type: Sequelize.BOOLEAN,
         defaultValue: false
     },
-    coverImage: Sequelize.STRING,
+    hasCoverImage: Sequelize.BOOLEAN
 }, {
     instanceMethods: {
         isAwesome: function () {

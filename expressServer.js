@@ -111,10 +111,12 @@ app.use("/api/*", function (req, res) {
     res.sendStatus(404);
 });
 
+app.use(express.static('public'));
 app.use(express.static(webroot));
 
 app.get("*", function (req, res, next) {
     if (req.originalUrl.includes(".")) {
+        console.log("this one");
         return res.sendStatus(404);
     }
     res.sendFile("/index.html", {root: webroot});

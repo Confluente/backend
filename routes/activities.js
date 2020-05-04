@@ -10,20 +10,22 @@ var User = require("../models/user");
 var multer = require("multer");
 var mime = require('mime-types');
 var fs = require('fs');
+var stream = require('stream');
+var path = require("path");
 
 var router = express.Router();
-const Op = Sequelize.Op;
+let Op = Sequelize.Op;
 
 // Set The Storage Engine
-const storage = multer.diskStorage({
-    destination: './public/uploads/',
+let storage = multer.diskStorage({
+    destination: '../frontend/src/img/activities/',
     filename: function (req, file, cb) {
         cb(null, file.fieldname + '-' + Date.now() + "." + mime.extension(file.mimetype));
     }
 });
 
 // Init Upload
-const upload = multer({
+let upload = multer({
     storage: storage,
     limits: {fileSize: 1000000},
     fileFilter: function (req, file, cb) {
@@ -34,9 +36,9 @@ const upload = multer({
 // Check File Type
 function checkFileType(file, cb) {
     // Allowed ext
-    const filetypes = /jpeg|jpg|png|gif/;
+    let filetypes = /jpeg|jpg|png|gif/;
     // Check mime
-    const mimetype = filetypes.test(file.mimetype);
+    let mimetype = filetypes.test(file.mimetype);
 
     if (mimetype) {
         return cb(null, true);
@@ -47,8 +49,9 @@ function checkFileType(file, cb) {
 
 router.route("/")
     .get(function (req, res, next) {
+        let d = new Date();
         Activity.findAll({
-            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline", "canSubscribe"],
+            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline", "canSubscribe", "hasCoverImage"],
             order: [
                 ["date", "ASC"]
             ],
@@ -127,7 +130,7 @@ router.route("/")
     });
 
 router.route("/postPicture/:id")
-    .post(upload.single("image"),
+    .post(upload.single("image"), // TODO MAKE SECURE!!!
         (req, res) => {
             fs.rename(req.file.destination + req.file.filename, req.file.destination + req.params.id + "." + mime.extension(req.file.mimetype), () => {
                 res.send();
@@ -140,7 +143,7 @@ router.route("/postPicture/:id")
 router.route("/manage")
     .get(function (req, res, next) {
         Activity.findAll({
-            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline", "coverImage"],
+            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline"],
             order: [
                 ["date", "ASC"]
             ],

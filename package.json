@@ -28,6 +28,7 @@
     "q": "^1.5.1",
     "sequelize": "^5.19.0",
     "sqlite3": "^4.1.0",
+    "stream": "0.0.2",
     "uglifyjs-webpack-plugin": "^2.2.0"
   },
   "devDependencies": {
