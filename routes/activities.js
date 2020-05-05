@@ -271,6 +271,14 @@ router.route("/:id")
                 activity.formOptions = newOptions;
             }
 
+            if (activity.hasCoverImage) {
+                var files = fs.readdirSync('./../frontend/src/img/activities/');
+                for (var i = 0; i < files.length; i++) {
+                    if (files[i].split(".")[0].toString() === activity.id.toString()) {
+                        activity.dataValues.coverImage = files[i];
+                    }
+                }
+            }
             res.send(activity);
         }).done();
     })
