@@ -116,7 +116,6 @@ app.use(express.static(webroot));
 
 app.get("*", function (req, res, next) {
     if (req.originalUrl.includes(".")) {
-        console.log("this one");
         return res.sendStatus(404);
     }
     res.sendFile("/index.html", {root: webroot});
@@ -129,7 +128,6 @@ app.use(function (err, req, res, next) {
 });
 
 var secretary_email = schedule.scheduleJob('0 0 0 * * 7', function () {
-    console.log('Send a mail to secretary every sunday if needed!');
     var lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
     User.findAll({

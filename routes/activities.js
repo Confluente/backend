@@ -36,7 +36,7 @@ let upload = multer({
 // Check File Type
 function checkFileType(file, cb) {
     // Allowed ext
-    let filetypes = /jpeg|jpg|png|gif/;
+    let filetypes = /jpeg|jpg|png/;
     // Check mime
     let mimetype = filetypes.test(file.mimetype);
 
