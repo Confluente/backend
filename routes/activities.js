@@ -18,7 +18,7 @@ let Op = Sequelize.Op;
 
 // Set The Storage Engine
 let storage = multer.diskStorage({
-    destination: '../frontend/src/img/activities/',
+    destination: '../frontend/build/img/activities/',
     filename: function (req, file, cb) {
         cb(null, file.fieldname + '-' + Date.now() + "." + mime.extension(file.mimetype));
     }
@@ -135,8 +135,23 @@ router.route("/postPicture/:id")
             fs.rename(req.file.destination + req.file.filename, req.file.destination + req.params.id + "." + mime.extension(req.file.mimetype), () => {
                 res.send();
             })
-        }
-    );
+        })
+    .put(upload.single("image"),
+        (req, res) => {
+            // delete old picture
+            var files = fs.readdirSync('./../frontend/build/img/activities/');
+            for (var i = 0; i < files.length; i++) {
+                if (files[i].split(".")[0].toString() === activity.id.toString()) {
+                    activity.dataValues.coverImage = files[i];
+                    fs.unlinkSync(req.file.destination + files[i]);
+                    break;
+                }
+            }
+
+            fs.rename(req.file.destination + req.file.filename, req.file.destination + req.params.id + "." + mime.extension(req.file.mimetype), () => {
+                res.send();
+            })
+        });
 
 // This route is for getting the activities for the manage page
 // For the manage page, you should only get the activities which you are allowed to edit
@@ -272,7 +287,7 @@ router.route("/:id")
             }
 
             if (activity.hasCoverImage) {
-                var files = fs.readdirSync('./../frontend/src/img/activities/');
+                var files = fs.readdirSync('./../frontend/build/img/activities/');
                 for (var i = 0; i < files.length; i++) {
                     if (files[i].split(".")[0].toString() === activity.id.toString()) {
                         activity.dataValues.coverImage = files[i];
