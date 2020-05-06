@@ -31,7 +31,7 @@ let upload = multer({
     fileFilter: function (req, file, cb) {
         checkFileType(file, cb);
     }
-});
+}).single("image");
 
 // Check File Type
 function checkFileType(file, cb) {
@@ -130,14 +130,17 @@ router.route("/")
     });
 
 router.route("/postPicture/:id")
-    .post(upload.single("image"), // TODO MAKE SECURE!!!
-        (req, res) => {
+    .post(function (req, res, next) {
+        // TODO MAKE SECURE!!!
+        upload(req, res, function(result) {
             fs.rename(req.file.destination + req.file.filename, req.file.destination + req.params.id + "." + mime.extension(req.file.mimetype), () => {
                 res.send();
             })
         })
-    .put(upload.single("image"),
-        (req, res) => {
+    })
+    .put(function (req, res, next) {
+        // TODO MAKE SECURE!!!
+        upload(req, res, function(result) {
             // delete old picture
             var files = fs.readdirSync('./../frontend/build/img/activities/');
             for (var i = 0; i < files.length; i++) {
@@ -150,7 +153,8 @@ router.route("/postPicture/:id")
             fs.rename(req.file.destination + req.file.filename, req.file.destination + req.params.id + "." + mime.extension(req.file.mimetype), () => {
                 res.send();
             })
-        });
+        })
+    });
 
 // This route is for getting the activities for the manage page
 // For the manage page, you should only get the activities which you are allowed to edit
