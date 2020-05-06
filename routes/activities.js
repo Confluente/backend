@@ -141,8 +141,7 @@ router.route("/postPicture/:id")
             // delete old picture
             var files = fs.readdirSync('./../frontend/build/img/activities/');
             for (var i = 0; i < files.length; i++) {
-                if (files[i].split(".")[0].toString() === activity.id.toString()) {
-                    activity.dataValues.coverImage = files[i];
+                if (files[i].split(".")[0].toString() === req.params.id.toString()) {
                     fs.unlinkSync(req.file.destination + files[i]);
                     break;
                 }
