@@ -20,7 +20,7 @@ let Op = Sequelize.Op;
 let storage = multer.diskStorage({
     destination: '../frontend/build/img/activities/',
     filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + "." + mime.extension(file.mimetype));
+        cb(null, req.params.id + "." + mime.extension(file.mimetype));
     }
 });
 
@@ -130,29 +130,32 @@ router.route("/")
     });
 
 router.route("/postPicture/:id")
+    .all(function (req, res, next) {
+        // check for people to be logged in
+        if (!res.locals.session) {
+            return res.sendStatus(401);
+        }
+        next();
+    })
     .post(function (req, res, next) {
-        // TODO MAKE SECURE!!!
         upload(req, res, function(result) {
-            fs.rename(req.file.destination + req.file.filename, req.file.destination + req.params.id + "." + mime.extension(req.file.mimetype), () => {
-                res.send();
-            })
+            res.send();
         })
     })
     .put(function (req, res, next) {
-        // TODO MAKE SECURE!!!
-        upload(req, res, function(result) {
-            // delete old picture
-            var files = fs.readdirSync('./../frontend/build/img/activities/');
-            for (var i = 0; i < files.length; i++) {
-                if (files[i].split(".")[0].toString() === req.params.id.toString()) {
-                    fs.unlinkSync(req.file.destination + files[i]);
-                    break;
-                }
-            }
+        var pathToActivityPictures = './../frontend/build/img/activities/';
 
-            fs.rename(req.file.destination + req.file.filename, req.file.destination + req.params.id + "." + mime.extension(req.file.mimetype), () => {
-                res.send();
-            })
+        // delete old picture
+        var files = fs.readdirSync(pathToActivityPictures);
+        for (var i = 0; i < files.length; i++) {
+            if (files[i].split(".")[0].toString() === req.params.id.toString()) {
+                fs.unlinkSync(pathToActivityPictures + files[i]);
+                break;
+            }
+        }
+
+        upload(req, res, function(result) {
+            res.send();
         })
     });
 
