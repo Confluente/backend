@@ -16,6 +16,7 @@ var path = require("path");
 var router = express.Router();
 let Op = Sequelize.Op;
 
+// path where the pictures of the activities are put in in frontend
 var pathToPictures = '../frontend/build/img/activities/'
 
 // Set The Storage Engine
@@ -29,7 +30,7 @@ let storage = multer.diskStorage({
 // Init Upload
 let upload = multer({
     storage: storage,
-    limits: {fileSize: 1000000},
+    limits: {fileSize: 1000000}, // 1 MB
     fileFilter: function (req, file, cb) {
         checkFileType(file, cb);
     }
