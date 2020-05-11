@@ -16,9 +16,11 @@ var path = require("path");
 var router = express.Router();
 let Op = Sequelize.Op;
 
+var pathToPictures = '../frontend/build/img/activities/'
+
 // Set The Storage Engine
 let storage = multer.diskStorage({
-    destination: '../frontend/build/img/activities/',
+    destination: pathToPictures,
     filename: function (req, file, cb) {
         cb(null, req.params.id + "." + mime.extension(file.mimetype));
     }
@@ -44,6 +46,16 @@ function checkFileType(file, cb) {
         return cb(null, true);
     } else {
         cb('Error: Images Only!');
+    }
+}
+
+function deletePicture(id) {
+    var files = fs.readdirSync(pathToPictures);
+    for (var i = 0; i < files.length; i++) {
+        if (files[i].split(".")[0].toString() === id.toString()) {
+            fs.unlinkSync(pathToPictures + files[i]);
+            break;
+        }
     }
 }
 
@@ -129,7 +141,7 @@ router.route("/")
         }).done();
     });
 
-router.route("/postPicture/:id")
+router.route("/pictures/:id")
     .all(function (req, res, next) {
         // check for people to be logged in
         if (!res.locals.session) {
@@ -143,16 +155,8 @@ router.route("/postPicture/:id")
         })
     })
     .put(function (req, res, next) {
-        var pathToActivityPictures = './../frontend/build/img/activities/';
-
         // delete old picture
-        var files = fs.readdirSync(pathToActivityPictures);
-        for (var i = 0; i < files.length; i++) {
-            if (files[i].split(".")[0].toString() === req.params.id.toString()) {
-                fs.unlinkSync(pathToActivityPictures + files[i]);
-                break;
-            }
-        }
+        deletePicture(req.params.id);
 
         upload(req, res, function(result) {
             res.send();
@@ -345,6 +349,11 @@ router.route("/:id")
             if (!result) {
                 return res.sendStatus(403);
             }
+
+            if (res.locals.activity.hasCoverImage) {
+                deletePicture(res.locals.activity.id);
+            }
+
             return res.locals.activity.destroy();
         }).then(function () {
             res.status(204).send({status: "Successful"});
