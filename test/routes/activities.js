@@ -12,8 +12,19 @@ describe("routes/activities", function () {
     var testActivity = {
         name: "foo",
         description: "bar",
-        approved: true,
-        date: new Date()
+        published: true,
+        location: "honors room",
+        date: new Date(),
+        startTime: "18:00",
+        endTime: "20:00",
+        participationFee: "7",
+        canSubscribe: true,
+        numberOfQuestions: 3,
+        titlesOfQuestions: ["text", "checkbox", "radio"],
+        typeOfQuestion: ["text", "checkbox", "radio"],
+        questionDescriptions: ["What are you thinking about?", "What vegetables do you like?", "Is this required?"],
+        options: ["", "car;bike", "maybe;sort of"],
+        required: ["yes", "no", "no"]
     };
 
     var activityId;
@@ -29,6 +40,9 @@ describe("routes/activities", function () {
                     //console.log(res.body);
                     activityId = res.body.id;
                     assert(res.body.name === testActivity.name);
+                    assert(res.body.numberOfQuestions === 5);
+                    assert(typeof res.body.questionDescriptions === "string");
+                    assert(typeof res.body.formOptions === "string")
                 });
         });
 
@@ -58,11 +72,56 @@ describe("routes/activities", function () {
                         assert(activity.description_html.includes("<p>"));
                         assert.equal(typeof activity.Organizer, "object");
                         // assert(typeof activity.canSubscribe === "boolean");
-                        assert(activity.approved);
+                        assert(activity.published);
                     });
                 });
         });
 
+    });
+
+    describe("GET /activities/manage", function () {
+        it("lists all activities in manage", function () {
+            return testData.adminUserAgent
+                .get("/api/activities/manage")
+                .expect('Content-Type', /json/)
+                .expect(200)
+                .then(function (res) {
+                    assert(res.body.length > 0);
+                    res.body.forEach(function (activity) {
+                        //console.log(activity);
+                        assert(typeof activity.name === "string");
+                        assert(typeof activity.description === "string");
+                        assert(typeof activity.description_html === "string");
+                        assert(activity.description_html.includes("<p>"));
+                        assert.equal(typeof activity.Organizer, "object");
+                        // assert(typeof activity.canSubscribe === "boolean");
+                        assert(activity.published);
+                    });
+                });
+        });
+
+        it("requires permission", function () {
+            return testData.getAgent()
+                .get("/api/activities/manage")
+                .expect(403);
+        });
+    });
+
+    describe("POST /activities/subscriptions/:id", function () {
+
+        var answers = ["myName", "myEmail", "testCases", "car;bike", "maybe"];
+
+        it("adds a subscription", function() {
+            return testData.activeUserAgent
+                .post("/api/activities/subscriptions/" + activityId)
+                .send(answers)
+                .then(function (res) {
+                    console.log(res.body);
+                    assert(typeof res.body[0].answers === "string");
+                    assert(res.body[0].userId === testData.activeUser.id);
+                    assert(res.body[0].activityId === activityId);
+                })
+        })
     });
 
     describe("GET /activities/:id", function () {
@@ -73,7 +132,6 @@ describe("routes/activities", function () {
                 .expect(200)
                 .then(function (res) {
                     var activity = res.body;
-                    //console.log(activity);
                     assert(typeof activity.description === "string");
                     assert(typeof activity.description_html === "string")
                     assert(activity.description_html.includes("<p>"));
@@ -97,18 +155,18 @@ describe("routes/activities", function () {
 
         it("changes an activity", function () {
             return testData.activeUserAgent
-                .put("/api/activities/" + testData.unapprovedActivity.id)
+                .put("/api/activities/" + testData.unpublishedActivity.id)
                 .send(changedActivity)
                 .expect(200)
                 .then(function (res) {
                     assert(res.body.name === changedActivity.name);
-                    assert(res.body.description === testData.unapprovedActivity.description);
+                    assert(res.body.description === testData.unpublishedActivity.description);
                     return testData.activeUserAgent
-                        .get("/api/activities/" + testData.unapprovedActivity.id)
+                        .get("/api/activities/" + testData.unpublishedActivity.id)
                         .expect(200)
                         .then(function (res) {
                             assert(res.body.name === changedActivity.name);
-                            assert(res.body.description === testData.unapprovedActivity.description);
+                            assert(res.body.description === testData.unpublishedActivity.description);
                         });
                 });
         });
@@ -121,7 +179,7 @@ describe("routes/activities", function () {
 
         it("requires permission", function () {
             return testData.nobodyUserAgent
-                .put("/api/activities/" + testData.unapprovedActivity.id)
+                .put("/api/activities/" + testData.unpublishedActivity.id)
                 .send({description: "Jet fuel can't melt steel beams"})
                 .expect(403);
         });

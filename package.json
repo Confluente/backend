@@ -21,6 +21,8 @@
     "marked": "^0.7.0",
     "mocha": "^6.2.2",
     "morgan": "^1.9.1",
+    "node-schedule": "^1.3.2",
+    "nodemailer": "^6.4.2",
     "q": "^1.5.1",
     "sequelize": "^5.19.0",
     "sqlite3": "^4.1.0",

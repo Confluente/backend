@@ -10,7 +10,7 @@ router.route("/")
     .all(permissions.requireAll({type: "GROUP_MANAGE"}))
     .get(function (req, res, next) {
         Group.findAll({
-            attributes: ["id", "fullName", "displayName", "description", "email", "canOrganize"],
+            attributes: ["id", "fullName", "displayName", "description", "email", "canOrganize", "type"],
             order: [
                 ["id", "ASC"]
             ]
@@ -43,7 +43,7 @@ router.route("/:id")
     .all(function (req, res, next) {
         var id = req.params.id;
         Group.findByPk(req.params.id, {
-            attributes: ["id", "fullName", "displayName", "description", "email", "canOrganize"],
+            attributes: ["id", "fullName", "displayName", "description", "email", "canOrganize", "type"],
             include: [
                 {
                     model: User,
@@ -68,7 +68,7 @@ router.route("/:id")
             }
             var group = res.locals.group;
             res.send(group);
-        });
+        }).done();
     })
     .put(function (req, res) {
         var user = res.locals.session ? res.locals.session.user : null;
@@ -79,7 +79,20 @@ router.route("/:id")
             if (!result) {
                 return res.sendStatus(403);
             }
-            return res.locals.group.update(req.body).then(function (group) {
+
+            return res.locals.group.update(req.body[0]).then(function (group) {
+                // remove all current group members
+                for (var i = 0; i < group.members.length; i++) {
+                    group.members[i].user_group.destroy();
+                }
+
+                // add all new group members
+                req.body[1].forEach(function (new_group_member) {
+                    User.findByPk(new_group_member.id).then(function (new_user) {
+                        new_user.addGroups(res.locals.group, {through: {func: new_group_member.func}}).then(console.log);
+                    })
+                });
+
                 res.send(group);
             }, function (err) {
                 console.error(err);
@@ -98,6 +111,19 @@ router.route("/:id")
             return res.locals.group.destroy();
         }).then(function () {
             res.status(204).send({status: "Successful"});
+        });
+    });
+
+router.route("/type/:type")
+    .get(function (req, res) {
+        Group.findAll({
+            attributes: ["id", "fullName", "displayName", "description", "email"],
+            where: {type: req.params.type},
+            order: [
+                ["id", "ASC"]
+            ]
+        }).then(function (results) {
+            res.send(results);
         });
     });
 module.exports = router;

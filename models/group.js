@@ -6,7 +6,8 @@ var Group = sequelize.define('group', {
     fullName: {type: Sequelize.STRING, unique: true},
     description: Sequelize.STRING,
     canOrganize: Sequelize.BOOLEAN,
-    email: Sequelize.STRING
+    email: Sequelize.STRING,
+    type: Sequelize.STRING
 });
 
 Group.sync();

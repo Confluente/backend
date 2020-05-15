@@ -40,11 +40,11 @@ function check(user, scope) {
                     if (!activity) {
                         return false;
                     }
-                    if (activity.approved) {
-                        // Approved activities allowed to be viewed by anyone
+                    if (activity.published) {
+                        // published activities allowed to be viewed by anyone
                         return true;
                     }
-                    // Unapproved activities only allowed to be viewed by organizers and admins
+                    // Unpublished activities only allowed to be viewed by organizers and admins
                     return loggedIn ? user.hasGroup(activity.OrganizerId) : false;
                 });
             case "ACTIVITY_EDIT":
@@ -80,11 +80,14 @@ function check(user, scope) {
                 // Only admins allowed to manage users
                 return false;
             case "CREATE_USER":
-                // Only admins are allowed to create users
-                return false;
+                // Everyone is allowed to submit a request for an account
+                return true;
             case "GROUP_MANAGE":
                 // Only admins are allowed to manage groups
                 return false;
+            case "GROUP_VIEW":
+                // Everyone is allowed to see groups
+                return true;
             default:
                 throw new Error("Unknown scope type");
         }

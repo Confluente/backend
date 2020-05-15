@@ -1,6 +1,7 @@
 var Q = require("q");
 var Sequelize = require("sequelize");
 var sequelize = require("./db");
+var User = require("./user");
 
 var Group = require("./group");
 
@@ -11,15 +12,20 @@ var Activity = sequelize.define('activity', {
     date: Sequelize.DATE,
     startTime: Sequelize.TIME,
     endTime: Sequelize.TIME,
-    subscribeBefore: Sequelize.DATE,
-    pathToPicture: Sequelize.STRING,
     canSubscribe: {
-        type: Sequelize.VIRTUAL,
-        get: function () {
-            return true;
-        }
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
     },
-    approved: {
+    participationFee: Sequelize.DECIMAL,
+
+    // all form variables
+    numberOfQuestions: Sequelize.INTEGER,
+    typeOfQuestion: Sequelize.STRING,
+    questionDescriptions: Sequelize.STRING,
+    formOptions: Sequelize.STRING,
+    required: Sequelize.STRING,
+    subscriptionDeadline: Sequelize.DATE,
+    published: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
     }
