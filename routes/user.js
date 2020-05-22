@@ -10,6 +10,7 @@ var router = express.Router();
 var log = require("../logger");
 
 router.route("/")
+    // Get all users
     .get(function (req, res, next) {
         var userId = res.locals.session ? res.locals.session.user : null;
         permissions.check(userId, {
@@ -75,13 +76,14 @@ router.route("/")
         }).done();
     });
 
+// Specific user route
 router.route("/:id")
     .all(function (req, res, next) {
         var user = res.locals.session ? res.locals.session.user : null;
         if (user === null) return res.send(403);
         var id = req.params.id;
         User.findByPk(req.params.id, {
-            attributes: ["id", "firstName", "lastName", "displayName", "major", "track", "honorsGeneration", "campusCardNumber", "mobilePhoneNumber", "email", "isAdmin", "consentWithPortraitRight"],
+            attributes: ["id", "firstName", "lastName", "displayName", "major", "address", "track", "honorsGeneration", "campusCardNumber", "mobilePhoneNumber", "email", "isAdmin", "consentWithPortraitRight"],
         }).then(function (user) {
             if (user === null) {
                 res.status(404).send({status: "Not Found"});
@@ -91,6 +93,7 @@ router.route("/:id")
             }
         });
     })
+    // Get specific user
     .get(function (req, res) {
         var user = res.locals.session ? res.locals.session.user : null;
         permissions.check(user, {type: "USER_VIEW", value: req.params.id}).then(function (result) {
