@@ -3,6 +3,14 @@ var Q = require("q");
 var User = require("./models/user");
 var Group = require("./models/group");
 var Activity = require("./models/activity");
+var fs = require('fs')
+
+if (!fs.existsSync("./data.sqlite")) {
+    // database does not yet exist! great :)
+} else {
+    return console.error("Delete the database (data.sqlite) before generating a new one")
+}
+
 
 // Initial accounts
 var users = [
