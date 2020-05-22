@@ -152,7 +152,15 @@ router.route("/pictures/:id")
         if (!res.locals.session) {
             return res.sendStatus(401);
         }
-        next();
+        return permissions.check(res.locals.session.user, {
+            type: "ACTIVITY_EDIT",
+            value: req.params.id
+        }).then(function (result) {
+            if (!result) {
+                return res.sendStatus(403);
+            }
+            next();
+        });
     })
     .post(function (req, res, next) {
         upload(req, res, function(result) {
@@ -302,7 +310,7 @@ router.route("/:id")
             }
 
             if (activity.hasCoverImage) {
-                var files = fs.readdirSync('./../frontend/build/img/activities/');
+                var files = fs.readdirSync(pathToPictures);
                 for (var i = 0; i < files.length; i++) {
                     if (files[i].split(".")[0].toString() === activity.id.toString()) {
                         activity.dataValues.coverImage = files[i];
