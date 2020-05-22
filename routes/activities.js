@@ -17,7 +17,11 @@ var router = express.Router();
 let Op = Sequelize.Op;
 
 // path where the pictures of the activities are put in in frontend
-var pathToPictures = '../frontend/build/img/activities/'
+if (process.env.NODE_ENV === "dev") {
+    var pathToPictures = '../frontend/src/img/activities/'
+} else {
+    var pathToPictures = '../frontend/build/img/activities/'
+}
 
 // Set The Storage Engine
 let storage = multer.diskStorage({
