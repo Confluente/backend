@@ -1,11 +1,8 @@
-var Q = require("q");
 var Sequelize = require("sequelize");
-var sequelize = require("./db");
-var User = require("./user");
-
+var db = require("./db");
 var Group = require("./group");
 
-var Activity = sequelize.define('activity', {
+var Activity = db.define('activity', {
     /*
      * Name of the activity
      */
@@ -102,6 +99,6 @@ Activity.Organizer = Activity.belongsTo(Group, {as: "Organizer"});
 
 Activity.sync();
 Group.sync();
-sequelize.sync();
+db.sync();
 
 module.exports = Activity;
