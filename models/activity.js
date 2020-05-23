@@ -3,6 +3,7 @@ var db = require("./db");
 var Group = require("./group");
 
 var Activity = db.define('activity', {
+
     /*
      * Name of the activity
      */
