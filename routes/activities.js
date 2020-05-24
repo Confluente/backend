@@ -129,11 +129,17 @@ router.route("/")
         }).done();
     });
 
-// This route is for getting the activities for the manage page
-// For the manage page, you should only get the activities which you are allowed to edit
 router.route("/manage")
+    /*
+     * Gets all activities for the manage page.
+     * @return List of activities that the client is allowed to edit
+     */
     .get(function (req, res, next) {
-        d = new Date();
+
+        // Check if the client is logged in
+        if (!res.locals.session) return res.sendStatus(403);
+
+        // Get all activities from the database
         Activity.findAll({
             attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline"],
             order: [
@@ -145,9 +151,9 @@ router.route("/manage")
                 attributes: ["id", "displayName", "fullName", "email"]
             }]
         }).then(function (activities) {
-            if (!res.locals.session) return res.sendStatus(403);
+
+            // For every activity, check if the client is allowed to edit it
             var promises = activities.map(function (activity) {
-                if (!res.locals.session) return Q(null);
                 return permissions.check(res.locals.session.user, {
                     type: "ACTIVITY_EDIT",
                     value: activity.id
@@ -155,26 +161,39 @@ router.route("/manage")
                     return result ? activity : null;
                 });
             });
+
             Q.all(promises).then(function (activities) {
+
+                // Filter all activities out that are null due to limited permission
                 activities = activities.filter(function (e) {
                     return e !== null;
                 });
+
+                // For each activity in activities, enable markdown for description
                 activities = activities.map(function (activity) {
                     activity.dataValues.description_html = marked(activity.description || "");
                     return activity;
                 });
+
+                // Send activities to the client
                 res.send(activities);
             }).done();
         });
     });
 
 router.route("/subscriptions/:id")
-    // adding a subscription to a specific activity
+    /*
+     * Adds a subscription to a specific activity
+     */
     .post(function (req, res, next) {
-        // check if user is logged in
+
+        // check if client is logged in
         var user = res.locals.session ? res.locals.session.user : null;
+
+        // If client is not logged in, send 403
         if (user == null) return res.status(403).send({status: "Not logged in"});
-        // get activity
+
+        // Get activity from database
         Activity.findByPk(req.params.id, {
             include: [{
                 model: Group,
@@ -182,43 +201,58 @@ router.route("/subscriptions/:id")
                 attributes: ["id", "displayName", "fullName", "email"]
             }]
         }).then(function (activity) {
+
             // format answer string
             let answerString = arrayHelper.stringifyArrayOfStrings(req.body);
 
             // add relation
             return User.findByPk(user).then(function (dbUser) {
                 dbUser.addActivity(activity, {through: {answers: answerString}}).then(function (result) {
+
+                    // Send relation back to the client
                     res.send(result);
                 })
             });
         })
     })
-    // deleting subscription to activity
+    /**
+     * Deletes a subscription from an activity
+     */
     .delete(function (req, res) {
-        // checking if user is logged in
+
+        // checking if client is logged in
         var userId = res.locals.session ? res.locals.session.user : null;
+
+        // If client is not logged in, send 403
         if (userId == null) return res.status(403).send({status: "Not logged in"});
-        // get activity
+
+        // Get activity from database
         Activity.findByPk(req.params.id, {
             include: [{
                 model: User,
                 as: "participants"
             }]
         }).then(function (activity) {
+
             // looping through all subscriptions to find the one of the user that requested the delete
             for (var i = 0; i < activity.dataValues.participants.length; i++) {
                 if (activity.dataValues.participants[i].dataValues.id === userId) {
                     activity.dataValues.participants[i].dataValues.subscription.destroy();
                 }
             }
+
+            // Send confirmation to clinet
             return res.send(201)
         }).done()
     });
 
 router.route("/:id")
+    /**
+     * Gets activity with id from database and stores it in res.locals.activity
+     */
     .all(function (req, res, next) {
-        var id = req.params.id;
-        // getting specific activity from database
+
+        // Getting specific activity from database
         Activity.findByPk(req.params.id, {
             include: [{
                 model: Group,
@@ -230,51 +264,87 @@ router.route("/:id")
                 attributes: ["id", "displayName", "firstName", "lastName", "email"]
             }]
         }).then(function (activity) {
+
+            // If activity not found, send 404
             if (activity === null) {
                 res.status(404).send({status: "Not Found"});
             } else {
+
+                // Store activity
                 res.locals.activity = activity;
+
                 next();
             }
         });
     })
-    // Getting a specific activity
+    /*
+     * Sends specific activity to the client
+     */
     .get(function (req, res) {
-        var user = res.locals.session ? res.locals.session.user : null; // check if user is logged in
+
+        // Check if client is logged in
+        var user = res.locals.session ? res.locals.session.user : null;
+
+        // Check if client has permission to view the activity
         permissions.check(user, {type: "ACTIVITY_VIEW", value: req.params.id}).then(function (result) {
+
+            // If no permission, send 403
             if (!result) return res.sendStatus(403);
+
+            // Store activity in variable
             var activity = res.locals.activity;
+
+            // Enable markdown
             activity.dataValues.description_html = marked(activity.description);
 
             // formatting activity correctly for frontend
             if (activity.canSubscribe) {
+
                 // split strings into lists
                 activity.participants.forEach(function (participant) {
                     participant.subscription.answers = arrayHelper.destringifyStringifiedArrayOfStrings(participant.subscription.answers);
                 });
+
                 activity.typeOfQuestion = arrayHelper.destringifyStringifiedArrayOfStrings(activity.typeOfQuestion);
                 activity.questionDescriptions = arrayHelper.destringifyStringifiedArrayOfStrings(activity.questionDescriptions);
                 activity.formOptions = arrayHelper.destringifyStringifiedArrayOfStrings(activity.formOptions);
                 activity.required = arrayHelper.destringifyStringifiedArrayOfStrings(activity.required);
+
                 var newOptions = [];
                 activity.formOptions.forEach(function (question) {
                     newOptions.push(question.split('#;#'));
                 });
+
                 activity.formOptions = newOptions;
             }
 
+            // Send activity to client
             res.send(activity);
         }).done();
     })
-    // editing a specific activity
+    /**
+     * Edits a specific activity
+     */
     .put(function (req, res) {
+
+        // Check if client is logged in
         var user = res.locals.session ? res.locals.session.user : null;
+
+        // Check if client has permission to edit the activity
         permissions.check(user, {
             type: "ACTIVITY_EDIT",
             value: res.locals.activity.id
         }).then(function (result) {
-            if (!result) {
-                return res.sendStatus(403);
+
+            // If no permission, send 403
+            if (!result) return res.sendStatus(403)
+
+            if (req.body.canSubscribe) {
+                // formatting the subscription form into strings for the database
+                req.body.typeOfQuestion = arrayHelper.stringifyArrayOfStrings(req.body.typeOfQuestion);
+                req.body.questionDescriptions = arrayHelper.stringifyArrayOfStrings(req.body.questionDescriptions);
+                req.body.formOptions = arrayHelper.stringifyArrayOfStrings(req.body.formOptions);
+                req.body.required = arrayHelper.stringifyArrayOfStrings(req.body.required);
             }
 
             // Get the organizing group from the database
@@ -282,14 +352,7 @@ router.route("/:id")
                 req.body.OrganizerId = group.id;
                 req.body.Organizer = group;
 
-                if (req.body.canSubscribe) {
-                    // formatting the subscription form into strings for the database
-                    req.body.typeOfQuestion = arrayHelper.stringifyArrayOfStrings(req.body.typeOfQuestion);
-                    req.body.questionDescriptions = arrayHelper.stringifyArrayOfStrings(req.body.questionDescriptions);
-                    req.body.formOptions = arrayHelper.stringifyArrayOfStrings(req.body.formOptions);
-                    req.body.required = arrayHelper.stringifyArrayOfStrings(req.body.required);
-                }
-
+                // Update the activity in the database
                 return res.locals.activity.update(req.body).then(function (activity) {
                     res.send(activity);
                 }, function (err) {
@@ -298,16 +361,24 @@ router.route("/:id")
             });
         }).done();
     })
-    // deleting a specific activity
+    /*
+     * Deletes a specific activity
+     */
     .delete(function (req, res) {
+
+        // Check if the client is logged in
         var user = res.locals.session ? res.locals.session.user : null;
+
+        // Check if the client has permission to edit the activity
         permissions.check(user, {
             type: "ACTIVITY_EDIT",
             value: res.locals.activity.id
         }).then(function (result) {
-            if (!result) {
-                return res.sendStatus(403);
-            }
+
+            // If no permission, send 403
+            if (!result) return res.sendStatus(403)
+
+            // Destroy activity in database
             return res.locals.activity.destroy();
         }).then(function () {
             res.status(204).send({status: "Successful"});
