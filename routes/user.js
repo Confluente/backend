@@ -124,12 +124,21 @@ router.route("/:id")
             }
         });
     })
+    /*
+     * Get a specific user from the database and return to the client
+     */
     .get(function (req, res) {
-        var user = res.locals.session ? res.locals.session.user : null;
+
+        // store user in variable
+        var user = res.locals.session.user;
+
+        // Check whether user has permission to see the information of the user requested
         permissions.check(user, {type: "USER_VIEW", value: req.params.id}).then(function (result) {
-            if (!result) {
-                return res.sendStatus(403);
-            }
+
+            // If no permission, return 403
+            if (!result) return res.sendStatus(403);
+
+            // If permission, find all groups in the database, that the requested user is a member of.
             Group.findAll({
                 attributes: ["id", "fullName"],
                 include: [
