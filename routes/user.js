@@ -158,15 +158,24 @@ router.route("/:id")
             });
         });
     })
+    /*
+     * Edit a user
+     */
     .put(function (req, res) {
-        var user = res.locals.session ? res.locals.session.user : null;
+
+        // Store user in variable
+        var user = res.locals.session.user
+
+        // Check whether the client has permission to manage (edit) users
         permissions.check(user, {
             type: "USER_MANAGE",
             value: res.locals.user.id
         }).then(function (result) {
-            if (!result) {
-                return res.sendStatus(403);
-            }
+
+            // If no permission, send 403
+            if (!result) return res.sendStatus(403);
+
+            // Find all groups that the user edited is currently a member of
             Group.findAll({
                 attributes: ["id", "fullName"],
                 include: [
@@ -180,19 +189,27 @@ router.route("/:id")
                     }
                 ]
             }).then(function (group) {
+
+                // Remove all existing group relations from the database
                 var i;
                 for (i = 0; i < group.length; i++) {
                     group[i].members[0].user_group.destroy();
                 }
 
+                // Add all groups as stated in the request
                 req.body[1].forEach(function (groupData) {
+
                     if (groupData.selected) {
                         Group.findByPk(groupData.id).then(function (specificGroup) {
                             res.locals.user.addGroups(specificGroup, {through: {func: groupData.role}}).then(console.log);
                         })
                     }
                 });
+
+                // Update the user in the database
                 return res.locals.user.update(req.body[0]).then(function (user) {
+
+                    // Send edited user back to the client.
                     res.send(user);
                 }, function (err) {
                     console.error(err);
@@ -201,15 +218,26 @@ router.route("/:id")
 
         });
     })
+    /*
+     * Delete user from the database
+     */
     .delete(function (req, res) {
-        var user = res.locals.session ? res.locals.session.user : null;
+
+        // Store user in variable
+        var user = res.locals.session.user
+
+        // Check if client has the permission to manage (delete) users
         permissions.check(user, {
             type: "USER_MANAGE",
             value: res.locals.user.id
         }).then(function (result) {
-            if (!result) {
-                return res.sendStatus(403);
-            }
+
+            // If no permission, send 403
+            if (!result) return res.sendStatus(403)
+
+            // TODO also delete relations (groups, subscriptions)
+
+            // Destory user in database
             return res.locals.user.destroy();
         }).then(function () {
             res.status(204).send({status: "Successful"});
@@ -217,33 +245,54 @@ router.route("/:id")
     });
 
 router.route("/changePassword/:id")
+    /*
+     * Change the password of a user
+     */
     .put(function (req, res) {
+
+        // Check if client has a session
         var user = res.locals.session ? res.locals.session.user : null;
+
+        // Check if client has permission to change password of user
         permissions.check(user, {type: "CHANGE_PASSWORD", value: req.params.id}).then(function (result) {
-            if (!result) {
-                return res.sendStatus(403);
-            }
+
+            // If no permission, send 403
+            if (!result) return res.sendStatus(403)
+
+            // Get user from database
             User.findByPk(req.params.id, {
                 attributes: ["id", "displayName", "email", "isAdmin", "passwordHash", "passwordSalt"],
             }).then(function (userFound) {
+
+                // If user does not exist, send 404
                 if (userFound === null) {
                     return res.status(404).send({status: "Not Found"});
                 } else {
-                    var inputtedPassword = authHelper.getPasswordHashSync(req.body.password, userFound.passwordSalt);
 
-                    if (Buffer.compare(inputtedPassword, userFound.passwordHash) !== 0) {
+                    // Get the hash of the (original) password the user put
+                    var inputtedPasswordHash = authHelper.getPasswordHashSync(req.body.password, userFound.passwordSalt);
+
+                    // Check if it is indeed the correct password
+                    if (Buffer.compare(inputtedPasswordHash, userFound.passwordHash) !== 0) {
                         return res.status(406).send({status: "Not equal passwords"});
                     }
+
+                    // Check if both newly inputted passwords are the same
                     if (req.body.passwordNew !== req.body.passwordNew2) {
                         return res.status(406).send({status: "Not equal new passwords"});
                     }
-                    var passwordSal = authHelper.generateSalt(16); // Create salt of 16 characters
-                    var passwordHas = authHelper.getPasswordHashSync(req.body.passwordNew, passwordSal); // Get password hash
 
+                    // Generate new salt and hash
+                    var passwordSalt = authHelper.generateSalt(16); // Create salt of 16 characters
+                    var passwordHash = authHelper.getPasswordHashSync(req.body.passwordNew, passwordSalt); // Get password hash
+
+                    // Update user in database with new password and hash
                     return userFound.update({
-                        passwordHash: passwordHas,
-                        passwordSalt: passwordSal
+                        passwordHash: passwordHash,
+                        passwordSalt: passwordSalt
                     }).then(function (user) {
+
+                        // Send updated user to the client
                         return res.send(user);
                     }, function (err) {
                         console.error(err);
@@ -254,14 +303,26 @@ router.route("/changePassword/:id")
     });
 
 router.route("/approve/:approvalString")
+    /*
+     * Function for approving a user account based on the approvalString
+     */
     .all(function (req, res) {
-        const approvalString = req.params.approvalString;
-        if (approvalString.length !== 24) return res.send(401);
-        User.findOne({where: {approvingHash: approvalString}}).then(function (user) {
-            if (!user) {
-                return res.sendStatus(404).send("Not found!")
-            }
 
+        // Get the approval string
+        const approvalString = req.params.approvalString;
+
+        // Check if it has the correct length
+        if (approvalString.length !== 24) {
+            return res.send(401);
+        }
+
+        // Find the user in the database of which this link is
+        User.findOne({where: {approvingHash: approvalString}}).then(function (user) {
+
+            // If no user is found for this approval string, send 404
+            if (!user) return res.sendStatus(404).send("Not found!")
+
+            // Update user with new (non 24 character) approvalString
             user.update({approved: true, approvingHash: authHelper.generateSalt(23)}).then(function (result) {
                 res.writeHead(301, {
                     'location': '/completed_registration'
