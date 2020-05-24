@@ -152,10 +152,8 @@ router.route("/:id")
                     }
                 ]
             }).then(function (dbGroups) {
-                if (dbGroups === null) {
-                    dbGroups = []
-                }
 
+                // Send user together with group back to client
                 res.send([user, dbGroups])
             });
         });
