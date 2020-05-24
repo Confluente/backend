@@ -1,53 +1,70 @@
 var express = require("express");
-const nodemailer = require("nodemailer");
-
+var nodemailer = require("nodemailer");
 var User = require("../models/user");
 var Group = require("../models/group");
 var permissions = require("../permissions");
 var authHelper = require("../authHelper");
 
 var router = express.Router();
-var log = require("../logger");
 
 router.route("/")
+    /*
+     * Gets all users from the database
+     */
     .get(function (req, res, next) {
+
+        // Check if the client is logged in
         var userId = res.locals.session ? res.locals.session.user : null;
+
+        // Check if the client has permission to manage users
         permissions.check(userId, {
             type: "USER_MANAGE",
             value: userId
         }).then(function (result) {
+
+            // If no result, then the client has no permission
             if (!result) res.sendStatus(403);
+
+            // If client has permission, find all users in database
             User.findAll({
                 attributes: ["id", "displayName", "email", "isAdmin"],
                 order: [
                     ["id", "ASC"]
                 ]
             }).then(function (results) {
+
+                // Send the users back to the client
                 res.send(results);
             });
         }).done();
     })
+    /*
+     * Creates a new user in the database
+     */
     .post(function (req, res, next) {
-        var makeLink = function (length) {
-            var result = '';
-            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            var charactersLength = characters.length;
-            for (var i = 0; i < length; i++) {
-                result += characters.charAt(Math.floor(Math.random() * charactersLength));
-            }
-            return result;
-        };
 
+        // Check if required fields are filled in
         if (!req.body.displayName || !req.body.email || !req.body.password) {
             return res.sendStatus(400);
         }
-        req.body.approvingHash = makeLink(24);
-        req.body.passwordSalt = authHelper.generateSalt(16); // Create salt of 16 characters
-        req.body.passwordHash = authHelper.getPasswordHashSync(req.body.password, req.body.passwordSalt); // Get password hash
-        delete req.body.password; // Delete password permanently
+
+        // generate approvingHash, passwordSalt and passwordHash
+        req.body.approvingHash = authHelper.generateSalt(24);
+        req.body.passwordSalt = authHelper.generateSalt(16);
+        req.body.passwordHash = authHelper.getPasswordHashSync(req.body.password, req.body.passwordSalt);
+
+        // Delete password permanently
+        delete req.body.password;
+
+        // Set admin status false
         req.body.isAdmin = false;
+
+        // Create new user in database
         return User.create(req.body).then(function (result) {
+
+            // Send approval email to email
             nodemailer.createTestAccount().then(function () {
+
                 let transporter = nodemailer.createTransport({
                     service: 'gmail',
                     type: "SMTP",
@@ -59,7 +76,9 @@ router.route("/")
                         pass: ''
                     }
                 });
+
                 const link = "https://www.hsaconfluente.nl/api/user/approve/" + req.body.approvingHash;
+
                 transporter.sendMail({
                     from: '"website" <web@hsaconfluente.nl>',
                     to: req.body.email,
@@ -217,16 +236,6 @@ router.route("/changePassword/:id")
 
 router.route("/approve/:approvalString")
     .all(function (req, res) {
-        var makeLink = function (length) {
-            var result = '';
-            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            var charactersLength = characters.length;
-            for (var i = 0; i < length; i++) {
-                result += characters.charAt(Math.floor(Math.random() * charactersLength));
-            }
-            return result;
-        };
-
         const approvalString = req.params.approvalString;
         if (approvalString.length !== 24) return res.send(401);
         User.findOne({where: {approvingHash: approvalString}}).then(function (user) {
@@ -234,7 +243,7 @@ router.route("/approve/:approvalString")
                 return res.sendStatus(404).send("Not found!")
             }
 
-            user.update({approved: true, approvingHash: makeLink(23)}).then(function (result) {
+            user.update({approved: true, approvingHash: authHelper.generateSalt(23)}).then(function (result) {
                 res.writeHead(301, {
                     'location': '/completed_registration'
                 });
