@@ -7,6 +7,9 @@ var permissions = require("../permissions");
 var router = express.Router();
 
 router.route("/:url([^\?]+)")
+    /**
+     * Gets a specific page from the database
+     */
     .get(function (req, res) {
         Page.findOne({
             where: {
@@ -14,23 +17,34 @@ router.route("/:url([^\?]+)")
             },
             attributes: ["url", "title", "content", "author"]
         }).then(function (page) {
-            if (!page) {
-                return res.sendStatus(404);
-            }
+
+            // If page is not found, send 404
+            if (!page) return res.sendStatus(404)
+
+            // Enables markdown
             if (req.query.render === "true") {
                 page.dataValues.html = marked(page.dataValues.content);
                 page.dataValues.content = undefined;
             }
+
+            // Send page to the client
             res.send(page);
         });
     })
+    /**
+     * Edits a page
+     */
     .put(permissions.requireAll({type: "PAGE_MANAGE"}), function (req, res) {
+
+        // Stores the edit parameters
         var values = req.body;
+
         if (!req.body.url || req.body.url === req.params.url) {
             values.url = req.params.url;
         } else {
             throw new Error("Not implemented: change page.url");
         }
+
         return Page.upsert(values).then(function (result) {
             //return res.status(201).send(result);
             return Page.findAll().then(function (results) {
@@ -39,6 +53,9 @@ router.route("/:url([^\?]+)")
             });
         });
     })
+    /**
+     * Deletes a page from the database
+     */
     .delete(permissions.requireAll({type: "PAGE_MANAGE"}), function (req, res) {
         return Page.destroy({where: {url: req.params.url}}).then(function (result) {
             return res.sendStatus(204);
