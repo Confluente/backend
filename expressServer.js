@@ -7,16 +7,17 @@ var Q = require("q");
 var schedule = require('node-schedule');
 var User = require('./models/user');
 var Sequelize = require('sequelize');
-const Op = Sequelize.Op;
-const nodemailer = require("nodemailer");
-
+var Op = Sequelize.Op;
+var nodemailer = require("nodemailer");
 var log = require("./logger");
 var checkPermission = require("./permissions").check;
+var Session = require("./models/session");
 
 var webroot;
 
 var app = express();
 
+// Set webroot dependent on whether running for tests, development, or production
 if (process.env.NODE_ENV === "test") {
     console.log("NODE_ENV=test");
     webroot = path.resolve(__dirname, "www");
@@ -36,10 +37,7 @@ if (process.env.NODE_ENV === "test") {
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-var Session = require("./models/session");
-
 app.use(function (req, res, next) {
-    //console.log(req.cookies.session);
     if (req.cookies.session) {
         var token = Buffer.from(req.cookies.session, "base64");
         Session.findOne({where: {token: token}}).then(function (session) {
@@ -98,7 +96,7 @@ app.use(function (req, res, next) {
 // });
 //
 
-//app.use("/admin", require("./admin"));
+
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/activities", require("./routes/activities"));
 app.use("/api/group", require("./routes/group"));
@@ -112,11 +110,12 @@ app.use("/api/*", function (req, res) {
 app.use(express.static(webroot));
 
 app.get("*", function (req, res, next) {
+
     if (req.originalUrl.includes(".")) {
         return res.sendStatus(404);
     }
+
     res.sendFile("/index.html", {root: webroot});
-    //next();
 });
 
 app.use(function (err, req, res, next) {
@@ -124,6 +123,8 @@ app.use(function (err, req, res, next) {
     //throw err;
 });
 
+// This function sends an email to the secretary of H.S.A. Confluente every week if 
+// new users have registered on the website
 var secretary_email = schedule.scheduleJob('0 0 0 * * 7', function () {
     console.log('Send a mail to secretary every sunday if needed!');
     var lastWeek = new Date();
