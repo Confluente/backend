@@ -324,6 +324,8 @@ router.route("/approve/:approvalString")
 
             // Update user with new (non 24 character) approvalString
             user.update({approved: true, approvingHash: authHelper.generateSalt(23)}).then(function (result) {
+
+                // Redirect users to the completed registration page
                 res.writeHead(301, {
                     'location': '/completed_registration'
                 });
