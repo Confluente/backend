@@ -12,7 +12,7 @@ var router = express.Router();
 var Op = Sequelize.Op;
 
 router.route("/")
-    /*
+    /**
      * Gets every activity in the database happening from today onwards
      */
     .get(function (req, res, next) {

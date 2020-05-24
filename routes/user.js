@@ -8,7 +8,7 @@ var authHelper = require("../authHelper");
 var router = express.Router();
 
 router.route("/")
-    /*
+    /**
      * Gets all users from the database
      */
     .get(function (req, res, next) {
@@ -38,7 +38,7 @@ router.route("/")
             });
         }).done();
     })
-    /*
+    /**
      * Creates a new user in the database
      */
     .post(function (req, res, next) {
@@ -96,7 +96,7 @@ router.route("/")
     });
 
 router.route("/:id")
-    /*
+    /**
      * Gets the user and stores it in res.locals.user
      * @param id of the user that client wants
      */
@@ -124,7 +124,7 @@ router.route("/:id")
             }
         });
     })
-    /*
+    /**
      * Get a specific user from the database and return to the client
      */
     .get(function (req, res) {
@@ -158,7 +158,7 @@ router.route("/:id")
             });
         });
     })
-    /*
+    /**
      * Edit a user
      */
     .put(function (req, res) {
@@ -218,7 +218,7 @@ router.route("/:id")
 
         });
     })
-    /*
+    /**
      * Delete user from the database
      */
     .delete(function (req, res) {
@@ -245,7 +245,7 @@ router.route("/:id")
     });
 
 router.route("/changePassword/:id")
-    /*
+    /**
      * Change the password of a user
      */
     .put(function (req, res) {
@@ -303,7 +303,7 @@ router.route("/changePassword/:id")
     });
 
 router.route("/approve/:approvalString")
-    /*
+    /**
      * Function for approving a user account based on the approvalString
      */
     .all(function (req, res) {

@@ -1,16 +1,10 @@
 var express = require("express");
-var Q = require("q");
-var marked = require("marked");
-var Sequelize = require("sequelize");
-var permissions = require("../permissions");
-var Activity = require("../models/activity");
-var Group = require("../models/group");
 var User = require("../models/user");
 
 var router = express.Router();
 
 router.route("/portraitRight/:id")
-    /*
+    /**
      * Function for changing the consentWithPortraitRight attribute of a user
      */
     .put(function (req, res) {

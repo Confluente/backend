@@ -7,7 +7,7 @@ var authHelper = require("../authHelper");
 var router = express.Router();
 
 router.route("/")
-    /*
+    /**
      * Function for getting the profile of the user.
      */
     .get(function (req, res, next) {
@@ -40,7 +40,7 @@ router.route("/")
     });
 
 router.route("/login")
-    /*
+    /**
      * Function for login a user in.
      */
     .post(function (req, res, next) {

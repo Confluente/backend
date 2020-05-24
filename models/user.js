@@ -5,53 +5,53 @@ var Activity = require("./activity");
 
 var User = db.define('user', {
 
-    /*
+    /**
      * Email of the user.
      */
     email: {type: Sequelize.STRING, unique: true},
 
-    /*
+    /**
      * First name of the user.
      */
     firstName: Sequelize.STRING,
 
-    /*
+    /**
      * Last name of the user.
      */
     lastName: Sequelize.STRING,
 
-    /*
+    /**
      * Display name of the user.
      * Usually concatenation of first name and last name
      */
     displayName: Sequelize.STRING,
 
-    /*
+    /**
      * Major of the user
      */
     major: Sequelize.STRING,
 
-    /*
+    /**
      * Honors track of the user.
      */
     track: Sequelize.STRING,
 
-    /*
+    /**
      * Year that the user started with honors.
      */
     honorsGeneration: Sequelize.INTEGER,
 
-    /*
+    /**
      * Campus card number of the user.
      */
     campusCardNumber: Sequelize.STRING,
 
-    /*
+    /**
      * Mobile phone number of the user.
      */
     mobilePhoneNumber: Sequelize.STRING,
 
-    /*
+    /**
      * Whether the user gave consent regarding portrait right.
      */
     consentWithPortraitRight: {
@@ -59,17 +59,17 @@ var User = db.define('user', {
         defaultValue: false
     },
 
-    /*
+    /**
      * Hash of the password of the user.
      */
     passwordHash: Sequelize.BLOB,
 
-    /*
+    /**
      * Salt of the password of the user.
      */
     passwordSalt: Sequelize.BLOB,
 
-    /*
+    /**
      * Whether the user is an admin
      */
     isAdmin: {
@@ -77,7 +77,7 @@ var User = db.define('user', {
         defaultValue: false
     },
 
-    /*
+    /**
      * Whether the account of the user is approved
      */
     approved: {
@@ -85,13 +85,13 @@ var User = db.define('user', {
         defaultValue: false
     },
 
-    /*
+    /**
      * The hash link via which the account can be approved
      */
     approvingHash: Sequelize.STRING
 });
 
-/*
+/**
  * UserGroup is the function relating users to groups via UserGroup.
  * Function is the function that the user has in the group.
  */
@@ -99,7 +99,7 @@ var UserGroup = db.define('user_group', {
     func: Sequelize.STRING
 });
 
-/*
+/**
  * Subscription is the function relating users to activities via subscriptions.
  * Answers are the answers that the user gave to the questions of the form.
  */
