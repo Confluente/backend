@@ -90,21 +90,35 @@ router.route("/")
             });
             res.status(201).send(result);
         }).catch(function (err) {
+
             res.status(406).send("Account with identical email already exists");
         }).done();
     });
 
 router.route("/:id")
+    /*
+     * Gets the user and stores it in res.locals.user
+     * @param id of the user that client wants
+     */
     .all(function (req, res, next) {
+
+        // Check if client has a session
         var user = res.locals.session ? res.locals.session.user : null;
+
+        // If client does not have a session, he does not have permission
         if (user === null) return res.send(403);
-        var id = req.params.id;
+
+        // Get user from database
         User.findByPk(req.params.id, {
             attributes: ["id", "firstName", "lastName", "displayName", "major", "track", "honorsGeneration", "campusCardNumber", "mobilePhoneNumber", "email", "isAdmin", "consentWithPortraitRight"],
         }).then(function (user) {
+
+            // Return if user not found
             if (user === null) {
                 res.status(404).send({status: "Not Found"});
             } else {
+
+                // Store user and go to next function
                 res.locals.user = user;
                 next();
             }
