@@ -9,18 +9,25 @@ var Group = require("../models/group");
 var User = require("../models/user");
 
 var router = express.Router();
-const Op = Sequelize.Op;
+var Op = Sequelize.Op;
 
 router.route("/")
+    /*
+     * Gets every activity in the database happening from today onwards
+     */
     .get(function (req, res, next) {
-        d = new Date();
+
+        // Get all ativities from the database
         Activity.findAll({
             attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline", "canSubscribe"],
             order: [
                 ["date", "ASC"]
             ],
             where: {
-                date: {[Op.between]: [d.setDate(d.getDate() - 1), new Date(2023, 1, 1)]}
+                date: {[
+                    Op.between]: [new Date().setDate(new Date().getDate() - 1),
+                        new Date().setFullYear(new Date().getFullYear() + 10)
+                    ]}
             },
             include: [{
                 model: Group,
@@ -32,45 +39,70 @@ router.route("/")
                 attributes: ["id", "displayName", "firstName", "lastName", "email"]
             }]
         }).then(function (activities) {
+
+            // Check for every activity if the client can view them
             var promises = activities.map(function (activity) {
+
+                // If the activity is published, everyone (also not logged in) is allowed to see them
                 if (activity.published) return Q(activity);
+
+                // If not logged in (and unpublished), client has no permission
                 if (!res.locals.session) return Q(null);
+
+                // If logged in (and unpublished), check whether client has permission to view activity
                 return permissions.check(res.locals.session.user, {
                     type: "ACTIVITY_VIEW",
                     value: activity.id
                 }).then(function (result) {
+
+                    // If no permission, return null, otherwise return activity
                     return result ? activity : null;
                 });
             });
+
             Q.all(promises).then(function (activities) {
+
+                // Filter out all null events
                 activities = activities.filter(function (e) {
                     return e !== null;
                 });
+
+                // For each activity in activities, enable markdown for description
                 activities = activities.map(function (activity) {
                     activity.dataValues.description_html = marked(activity.description || "");
                     return activity;
                 });
+
+                // Send activities to the client
                 res.send(activities);
             }).done();
         });
     })
-    // Creating a new activity
+    /**
+     * Creates a new activity.
+     */
     .post(function (req, res, next) {
-        let activity = req.body;
 
+        // Check whether the client is logged in
         if (!res.locals.session) {
             return res.sendStatus(401);
         }
 
-        // check if fields are empty
+        // Store activity in variable
+        let activity = req.body;
+
+        // Check if mandatory fields are filled in
         if (!activity.organizer || !activity.description || !activity.date || isNaN(Date.parse(activity.date))) {
             return res.sendStatus(400);
         }
 
+        // Check whether the client has permission to organize events
         permissions.check(res.locals.session.user, {
             type: "GROUP_ORGANIZE",
             value: activity.organizer
         }).then(function (result) {
+
+            // If no permission, send 403
             if (!result) return res.sendStatus(403);
 
             // Format form correctly
@@ -83,9 +115,13 @@ router.route("/")
                 activity.required = arrayHelper.stringifyArrayOfStrings(activity.required);
             }
 
+            // Set organizerId
             activity.OrganizerId = activity.organizer;
 
+            // Create activity in database
             return Activity.create(activity).then(function (result) {
+
+                // Send new activity back to the client
                 res.status(201).send(result);
             }).catch(function (err) {
                 console.error(err);
