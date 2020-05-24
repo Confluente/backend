@@ -12,7 +12,7 @@ var digest_iterations = (process.env.NODE_ENV === "test") ? 1 : 100000;
  * Asynchronous function returning Hash of password based on password and salt
  * @param password
  * @param salt
- * @returns Hash, or rejects
+ * @return Hash, or rejects
  */
 function getPasswordHash(password, salt) {
     return Q.Promise(function (resolve, reject) {
@@ -29,18 +29,19 @@ function getPasswordHash(password, salt) {
  * generates random string of characters i.e salt
  * @function
  * @param {number} length - Length of the random string.
+ * @return {String} salt characters
  */
 function generateSalt(length) {
     return crypto.randomBytes(Math.ceil(length / 2))
         .toString('hex') /** convert to hexadecimal format */
         .slice(0, length);   /** return required number of characters */
-};
+}
 
 /**
  * Synchronous function returning Hash of password based on password and salt
  * @param password
  * @param salt
- * @returns Hash
+ * @return Hash
  */
 function getPasswordHashSync(password, salt) {
     return crypto.pbkdf2Sync(password, salt, digest_iterations, 256 / 8, 'sha256');
@@ -51,7 +52,7 @@ module.exports = {
      * Function for verifying user identity based on email and password
      * @param email
      * @param password
-     * @returns user if valid, otherwise null
+     * @return user if valid, otherwise null
      */
     authenticate: function (email, password) {
         email = email.toLowerCase();
@@ -71,7 +72,7 @@ module.exports = {
      * Function for generating session with logged in user on given IP, with a random token and set lifetime
      * @param userId
      * @param ip
-     * @returns session
+     * @return session
      */
     startSession: function (userId, ip) {
         var session_lifetime = 24 * 3600 * 1000; //1000 days
