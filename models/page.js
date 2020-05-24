@@ -4,7 +4,7 @@ var db = require("./db");
 var Page = db.define('page', {
 
     /*
-     * URL of the page
+     * URL of the page.
      */
     url: {
         type: Sequelize.STRING,
@@ -12,17 +12,17 @@ var Page = db.define('page', {
     },
 
     /*
-     * Title of the page
+     * Title of the page.
      */
     title: Sequelize.STRING,
 
     /*
-     * Content of the page in text format
+     * Content of the page in text format.
      */
     content: Sequelize.TEXT,
 
     /*
-     * Author of hte page
+     * Author of hte page.
      */
     author: Sequelize.STRING
 });

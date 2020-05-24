@@ -5,37 +5,37 @@ var Group = require("./group");
 var Activity = db.define('activity', {
 
     /*
-     * Name of the activity
+     * Name of the activity.
      */
     name: Sequelize.STRING,
 
     /*
-     * Description of the activity
+     * Description of the activity.
      */
     description: Sequelize.STRING,
 
     /*
-     * Location of the activity
+     * Location of the activity.
      */
     location: Sequelize.STRING,
 
     /*
-     * Date of the activity
+     * Date of the activity.
      */
     date: Sequelize.DATE,
 
     /*
-     * Start time of the activity
+     * Start time of the activity.
      */
     startTime: Sequelize.TIME,
 
     /*
-     * End time of the activity
+     * End time of the activity.
      */
     endTime: Sequelize.TIME,
 
     /*
-     * canSubscribes stores whether members can subscribe to the activity
+     * canSubscribes stores whether members can subscribe to the activity.
      */
     canSubscribe: {
         type: Sequelize.BOOLEAN,
@@ -43,19 +43,19 @@ var Activity = db.define('activity', {
     },
 
     /*
-     * Participation fee of the activity
+     * Participation fee of the activity.
      */
     participationFee: Sequelize.DECIMAL,
 
     /*
-     * Number of questions in the subscription form
+     * Number of questions in the subscription form.
      */
     numberOfQuestions: Sequelize.INTEGER,
 
     /*
      * Type of questions in the subscription form.
      * For every question the string stores whether the question is text, multiple choice or checkboxes.
-     * Types are separated by #,# delimiter
+     * Types are separated by #,# delimiter.
      */
     typeOfQuestion: Sequelize.STRING,
 
@@ -82,12 +82,12 @@ var Activity = db.define('activity', {
     required: Sequelize.STRING,
 
     /*
-     * Subscription deadline of the activity
+     * Subscription deadline of the activity.
      */
     subscriptionDeadline: Sequelize.DATE,
 
     /*
-     * Stores whether the activity is published
+     * Stores whether the activity is published.
      */
     published: {
         type: Sequelize.BOOLEAN,
@@ -95,7 +95,7 @@ var Activity = db.define('activity', {
     }
 });
 
-// relates activities to a group that organizes the activity
+// relates activities to a group that organizes the activity.
 Activity.Organizer = Activity.belongsTo(Group, {as: "Organizer"});
 
 Activity.sync();
