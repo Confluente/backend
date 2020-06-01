@@ -67,7 +67,7 @@ var users = [
 // Initial groups
 var groups = [
     {
-        id: 2,
+        id: 1,
         displayName: "Confluente",
         fullName: "H.S.A. Confluente",
         canOrganize: true,
@@ -75,21 +75,83 @@ var groups = [
         type: "Board"
     },
     {
+        id: 2,
+        displayName: "Advisory Board",
+        fullName: "H.S.A. Confluente Advisory Board",
+        canOrganize: false,
+        email: "board@hsaconfluente.nl",
+        type: "Board"
+    },
+    {
         id: 3,
-        displayName: "First Committee",
-        fullName: "The first f***in' committee!!",
-        description: "Can you believe it! It is the first awesome committee",
+        displayName: "Acquisition Committee",
+        fullName: "Acquisition Committee",
+        description: "The acquisition committee is responsible for making and maintaining professional partnerships between the industry and H.S.A. Confluente.",
         canOrganize: true,
-        email: "firstcommittee@hsaconfluente.nl",
+        email: "acquisition@hsaconfluente.nl",
         type: "Committee"
     },
     {
         id: 4,
-        displayName: "Second Committee",
-        fullName: "The second f***in' committee!!",
-        description: "Can you believe it! It is the second awesome committee",
+        displayName: "Activity Committee",
+        fullName: "Activity Committee",
+        description: "The activity committee organizes super duper awesome recreational events! These can range from small lunch break high teas to two hours of paint-balling to an enormous 20 hour dropping!",
         canOrganize: true,
-        email: "secondcommittee@hsaconfluente.nl",
+        email: "activity@hsaconfluente.nl",
+        type: "Committee"
+    },
+    {
+        id: 5,
+        displayName: "EDU Committee",
+        fullName: "Educational Committee",
+        description: "The educational committee is responsible for organizing educational events for the members of H.S.A. Confluente.",
+        canOrganize: true,
+        email: "educational@hsaconfluente.nl",
+        type: "Committee"
+    },
+    {
+        id: 6,
+        displayName: "Gala Committee",
+        fullName: "Gala Committee",
+        description: "The gala committee is responsible for organizing the amazing H.S.A. Confluente gala!",
+        canOrganize: true,
+        email: "gala@hsaconfluente.nl",
+        type: "Committee"
+    },
+    {
+        id: 7,
+        displayName: "Intro Committee",
+        fullName: "Intro Committee",
+        description: "No description just yet",
+        canOrganize: true,
+        email: "intro@hsaconfluente.nl",
+        type: "Committee"
+    },
+    {
+        id: 8,
+        displayName: "PR Committee",
+        fullName: "PR Committee",
+        description: "The PR committee is responsible for promotion of H.S.A. Confluente. They also create the magazine of H.S.A. Confluente.",
+        canOrganize: true,
+        email: "pr@hsaconfluente.nl",
+        type: "Committee"
+    },
+    {
+        id: 9,
+        displayName: "Studytrip Committee",
+        fullName: "Studytrip Committee",
+        description: "The studytrip committee organizes the studytrip during the summer for members of H.S.A. Confluente.",
+        canOrganize: true,
+        email: "studytrip@hsaconfluente.nl",
+        type: "Committee"
+    },
+    {
+        id: 10,
+        displayName: "Web Committee",
+        fullName: "Web Committee",
+        description: "Maintaining and developing the website of H.S.A. Confluente,",
+        canOrganize: true,
+        email: "web@hsaconfluente.nl",
         type: "Committee"
     }
 ];
