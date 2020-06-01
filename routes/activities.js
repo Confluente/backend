@@ -33,10 +33,8 @@ router.route("/")
             }]
         }).then(function (activities) {
             var promises = activities.map(function (activity) {
-                if (activity.published) return Q(activity);
-                if (!res.locals.session) return Q(null);
                 return permissions.check(res.locals.session.user, {
-                    type: "ACTIVITY_EDIT",
+                    type: "ACTIVITY_VIEW",
                     value: activity.id
                 }).then(function (result) {
                     return result ? activity : null;
