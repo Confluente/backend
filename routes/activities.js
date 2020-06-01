@@ -20,8 +20,7 @@ router.route("/")
                 ["date", "ASC"]
             ],
             where: {
-                date: {[Op.between]: [d.setDate(d.getDate() - 1), new Date(2023, 1, 1)]},
-                published: true
+                date: {[Op.between]: [d.setDate(d.getDate() - 1), new Date(2023, 1, 1)]}
             },
             include: [{
                 model: Group,
@@ -37,7 +36,7 @@ router.route("/")
                 if (activity.published) return Q(activity);
                 if (!res.locals.session) return Q(null);
                 return permissions.check(res.locals.session.user, {
-                    type: "ACTIVITY_VIEW",
+                    type: "ACTIVITY_EDIT",
                     value: activity.id
                 }).then(function (result) {
                     return result ? activity : null;
