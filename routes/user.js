@@ -109,14 +109,10 @@ router.route("/:id")
                         }
                     }
                 ]
-            }).then(function (group) {
-                if (group === null) {
-                    res.status(404).send({status: "Not Found"});
-                } else {
-                    var groups = group;
-                    var user = res.locals.user;
-                    res.send([user, groups]);
-                }
+            }).then(function (dbGroups) {
+
+                // Send user together with group back to client
+                res.send([user, dbGroups])
             });
         });
     })

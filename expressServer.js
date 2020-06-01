@@ -64,8 +64,8 @@ app.use(function (req, res, next) {
 //         next();
 //     } else {
 //         // acme challenge is used for certificate verification for HTTPS
-//         if (req.url === "/.well-known/acme-challenge/BxN1GUV7H3f-gduiddTwqx9OBx-a0wU_qIBz-cYoeR4") {
-//             res.redirect('http://hsaconfluente.nl/www/BxN1GUV7H3f-gduiddTwqx9OBx-a0wU_qIBz-cYoeR4');
+//         if (req.url === "/.well-known/acme-challenge/w4MANzrt6vOUT2NSDTvramIFdtMMTJXnxiNiyJPlPTg") {
+//             res.redirect('http://hsaconfluente.nl/www/w4MANzrt6vOUT2NSDTvramIFdtMMTJXnxiNiyJPlPTg');
 //         }
 //         res.redirect('https://' + req.headers.host + req.url);
 //         // request was via http, so redirect to https
