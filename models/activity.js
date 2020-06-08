@@ -23,7 +23,7 @@ var Activity = sequelize.define('activity', {
     typeOfQuestion: Sequelize.STRING,
     questionDescriptions: Sequelize.STRING,
     formOptions: Sequelize.STRING,
-    privateQuestions: Sequelize.STRING,
+    privacyOfQuestions: Sequelize.STRING,
     required: Sequelize.STRING,
     subscriptionDeadline: Sequelize.DATE,
     published: {

@@ -134,7 +134,7 @@ router.route("/")
                 activity.questionDescriptions = arrayHelper.stringifyArrayOfStrings(activity.questionDescriptions);
                 activity.formOptions = arrayHelper.stringifyArrayOfStrings(activity.options);
                 activity.required = arrayHelper.stringifyArrayOfStrings(activity.required);
-                activity.privateQuestions = arrayHelper.stringifyArrayOfStrings(activity.privateQuestions);
+                activity.privacyOfQuestions = arrayHelper.stringifyArrayOfStrings(activity.privacyOfQuestions);
             }
 
             activity.OrganizerId = activity.organizer;
@@ -303,7 +303,7 @@ router.route("/:id")
                 activity.questionDescriptions = arrayHelper.destringifyStringifiedArrayOfStrings(activity.questionDescriptions);
                 activity.formOptions = arrayHelper.destringifyStringifiedArrayOfStrings(activity.formOptions);
                 activity.required = arrayHelper.destringifyStringifiedArrayOfStrings(activity.required);
-                activity.privateQuestions = arrayHelper.destringifyStringifiedArrayOfStrings(activity.privateQuestions);
+                activity.privacyOfQuestions = arrayHelper.destringifyStringifiedArrayOfStrings(activity.privacyOfQuestions);
                 var newOptions = [];
                 activity.formOptions.forEach(function (question) {
                     newOptions.push(question.split('#;#'));
@@ -344,7 +344,7 @@ router.route("/:id")
                     req.body.questionDescriptions = arrayHelper.stringifyArrayOfStrings(req.body.questionDescriptions);
                     req.body.formOptions = arrayHelper.stringifyArrayOfStrings(req.body.formOptions);
                     req.body.required = arrayHelper.stringifyArrayOfStrings(req.body.required);
-                    req.body.privateQuestions = arrayHelper.stringifyArrayOfStrings(req.body.privateQuestions);
+                    req.body.privacyOfQuestions = arrayHelper.stringifyArrayOfStrings(req.body.privacyOfQuestions);
                 }
 
                 return res.locals.activity.update(req.body).then(function (activity) {
