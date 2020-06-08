@@ -33,8 +33,10 @@ if (process.env.NODE_ENV === "test") {
     });
 }
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '10mb', extended: false}))
+app.use(bodyParser.urlencoded({limit: '10mb', extended: false}))
 app.use(cookieParser());
+
 
 var Session = require("./models/session");
 
@@ -109,6 +111,7 @@ app.use("/api/*", function (req, res) {
     res.sendStatus(404);
 });
 
+app.use(express.static('public'));
 app.use(express.static(webroot));
 
 app.get("*", function (req, res, next) {
@@ -125,7 +128,6 @@ app.use(function (err, req, res, next) {
 });
 
 var secretary_email = schedule.scheduleJob('0 0 0 * * 7', function () {
-    console.log('Send a mail to secretary every sunday if needed!');
     var lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
     User.findAll({

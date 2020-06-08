@@ -7,15 +7,68 @@ var arrayHelper = require("../arrayHelper");
 var Activity = require("../models/activity");
 var Group = require("../models/group");
 var User = require("../models/user");
+var multer = require("multer");
+var mime = require('mime-types');
+var fs = require('fs');
+var stream = require('stream');
+var path = require("path");
 
 var router = express.Router();
-const Op = Sequelize.Op;
+let Op = Sequelize.Op;
+
+// path where the pictures of the activities are put in in frontend
+if (process.env.NODE_ENV === "dev") {
+    var pathToPictures = '../frontend/src/img/activities/'
+} else {
+    var pathToPictures = '../frontend/build/img/activities/'
+}
+
+// Set The Storage Engine
+let storage = multer.diskStorage({
+    destination: pathToPictures,
+    filename: function (req, file, cb) {
+        cb(null, req.params.id + "." + mime.extension(file.mimetype));
+    }
+});
+
+// Init Upload
+let upload = multer({
+    storage: storage,
+    limits: {fileSize: 1000000}, // 1 MB
+    fileFilter: function (req, file, cb) {
+        checkFileType(file, cb);
+    }
+}).single("image");
+
+// Check File Type
+function checkFileType(file, cb) {
+    // Allowed ext
+    let filetypes = /jpeg|jpg|png/;
+    // Check mime
+    let mimetype = filetypes.test(file.mimetype);
+
+    if (mimetype) {
+        return cb(null, true);
+    } else {
+        cb('Error: Images Only!');
+    }
+}
+
+function deletePicture(id) {
+    var files = fs.readdirSync(pathToPictures);
+    for (var i = 0; i < files.length; i++) {
+        if (files[i].split(".")[0].toString() === id.toString()) {
+            fs.unlinkSync(pathToPictures + files[i]);
+            break;
+        }
+    }
+}
 
 router.route("/")
     .get(function (req, res, next) {
-        d = new Date();
+        let d = new Date();
         Activity.findAll({
-            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline", "canSubscribe"],
+            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline", "canSubscribe", "hasCoverImage"],
             order: [
                 ["date", "ASC"]
             ],
@@ -94,11 +147,40 @@ router.route("/")
         }).done();
     });
 
+router.route("/pictures/:id")
+    .all(function (req, res, next) {
+        // check for people to be logged in
+        if (!res.locals.session) {
+            return res.sendStatus(401);
+        }
+        return permissions.check(res.locals.session.user, {
+            type: "ACTIVITY_EDIT",
+            value: req.params.id
+        }).then(function (result) {
+            if (!result) {
+                return res.sendStatus(403);
+            }
+            next();
+        });
+    })
+    .post(function (req, res, next) {
+        upload(req, res, function(result) {
+            res.send();
+        })
+    })
+    .put(function (req, res, next) {
+        // delete old picture
+        deletePicture(req.params.id);
+
+        upload(req, res, function(result) {
+            res.send();
+        })
+    });
+
 // This route is for getting the activities for the manage page
 // For the manage page, you should only get the activities which you are allowed to edit
 router.route("/manage")
     .get(function (req, res, next) {
-        d = new Date();
         Activity.findAll({
             attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline"],
             order: [
@@ -134,7 +216,7 @@ router.route("/manage")
     });
 
 router.route("/subscriptions/:id")
-    // adding a subscription to a specific activity
+// adding a subscription to a specific activity
     .post(function (req, res, next) {
         // check if user is logged in
         var user = res.locals.session ? res.locals.session.user : null;
@@ -229,6 +311,14 @@ router.route("/:id")
                 activity.formOptions = newOptions;
             }
 
+            if (activity.hasCoverImage) {
+                var files = fs.readdirSync(pathToPictures);
+                for (var i = 0; i < files.length; i++) {
+                    if (files[i].split(".")[0].toString() === activity.id.toString()) {
+                        activity.dataValues.coverImage = files[i];
+                    }
+                }
+            }
             res.send(activity);
         }).done();
     })
@@ -275,6 +365,11 @@ router.route("/:id")
             if (!result) {
                 return res.sendStatus(403);
             }
+
+            if (res.locals.activity.hasCoverImage) {
+                deletePicture(res.locals.activity.id);
+            }
+
             return res.locals.activity.destroy();
         }).then(function () {
             res.status(204).send({status: "Successful"});
