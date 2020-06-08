@@ -61,7 +61,6 @@ module.exports = {
             }
             return getPasswordHash(password, user.dataValues.passwordSalt)
                 .then(function (hash) {
-                    //console.log(email, password, user.dataValues.passwordHash, hash);
                     return (hash.equals(user.dataValues.passwordHash)) ? user : {error: 406, data: "Password incorrect"};
                 });
         });
