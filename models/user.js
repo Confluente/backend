@@ -6,8 +6,10 @@ var User = sequelize.define('user', {
     firstName: Sequelize.STRING,
     lastName: Sequelize.STRING,
     major: Sequelize.STRING,
+    address: Sequelize.STRING,
     track: Sequelize.STRING,
     honorsGeneration: Sequelize.INTEGER,
+    honorsMembership: Sequelize.STRING,
     campusCardNumber: Sequelize.STRING,
     mobilePhoneNumber: Sequelize.STRING,
     consentWithPortraitRight: {

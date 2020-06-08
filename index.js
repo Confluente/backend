@@ -8,7 +8,7 @@ const fs = require('fs');
 // var httpsServer = https.createServer({
 //     key: fs.readFileSync('../../../etc/letsencrypt/live/hsaconfluente.nl-0001/privkey.pem'),
 //     cert: fs.readFileSync('../../../etc/letsencrypt/live/hsaconfluente.nl-0001/cert.pem'),
-//     ca: fs.readFileSync('../../../etc/letsencrypt/live/hsaconfluente.nl-0001/chain.pem')
+//     ca: fs.readFileSync('../../../etc/letsencrypt/live/hsaconfluente.nl-0001/fullchain.pem')
 // }, expressServer);
 
 
