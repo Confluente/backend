@@ -103,6 +103,7 @@ router.route("/:id")
                     }
                 ]
             }).then(function (dbGroups) {
+                var user = res.locals.user;
 
                 // Send user together with group back to client
                 res.send([user, dbGroups])
