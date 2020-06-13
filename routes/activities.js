@@ -86,8 +86,10 @@ router.route("/")
             }]
         }).then(function (activities) {
             var promises = activities.map(function (activity) {
+                // These lines are needed not to crash the management table in some cases
                 if (activity.published) return Q(activity);
                 if (!res.locals.session) return Q(null);
+                
                 return permissions.check(res.locals.session.user, {
                     type: "ACTIVITY_VIEW",
                     value: activity.id
