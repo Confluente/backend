@@ -7,6 +7,7 @@ var router = express.Router();
 
 router.route("/")
     .all(permissions.requireAll({type: "GROUP_MANAGE"}))
+
     /**
      * Gets all groups from the database
      */
@@ -22,6 +23,7 @@ router.route("/")
             res.send(groups);
         });
     })
+
     /**
      * Creates a new group
      */
@@ -82,6 +84,7 @@ router.route("/:id")
             }
         });
     })
+
     /**
      * Sends group from the database to the client
      */
@@ -100,6 +103,7 @@ router.route("/:id")
             res.send(res.locals.group);
         }).done();
     })
+
     /**
      * Edits a group in the database
      */
@@ -139,6 +143,7 @@ router.route("/:id")
             });
         });
     })
+
     /**
      * Deletes a group from the database
      */

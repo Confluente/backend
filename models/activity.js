@@ -103,12 +103,6 @@ var Activity = db.define('activity', {
      * Stores whether the activity has a cover image
      */
     hasCoverImage: Sequelize.BOOLEAN
-}, {
-    instanceMethods: {
-        isAwesome: function () {
-            return Q(true);
-        }
-    }
 });
 
 // relates activities to a group that organizes the activity.

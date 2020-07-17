@@ -8,7 +8,6 @@ router.route("/portraitRight/:id")
      * Function for changing the consentWithPortraitRight attribute of a user
      */
     .put(function (req, res) {
-
         // check if user is logged in
         var userId = res.locals.session ? res.locals.session.user : null;
 

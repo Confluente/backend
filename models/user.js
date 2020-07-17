@@ -51,7 +51,6 @@ var User = db.define('user', {
      */
     honorsMembership: Sequelize.STRING,
 
-
     /**
      * Campus card number of the user.
      */

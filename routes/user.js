@@ -38,6 +38,7 @@ router.route("/")
             });
         }).done();
     })
+
     /**
      * Creates a new user in the database
      */
@@ -124,6 +125,7 @@ router.route("/:id")
             }
         });
     })
+
     /**
      * Get a specific user from the database and return to the client
      */
@@ -159,6 +161,7 @@ router.route("/:id")
             });
         });
     })
+
     /**
      * Edit a user
      */
@@ -219,6 +222,7 @@ router.route("/:id")
 
         });
     })
+
     /**
      * Delete user from the database
      */

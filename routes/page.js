@@ -31,6 +31,7 @@ router.route("/:url([^\?]+)")
             res.send(page);
         });
     })
+
     /**
      * Edits a page
      */
@@ -53,6 +54,7 @@ router.route("/:url([^\?]+)")
             });
         });
     })
+
     /**
      * Deletes a page from the database
      */

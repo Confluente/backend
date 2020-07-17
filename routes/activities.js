@@ -10,8 +10,6 @@ var User = require("../models/user");
 var multer = require("multer");
 var mime = require('mime-types');
 var fs = require('fs');
-var stream = require('stream');
-var path = require("path");
 
 var router = express.Router();
 let Op = Sequelize.Op;
@@ -54,6 +52,7 @@ function checkFileType(file, cb) {
     }
 }
 
+// Deletes a picture of an activity given an id
 function deletePicture(id) {
     var files = fs.readdirSync(pathToPictures);
     for (var i = 0; i < files.length; i++) {
@@ -69,7 +68,7 @@ router.route("/")
      * Gets every activity in the database happening from today onwards
      */
     .get(function (req, res, next) {
-        // Get all ativities from the database
+        // Get all activities from the database
         let d = new Date();
         Activity.findAll({
             attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline", "canSubscribe", "hasCoverImage"],
@@ -92,7 +91,6 @@ router.route("/")
                 attributes: ["id", "displayName", "firstName", "lastName", "email"]
             }]
         }).then(function (activities) {
-
             // Check for every activity if the client can view them
             var promises = activities.map(function (activity) {
                 // If the activity is published, everyone (also not logged in) is allowed to see them
@@ -107,14 +105,12 @@ router.route("/")
                     type: "ACTIVITY_VIEW",
                     value: activity.id
                 }).then(function (result) {
-
                     // If no permission, return null, otherwise return activity
                     return result ? activity : null;
                 });
             });
 
             Q.all(promises).then(function (activities) {
-
                 // Filter out all null events
                 activities = activities.filter(function (e) {
                     return e !== null;
@@ -131,11 +127,11 @@ router.route("/")
             }).done();
         });
     })
+
     /**
      * Creates a new activity.
      */
     .post(function (req, res, next) {
-
         // Check whether the client is logged in
         if (!res.locals.session) {
             return res.sendStatus(401);
@@ -154,7 +150,6 @@ router.route("/")
             type: "GROUP_ORGANIZE",
             value: activity.organizer
         }).then(function (result) {
-
             // If no permission, send 403
             if (!result) return res.sendStatus(403);
 
@@ -174,7 +169,6 @@ router.route("/")
 
             // Create activity in database
             return Activity.create(activity).then(function (result) {
-
                 // Send new activity back to the client
                 res.status(201).send(result);
             }).catch(function (err) {
@@ -184,6 +178,9 @@ router.route("/")
     });
 
 router.route("/pictures/:id")
+    /**
+     * Checks permissions for handling pictures for activity
+     */
     .all(function (req, res, next) {
         // check for people to be logged in
         if (!res.locals.session) {
@@ -199,11 +196,19 @@ router.route("/pictures/:id")
             next();
         });
     })
+
+    /**
+     * Uploads a picture
+     */
     .post(function (req, res, next) {
         upload(req, res, function(result) {
             res.send();
         })
     })
+
+    /**
+     * Edits a picture
+     */
     .put(function (req, res, next) {
         // delete old picture
         deletePicture(req.params.id);
@@ -233,7 +238,6 @@ router.route("/manage")
                 attributes: ["id", "displayName", "fullName", "email"]
             }]
         }).then(function (activities) {
-
             // For every activity, check if the client is allowed to edit it
             var promises = activities.map(function (activity) {
                 return permissions.check(res.locals.session.user, {
@@ -245,7 +249,6 @@ router.route("/manage")
             });
 
             Q.all(promises).then(function (activities) {
-
                 // Filter all activities out that are null due to limited permission
                 activities = activities.filter(function (e) {
                     return e !== null;
@@ -268,7 +271,6 @@ router.route("/subscriptions/:id")
      * Adds a subscription to a specific activity
      */
     .post(function (req, res, next) {
-
         // check if client is logged in
         var user = res.locals.session ? res.locals.session.user : null;
 
@@ -283,7 +285,6 @@ router.route("/subscriptions/:id")
                 attributes: ["id", "displayName", "fullName", "email"]
             }]
         }).then(function (activity) {
-
             // format answer string
             let answerString = arrayHelper.stringifyArrayOfStrings(req.body);
 
@@ -297,11 +298,11 @@ router.route("/subscriptions/:id")
             });
         })
     })
+
     /**
      * Deletes a subscription from an activity
      */
     .delete(function (req, res) {
-
         // checking if client is logged in
         var userId = res.locals.session ? res.locals.session.user : null;
 
@@ -315,7 +316,6 @@ router.route("/subscriptions/:id")
                 as: "participants"
             }]
         }).then(function (activity) {
-
             // looping through all subscriptions to find the one of the user that requested the delete
             for (var i = 0; i < activity.dataValues.participants.length; i++) {
                 if (activity.dataValues.participants[i].dataValues.id === userId) {
@@ -333,7 +333,6 @@ router.route("/:id")
      * Gets activity with id from database and stores it in res.locals.activity
      */
     .all(function (req, res, next) {
-
         // Getting specific activity from database
         Activity.findByPk(req.params.id, {
             include: [{
@@ -346,12 +345,10 @@ router.route("/:id")
                 attributes: ["id", "displayName", "firstName", "lastName", "email"]
             }]
         }).then(function (activity) {
-
             // If activity not found, send 404
             if (activity === null) {
                 res.status(404).send({status: "Not Found"});
             } else {
-
                 // Store activity
                 res.locals.activity = activity;
 
@@ -359,17 +356,16 @@ router.route("/:id")
             }
         });
     })
-    /*
+
+    /**
      * Sends specific activity to the client
      */
     .get(function (req, res) {
-
         // Check if client is logged in
         var user = res.locals.session ? res.locals.session.user : null;
 
         // Check if client has permission to view the activity
         permissions.check(user, {type: "ACTIVITY_VIEW", value: req.params.id}).then(function (result) {
-
             // If no permission, send 403
             if (!result) return res.sendStatus(403);
 
@@ -381,17 +377,22 @@ router.route("/:id")
 
             // formatting activity correctly for frontend
             if (activity.canSubscribe) {
-
                 // split strings into lists
                 activity.participants.forEach(function (participant) {
-                    participant.subscription.answers = arrayHelper.destringifyStringifiedArrayOfStrings(participant.subscription.answers);
+                    participant.subscription.answers = arrayHelper
+                        .destringifyStringifiedArrayOfStrings(participant.subscription.answers);
                 });
 
-                activity.typeOfQuestion = arrayHelper.destringifyStringifiedArrayOfStrings(activity.typeOfQuestion);
-                activity.questionDescriptions = arrayHelper.destringifyStringifiedArrayOfStrings(activity.questionDescriptions);
-                activity.formOptions = arrayHelper.destringifyStringifiedArrayOfStrings(activity.formOptions);
-                activity.required = arrayHelper.destringifyStringifiedArrayOfStrings(activity.required);
-                activity.privacyOfQuestions = arrayHelper.destringifyStringifiedArrayOfStrings(activity.privacyOfQuestions);
+                activity.typeOfQuestion = arrayHelper
+                    .destringifyStringifiedArrayOfStrings(activity.typeOfQuestion);
+                activity.questionDescriptions = arrayHelper
+                    .destringifyStringifiedArrayOfStrings(activity.questionDescriptions);
+                activity.formOptions = arrayHelper
+                    .destringifyStringifiedArrayOfStrings(activity.formOptions);
+                activity.required = arrayHelper
+                    .destringifyStringifiedArrayOfStrings(activity.required);
+                activity.privacyOfQuestions = arrayHelper
+                    .destringifyStringifiedArrayOfStrings(activity.privacyOfQuestions);
                 var newOptions = [];
                 activity.formOptions.forEach(function (question) {
                     newOptions.push(question.split('#;#'));
@@ -412,11 +413,11 @@ router.route("/:id")
             res.send(activity);
         }).done();
     })
+
     /**
      * Edits a specific activity
      */
     .put(function (req, res) {
-
         // Check if client is logged in
         var user = res.locals.session ? res.locals.session.user : null;
 
@@ -425,16 +426,19 @@ router.route("/:id")
             type: "ACTIVITY_EDIT",
             value: res.locals.activity.id
         }).then(function (result) {
-
             // If no permission, send 403
             if (!result) return res.sendStatus(403)
 
             if (req.body.canSubscribe) {
                 // formatting the subscription form into strings for the database
-                req.body.typeOfQuestion = arrayHelper.stringifyArrayOfStrings(req.body.typeOfQuestion);
-                req.body.questionDescriptions = arrayHelper.stringifyArrayOfStrings(req.body.questionDescriptions);
-                req.body.formOptions = arrayHelper.stringifyArrayOfStrings(req.body.formOptions);
-                req.body.required = arrayHelper.stringifyArrayOfStrings(req.body.required);
+                req.body.typeOfQuestion = arrayHelper
+                    .stringifyArrayOfStrings(req.body.typeOfQuestion);
+                req.body.questionDescriptions = arrayHelper
+                    .stringifyArrayOfStrings(req.body.questionDescriptions);
+                req.body.formOptions = arrayHelper
+                    .stringifyArrayOfStrings(req.body.formOptions);
+                req.body.required = arrayHelper
+                    .stringifyArrayOfStrings(req.body.required);
             }
 
             // Get the organizing group from the database
@@ -445,11 +449,16 @@ router.route("/:id")
                 // Update the activity in the database
                 if (req.body.canSubscribe) {
                     // formatting the subscription form into strings for the database
-                    req.body.typeOfQuestion = arrayHelper.stringifyArrayOfStrings(req.body.typeOfQuestion);
-                    req.body.questionDescriptions = arrayHelper.stringifyArrayOfStrings(req.body.questionDescriptions);
-                    req.body.formOptions = arrayHelper.stringifyArrayOfStrings(req.body.formOptions);
-                    req.body.required = arrayHelper.stringifyArrayOfStrings(req.body.required);
-                    req.body.privacyOfQuestions = arrayHelper.stringifyArrayOfStrings(req.body.privacyOfQuestions);
+                    req.body.typeOfQuestion = arrayHelper
+                        .stringifyArrayOfStrings(req.body.typeOfQuestion);
+                    req.body.questionDescriptions = arrayHelper
+                        .stringifyArrayOfStrings(req.body.questionDescriptions);
+                    req.body.formOptions = arrayHelper
+                        .stringifyArrayOfStrings(req.body.formOptions);
+                    req.body.required = arrayHelper
+                        .stringifyArrayOfStrings(req.body.required);
+                    req.body.privacyOfQuestions = arrayHelper
+                        .stringifyArrayOfStrings(req.body.privacyOfQuestions);
                 }
 
                 return res.locals.activity.update(req.body).then(function (activity) {
@@ -460,11 +469,11 @@ router.route("/:id")
             });
         }).done();
     })
+
     /*
      * Deletes a specific activity
      */
     .delete(function (req, res) {
-
         // Check if the client is logged in
         var user = res.locals.session ? res.locals.session.user : null;
 

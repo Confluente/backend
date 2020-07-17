@@ -11,7 +11,6 @@ router.route("/")
      * Function for getting the profile of the user.
      */
     .get(function (req, res, next) {
-
         // Check whether the response has a session (handled by express)
         if (!res.locals.session) {
             return res.sendStatus(401);
@@ -25,7 +24,6 @@ router.route("/")
                 attributes: ["id", "displayName", "fullname", "description", "canOrganize", "email"]
             }]
         }).then(function (user) {
-
             // get the datavalues of the user
             var profile = user.dataValues;
 
@@ -44,7 +42,6 @@ router.route("/login")
      * Function for login a user in.
      */
     .post(function (req, res, next) {
-
         // Check if both the email and password field were filled in
         if (!req.body.email || !req.body.password) {
             return res.sendStatus(400);
@@ -58,7 +55,6 @@ router.route("/login")
 
         // authenticate user
         authHelper.authenticate(req.body.email, req.body.password).then(function (user) {
-
             // check if error occurred
             if (user.error === 406) {
                 return res.status(406).send(user)
@@ -78,7 +74,6 @@ router.route("/login")
                     res.send(session);
                 });
         }).catch(function (err) {
-
             //throw err
             return res.status(500).send({error: err});
         });
