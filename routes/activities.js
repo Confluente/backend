@@ -7,19 +7,72 @@ var arrayHelper = require("../arrayHelper");
 var Activity = require("../models/activity");
 var Group = require("../models/group");
 var User = require("../models/user");
+var multer = require("multer");
+var mime = require('mime-types');
+var fs = require('fs');
+var stream = require('stream');
+var path = require("path");
 
 var router = express.Router();
-var Op = Sequelize.Op;
+let Op = Sequelize.Op;
+
+// path where the pictures of the activities are put in in frontend
+if (process.env.NODE_ENV === "dev") {
+    var pathToPictures = '../frontend/src/img/activities/'
+} else {
+    var pathToPictures = '../frontend/build/img/activities/'
+}
+
+// Set The Storage Engine
+let storage = multer.diskStorage({
+    destination: pathToPictures,
+    filename: function (req, file, cb) {
+        cb(null, req.params.id + "." + mime.extension(file.mimetype));
+    }
+});
+
+// Init Upload
+let upload = multer({
+    storage: storage,
+    limits: {fileSize: 1000000}, // 1 MB
+    fileFilter: function (req, file, cb) {
+        checkFileType(file, cb);
+    }
+}).single("image");
+
+// Check File Type
+function checkFileType(file, cb) {
+    // Allowed ext
+    let filetypes = /jpeg|jpg|png/;
+    // Check mime
+    let mimetype = filetypes.test(file.mimetype);
+
+    if (mimetype) {
+        return cb(null, true);
+    } else {
+        cb('Error: Images Only!');
+    }
+}
+
+function deletePicture(id) {
+    var files = fs.readdirSync(pathToPictures);
+    for (var i = 0; i < files.length; i++) {
+        if (files[i].split(".")[0].toString() === id.toString()) {
+            fs.unlinkSync(pathToPictures + files[i]);
+            break;
+        }
+    }
+}
 
 router.route("/")
     /**
      * Gets every activity in the database happening from today onwards
      */
     .get(function (req, res, next) {
-
         // Get all ativities from the database
+        let d = new Date();
         Activity.findAll({
-            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline", "canSubscribe"],
+            attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline", "canSubscribe", "hasCoverImage"],
             order: [
                 ["date", "ASC"]
             ],
@@ -42,8 +95,8 @@ router.route("/")
 
             // Check for every activity if the client can view them
             var promises = activities.map(function (activity) {
-
                 // If the activity is published, everyone (also not logged in) is allowed to see them
+                // These lines are needed not to crash the management table in some cases
                 if (activity.published) return Q(activity);
 
                 // If not logged in (and unpublished), client has no permission
@@ -113,6 +166,7 @@ router.route("/")
                 activity.questionDescriptions = arrayHelper.stringifyArrayOfStrings(activity.questionDescriptions);
                 activity.formOptions = arrayHelper.stringifyArrayOfStrings(activity.options);
                 activity.required = arrayHelper.stringifyArrayOfStrings(activity.required);
+                activity.privacyOfQuestions = arrayHelper.stringifyArrayOfStrings(activity.privacyOfQuestions);
             }
 
             // Set organizerId
@@ -129,16 +183,44 @@ router.route("/")
         }).done();
     });
 
+router.route("/pictures/:id")
+    .all(function (req, res, next) {
+        // check for people to be logged in
+        if (!res.locals.session) {
+            return res.sendStatus(401);
+        }
+        return permissions.check(res.locals.session.user, {
+            type: "ACTIVITY_EDIT",
+            value: req.params.id
+        }).then(function (result) {
+            if (!result) {
+                return res.sendStatus(403);
+            }
+            next();
+        });
+    })
+    .post(function (req, res, next) {
+        upload(req, res, function(result) {
+            res.send();
+        })
+    })
+    .put(function (req, res, next) {
+        // delete old picture
+        deletePicture(req.params.id);
+
+        upload(req, res, function(result) {
+            res.send();
+        })
+    });
+
+// This route is for getting the activities for the manage page
+// For the manage page, you should only get the activities which you are allowed to edit
 router.route("/manage")
     /*
      * Gets all activities for the manage page.
      * @return List of activities that the client is allowed to edit
      */
     .get(function (req, res, next) {
-
-        // Check if the client is logged in
-        if (!res.locals.session) return res.sendStatus(403);
-
         // Get all activities from the database
         Activity.findAll({
             attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline"],
@@ -309,7 +391,7 @@ router.route("/:id")
                 activity.questionDescriptions = arrayHelper.destringifyStringifiedArrayOfStrings(activity.questionDescriptions);
                 activity.formOptions = arrayHelper.destringifyStringifiedArrayOfStrings(activity.formOptions);
                 activity.required = arrayHelper.destringifyStringifiedArrayOfStrings(activity.required);
-
+                activity.privacyOfQuestions = arrayHelper.destringifyStringifiedArrayOfStrings(activity.privacyOfQuestions);
                 var newOptions = [];
                 activity.formOptions.forEach(function (question) {
                     newOptions.push(question.split('#;#'));
@@ -319,6 +401,14 @@ router.route("/:id")
             }
 
             // Send activity to client
+            if (activity.hasCoverImage) {
+                var files = fs.readdirSync(pathToPictures);
+                for (var i = 0; i < files.length; i++) {
+                    if (files[i].split(".")[0].toString() === activity.id.toString()) {
+                        activity.dataValues.coverImage = files[i];
+                    }
+                }
+            }
             res.send(activity);
         }).done();
     })
@@ -353,6 +443,15 @@ router.route("/:id")
                 req.body.Organizer = group;
 
                 // Update the activity in the database
+                if (req.body.canSubscribe) {
+                    // formatting the subscription form into strings for the database
+                    req.body.typeOfQuestion = arrayHelper.stringifyArrayOfStrings(req.body.typeOfQuestion);
+                    req.body.questionDescriptions = arrayHelper.stringifyArrayOfStrings(req.body.questionDescriptions);
+                    req.body.formOptions = arrayHelper.stringifyArrayOfStrings(req.body.formOptions);
+                    req.body.required = arrayHelper.stringifyArrayOfStrings(req.body.required);
+                    req.body.privacyOfQuestions = arrayHelper.stringifyArrayOfStrings(req.body.privacyOfQuestions);
+                }
+
                 return res.locals.activity.update(req.body).then(function (activity) {
                     res.send(activity);
                 }, function (err) {
@@ -374,11 +473,14 @@ router.route("/:id")
             type: "ACTIVITY_EDIT",
             value: res.locals.activity.id
         }).then(function (result) {
+            if (!result) {
+                return res.sendStatus(403);
+            }
 
-            // If no permission, send 403
-            if (!result) return res.sendStatus(403)
-
-            // Destroy activity in database
+            if (res.locals.activity.hasCoverImage) {
+                deletePicture(res.locals.activity.id);
+            }
+            
             return res.locals.activity.destroy();
         }).then(function () {
             res.status(204).send({status: "Successful"});

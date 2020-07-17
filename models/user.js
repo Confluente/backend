@@ -32,6 +32,11 @@ var User = db.define('user', {
     major: Sequelize.STRING,
 
     /**
+     * Stores the address of the user.
+     */
+    address: Sequelize.STRING,
+
+    /**
      * Honors track of the user.
      */
     track: Sequelize.STRING,
@@ -40,12 +45,17 @@ var User = db.define('user', {
      * Year that the user started with honors.
      */
     honorsGeneration: Sequelize.INTEGER,
+    
+    /**
+     * Stores what kind of membership the user has
+     */
+    honorsMembership: Sequelize.STRING,
+
 
     /**
      * Campus card number of the user.
      */
     campusCardNumber: Sequelize.STRING,
-
     /**
      * Mobile phone number of the user.
      */

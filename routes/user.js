@@ -42,7 +42,6 @@ router.route("/")
      * Creates a new user in the database
      */
     .post(function (req, res, next) {
-
         // Check if required fields are filled in
         if (!req.body.displayName || !req.body.email || !req.body.password) {
             return res.sendStatus(400);
@@ -95,6 +94,7 @@ router.route("/")
         }).done();
     });
 
+// Specific user route
 router.route("/:id")
     /**
      * Gets the user and stores it in res.locals.user
@@ -110,7 +110,7 @@ router.route("/:id")
 
         // Get user from database
         User.findByPk(req.params.id, {
-            attributes: ["id", "firstName", "lastName", "displayName", "major", "track", "honorsGeneration", "campusCardNumber", "mobilePhoneNumber", "email", "isAdmin", "consentWithPortraitRight"],
+            attributes: ["id", "firstName", "lastName", "displayName", "major", "address", "track", "honorsGeneration", "honorsMembership", "campusCardNumber", "mobilePhoneNumber", "email", "isAdmin", "consentWithPortraitRight"],
         }).then(function (user) {
 
             // Return if user not found
@@ -152,6 +152,7 @@ router.route("/:id")
                     }
                 ]
             }).then(function (dbGroups) {
+                var user = res.locals.user;
 
                 // Send user together with group back to client
                 res.send([user, dbGroups])
@@ -307,7 +308,6 @@ router.route("/approve/:approvalString")
      * Function for approving a user account based on the approvalString
      */
     .all(function (req, res) {
-
         // Get the approval string
         const approvalString = req.params.approvalString;
 
@@ -318,14 +318,15 @@ router.route("/approve/:approvalString")
 
         // Find the user in the database of which this link is
         User.findOne({where: {approvingHash: approvalString}}).then(function (user) {
+            if (!user) {
+                // If the same link is clicked again in the email
+                res.writeHead(301, {
+                    'location': '/login'
+                });
+                res.send();
+            }
 
-            // If no user is found for this approval string, send 404
-            if (!user) return res.sendStatus(404).send("Not found!")
-
-            // Update user with new (non 24 character) approvalString
             user.update({approved: true, approvingHash: authHelper.generateSalt(23)}).then(function (result) {
-
-                // Redirect users to the completed registration page
                 res.writeHead(301, {
                     'location': '/completed_registration'
                 });

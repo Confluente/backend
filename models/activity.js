@@ -82,6 +82,11 @@ var Activity = db.define('activity', {
     required: Sequelize.STRING,
 
     /**
+     * Which questions are private (answers of private questions do not show to everyone)
+     */
+    privacyOfQuestions: Sequelize.STRING,
+
+    /**
      * Subscription deadline of the activity.
      */
     subscriptionDeadline: Sequelize.DATE,
@@ -92,6 +97,17 @@ var Activity = db.define('activity', {
     published: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
+    },
+
+    /**
+     * Stores whether the activity has a cover image
+     */
+    hasCoverImage: Sequelize.BOOLEAN
+}, {
+    instanceMethods: {
+        isAwesome: function () {
+            return Q(true);
+        }
     }
 });
 

@@ -12,7 +12,7 @@ router.route("/")
      */
     .get(function (req, res, next) {
         Group.findAll({
-            attributes: ["id", "fullName", "displayName", "description", "email", "canOrganize", "type"],
+            attributes: ["id", "fullName", "displayName", "description", "email", "canOrganize", "type", "createdAt"],
             order: [
                 ["id", "ASC"]
             ]
@@ -61,7 +61,7 @@ router.route("/:id")
      */
     .all(function (req, res, next) {
         Group.findByPk(req.params.id, {
-            attributes: ["id", "fullName", "displayName", "description", "email", "canOrganize", "type"],
+            attributes: ["id", "fullName", "displayName", "description", "email", "canOrganize", "type","createdAt"],
             include: [
                 {
                     model: User,
