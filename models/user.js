@@ -12,6 +12,7 @@ var User = sequelize.define('user', {
     honorsMembership: Sequelize.STRING,
     campusCardNumber: Sequelize.STRING,
     mobilePhoneNumber: Sequelize.STRING,
+	dateOfBirth: Sequelize.DATE,
     consentWithPortraitRight: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
