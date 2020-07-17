@@ -225,8 +225,6 @@ router.route("/:id")
             // If no permission, send 403
             if (!result) return res.sendStatus(403)
 
-            // TODO also delete relations (groups, subscriptions)
-
             // Destory user in database
             return res.locals.user.destroy();
         }).then(function () {

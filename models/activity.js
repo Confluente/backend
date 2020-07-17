@@ -106,7 +106,7 @@ var Activity = db.define('activity', {
 });
 
 // relates activities to a group that organizes the activity.
-Activity.Organizer = Activity.belongsTo(Group, {as: "Organizer"});
+Activity.Organizer = Activity.belongsTo(Group, {as: "Organizer", onDelete: 'CASCADE'});
 
 Activity.sync();
 Group.sync();

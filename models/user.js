@@ -117,16 +117,16 @@ var Subscription = db.define('subscription', {
 });
 
 // Relates a user to a group through a UserGroup
-User.belongsToMany(Group, {through: UserGroup});
+User.belongsToMany(Group, {through: UserGroup, onDelete: 'CASCADE'});
 
 // Relates a group to a user through UserGroup as members
-Group.belongsToMany(User, {as: "members", through: UserGroup});
+Group.belongsToMany(User, {as: "members", through: UserGroup, onDelete: 'CASCADE'});
 
 // Relates a user to an activity trough a subscription
-User.belongsToMany(Activity, {through: Subscription});
+User.belongsToMany(Activity, {through: Subscription, onDelete: 'CASCADE'});
 
 // Relates an activity to a user through subscription as participants
-Activity.belongsToMany(User, {as: "participants",through: Subscription});
+Activity.belongsToMany(User, {as: "participants",through: Subscription, onDelete: 'CASCADE'});
 
 UserGroup.sync();
 Subscription.sync();
