@@ -12,7 +12,6 @@ router.route("/")
      * Gets all users from the database
      */
     .get(function (req, res, next) {
-
         // Check if the client is logged in
         var userId = res.locals.session ? res.locals.session.user : null;
 
@@ -21,7 +20,6 @@ router.route("/")
             type: "USER_MANAGE",
             value: userId
         }).then(function (result) {
-
             // If no result, then the client has no permission
             if (!result) res.sendStatus(403);
 
@@ -32,7 +30,6 @@ router.route("/")
                     ["id", "ASC"]
                 ]
             }).then(function (results) {
-
                 // Send the users back to the client
                 res.send(results);
             });
@@ -61,7 +58,6 @@ router.route("/")
 
         // Create new user in database
         return User.create(req.body).then(function (result) {
-
             // Send approval email to email
             nodemailer.createTestAccount().then(function () {
 
@@ -102,7 +98,6 @@ router.route("/:id")
      * @param id of the user that client wants
      */
     .all(function (req, res, next) {
-
         // Check if client has a session
         var user = res.locals.session ? res.locals.session.user : null;
 
@@ -113,14 +108,13 @@ router.route("/:id")
         User.findByPk(req.params.id, {
             attributes: ["id", "firstName", "lastName", "displayName", "major", "address", "track", "honorsGeneration", "honorsMembership", "campusCardNumber", "mobilePhoneNumber", "email", "isAdmin", "consentWithPortraitRight"],
         }).then(function (user) {
-
             // Return if user not found
             if (user === null) {
                 res.status(404).send({status: "Not Found"});
             } else {
-
                 // Store user and go to next function
                 res.locals.user = user;
+
                 next();
             }
         });
@@ -130,13 +124,11 @@ router.route("/:id")
      * Get a specific user from the database and return to the client
      */
     .get(function (req, res) {
-
         // store user in variable
         var user = res.locals.session.user;
 
         // Check whether user has permission to see the information of the user requested
         permissions.check(user, {type: "USER_VIEW", value: req.params.id}).then(function (result) {
-
             // If no permission, return 403
             if (!result) return res.sendStatus(403);
 
@@ -154,10 +146,8 @@ router.route("/:id")
                     }
                 ]
             }).then(function (dbGroups) {
-                var user = res.locals.user;
-
                 // Send user together with group back to client
-                res.send([user, dbGroups])
+                res.send([res.locals.user, dbGroups])
             });
         });
     })
@@ -166,7 +156,6 @@ router.route("/:id")
      * Edit a user
      */
     .put(function (req, res) {
-
         // Store user in variable
         var user = res.locals.session.user
 
@@ -175,9 +164,10 @@ router.route("/:id")
             type: "USER_MANAGE",
             value: res.locals.user.id
         }).then(function (result) {
-
             // If no permission, send 403
-            if (!result) return res.sendStatus(403);
+            if (!result) {
+                return res.sendStatus(403);
+            }
 
             // Find all groups that the user edited is currently a member of
             Group.findAll({
@@ -193,7 +183,6 @@ router.route("/:id")
                     }
                 ]
             }).then(function (group) {
-
                 // Remove all existing group relations from the database
                 var i;
                 for (i = 0; i < group.length; i++) {
@@ -202,7 +191,6 @@ router.route("/:id")
 
                 // Add all groups as stated in the request
                 req.body[1].forEach(function (groupData) {
-
                     if (groupData.selected) {
                         Group.findByPk(groupData.id).then(function (specificGroup) {
                             res.locals.user.addGroups(specificGroup, {through: {func: groupData.role}}).then(console.log);
@@ -212,7 +200,6 @@ router.route("/:id")
 
                 // Update the user in the database
                 return res.locals.user.update(req.body[0]).then(function (user) {
-
                     // Send edited user back to the client.
                     res.send(user);
                 }, function (err) {
@@ -227,7 +214,6 @@ router.route("/:id")
      * Delete user from the database
      */
     .delete(function (req, res) {
-
         // Store user in variable
         var user = res.locals.session.user
 
@@ -236,7 +222,6 @@ router.route("/:id")
             type: "USER_MANAGE",
             value: res.locals.user.id
         }).then(function (result) {
-
             // If no permission, send 403
             if (!result) return res.sendStatus(403)
 
@@ -254,13 +239,11 @@ router.route("/changePassword/:id")
      * Change the password of a user
      */
     .put(function (req, res) {
-
         // Check if client has a session
         var user = res.locals.session ? res.locals.session.user : null;
 
         // Check if client has permission to change password of user
         permissions.check(user, {type: "CHANGE_PASSWORD", value: req.params.id}).then(function (result) {
-
             // If no permission, send 403
             if (!result) return res.sendStatus(403)
 
@@ -268,12 +251,10 @@ router.route("/changePassword/:id")
             User.findByPk(req.params.id, {
                 attributes: ["id", "displayName", "email", "isAdmin", "passwordHash", "passwordSalt"],
             }).then(function (userFound) {
-
                 // If user does not exist, send 404
                 if (userFound === null) {
                     return res.status(404).send({status: "Not Found"});
                 } else {
-
                     // Get the hash of the (original) password the user put
                     var inputtedPasswordHash = authHelper.getPasswordHashSync(req.body.password, userFound.passwordSalt);
 
@@ -296,7 +277,6 @@ router.route("/changePassword/:id")
                         passwordHash: passwordHash,
                         passwordSalt: passwordSalt
                     }).then(function (user) {
-
                         // Send updated user to the client
                         return res.send(user);
                     }, function (err) {

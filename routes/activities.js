@@ -63,13 +63,14 @@ function deletePicture(id) {
     }
 }
 
+// This route is for handling general operations for activities. Namely, getting all activities and creating a
+// new activity.
 router.route("/")
     /**
      * Gets every activity in the database happening from today onwards
      */
     .get(function (req, res, next) {
         // Get all activities from the database
-        let d = new Date();
         Activity.findAll({
             attributes: ["id", "name", "description", "location", "date", "startTime", "endTime", "published", "subscriptionDeadline", "canSubscribe", "hasCoverImage"],
             order: [
@@ -177,6 +178,7 @@ router.route("/")
         }).done();
     });
 
+// This route is for handling pictures on activities.
 router.route("/pictures/:id")
     /**
      * Checks permissions for handling pictures for activity
@@ -186,6 +188,8 @@ router.route("/pictures/:id")
         if (!res.locals.session) {
             return res.sendStatus(401);
         }
+
+        // Check permissions
         return permissions.check(res.locals.session.user, {
             type: "ACTIVITY_EDIT",
             value: req.params.id
@@ -193,6 +197,7 @@ router.route("/pictures/:id")
             if (!result) {
                 return res.sendStatus(403);
             }
+
             next();
         });
     })
@@ -266,6 +271,7 @@ router.route("/manage")
         });
     });
 
+// This route is for handling subscriptions on activities.
 router.route("/subscriptions/:id")
     /*
      * Adds a subscription to a specific activity
@@ -328,6 +334,8 @@ router.route("/subscriptions/:id")
         }).done()
     });
 
+// This route is for handling activity specific operations such as getting an activity, editing an activity and
+// removing an activity.
 router.route("/:id")
     /**
      * Gets activity with id from database and stores it in res.locals.activity
@@ -410,6 +418,7 @@ router.route("/:id")
                     }
                 }
             }
+
             res.send(activity);
         }).done();
     })
@@ -428,18 +437,6 @@ router.route("/:id")
         }).then(function (result) {
             // If no permission, send 403
             if (!result) return res.sendStatus(403)
-
-            if (req.body.canSubscribe) {
-                // formatting the subscription form into strings for the database
-                req.body.typeOfQuestion = arrayHelper
-                    .stringifyArrayOfStrings(req.body.typeOfQuestion);
-                req.body.questionDescriptions = arrayHelper
-                    .stringifyArrayOfStrings(req.body.questionDescriptions);
-                req.body.formOptions = arrayHelper
-                    .stringifyArrayOfStrings(req.body.formOptions);
-                req.body.required = arrayHelper
-                    .stringifyArrayOfStrings(req.body.required);
-            }
 
             // Get the organizing group from the database
             Group.findOne({where: {displayName: req.body.organizer}}).then(function (group) {
@@ -486,10 +483,12 @@ router.route("/:id")
                 return res.sendStatus(403);
             }
 
+            // Delete cover image
             if (res.locals.activity.hasCoverImage) {
                 deletePicture(res.locals.activity.id);
             }
-            
+
+            // Delete activity from database
             return res.locals.activity.destroy();
         }).then(function () {
             res.status(204).send({status: "Successful"});
