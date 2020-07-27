@@ -1,9 +1,9 @@
 var Sequelize = require("sequelize");
 var sequelize = require("./db");
 
-var Internship = sequelize.define('internship', {
+var CompanyOpportunity = sequelize.define('companyOpportunity', {
     /**
-     * Title of the internship.
+     * Title of the opportunity.
      */
     title: Sequelize.STRING,
 
@@ -13,7 +13,7 @@ var Internship = sequelize.define('internship', {
     companyName: Sequelize.STRING,
 
     /**
-     * Description of the internship.
+     * Description of the opportunity.
      */
     description: Sequelize.STRING,
 
@@ -23,26 +23,26 @@ var Internship = sequelize.define('internship', {
     imageUrl: Sequelize.STRING,
 
     /**
-     * Email to contact if you want the internship.
+     * Email to contact if you want the opportunity.
      */
     contactEmail: Sequelize.STRING,
 
     /**
-     * Link to the internship on the website of the company.
+     * Link to the opportunity on the website of the company.
      */
-    internshipLink: Sequelize.STRING,
+    link: Sequelize.STRING,
 
     /**
-     * Level of education needed for the internship
+     * Level of education needed for the opportunity
      */
     educationLevel: Sequelize.STRING,
 
     /**
-     * Category of the internship
+     * Category of the opportunity
      */
     category: Sequelize.STRING
 })
 
-Internship.sync();
+CompanyOpportunity.sync();
 
-module.exports = Internship;
+module.exports = CompanyOpportunity;
