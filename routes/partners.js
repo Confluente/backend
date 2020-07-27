@@ -62,5 +62,17 @@ router.route("/internships/:id")
             })
         })
     })
+    .delete(function (req, res) {
+        var user = res.locals.session ? res.locals.session.user : null;
+        permissions.check(user, {type: "INTERNSHIP_MANAGE", value: req.params.id}).then(function (result) {
+            if (!result) {
+                return res.sendStatus(403);
+            }
+
+            return res.locals.internship.destroy();
+        }).then(function () {
+            res.status(204).send({status: "Successful"})
+        })
+    })
 
 module.exports = router;
