@@ -88,6 +88,9 @@ function check(user, scope) {
             case "GROUP_VIEW":
                 // Everyone is allowed to see groups
                 return true;
+            case "INTERNSHIP_MANAGE":
+                // TODO IMPLEMENT MANAGE ACCESS FOR ACQUISITION COMMITTEE
+                return false;
             default:
                 throw new Error("Unknown scope type");
         }
