@@ -107,7 +107,6 @@ app.use("/api/group", require("./routes/group"));
 app.use("/api/user", require("./routes/user"));
 app.use("/api/page", require("./routes/page"));
 app.use("/api/notifications", require("./routes/notifications"));
-app.use("api/partners", require("./routes/partners"));
 app.use("/api/*", function (req, res) {
     res.sendStatus(404);
 });
