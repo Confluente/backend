@@ -130,12 +130,12 @@ let roles = [
 var users = [
     {
         id: 1,
-        email: "admin",
-        displayName: "Administrator",
+        email: "superadmin",
+        displayName: "Super Administrator",
         passwordHash: Buffer.from("tfExQFTNNT/gMWGfe5Z8CGz2bvBjoAoE7Mz7pmWd6/g=", "base64"),
         passwordSalt: Buffer.from("LAFU0L7mQ0FhEmPybJfHDiF11OAyBFjEIj8/oBzVZrM=", "base64"),
-        isAdmin: true,
         approved: true,
+        roleId: 1,
         groups: [2],
         functions: ["Member"]
     },
