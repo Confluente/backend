@@ -1,13 +1,29 @@
 var Sequelize = require("sequelize");
-var sequelize = require("./db");
+var db = require("./db");
 
-var Page = sequelize.define('page', {
+var Page = db.define('page', {
+
+    /**
+     * URL of the page.
+     */
     url: {
         type: Sequelize.STRING,
         unique: true
     },
+
+    /**
+     * Title of the page.
+     */
     title: Sequelize.STRING,
+
+    /**
+     * Content of the page in text format.
+     */
     content: Sequelize.TEXT,
+
+    /**
+     * Author of the page.
+     */
     author: Sequelize.STRING
 });
 
