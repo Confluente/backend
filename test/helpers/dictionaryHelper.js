@@ -39,4 +39,22 @@ describe("dictionaryHelper", function () {
             return true;
         })
     });
+
+    describe("#dictionaryOfBooleans", function () {
+        let sampleDictionary = {
+            "True": true,
+            "False": false,
+            "Are we the best committee?": true
+        }
+
+        let string = dictionaryHelper.stringifyDictionaryOfBooleans(sampleDictionary);
+        let result = dictionaryHelper.destringifyStringifiedDictionaryOfBooleans(string)
+
+        it("check equality original and translated objects", function () {
+            assert(result["True"] === true);
+            assert(result["False"] === false);
+            assert(result["Are we the best committee?"] === true);
+            return true;
+        })
+    });
 });
