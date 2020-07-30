@@ -8,6 +8,9 @@ var router = express.Router();
 router.route("/internships")
     .all(permissions.requireAll({type: "INTERNSHIP_MANAGE"}))
     .get(function (req, res) {
+        /**
+         * Route for getting all internships from the database.
+         */
         internships.findAll({
             order: [
                 ["id", "ASC"]
@@ -17,6 +20,9 @@ router.route("/internships")
         })
     })
     .post(function (req, res) {
+        /**
+         * Route for creating an internship.
+         */
         return internships.create(req.body).then(function (result) {
             res.status(201).send(result);
         }).catch(function (err) {
@@ -38,6 +44,9 @@ router.route("/internships/:id")
         })
     })
     .get(function (req, res) {
+        /**
+         * Route for getting a specific internship.
+         */
         var user = res.locals.session ? res.locals.session.user : null;
         permissions.check(user, {type: "INTERNSHIP_VIEW", value: req.params.id}).then(function (result) {
             if (!result) {
@@ -48,6 +57,9 @@ router.route("/internships/:id")
         }).done();
     })
     .put(function (req, res) {
+        /**
+         * Route for editing a specific internship.
+         */
         var user = res.locals.session ? res.locals.session.user : null;
         permissions.check(user, {type: "INTERNSHIP_MANAGE", value: req.params.id}).then(function (result) {
             if (!result) {
@@ -63,6 +75,9 @@ router.route("/internships/:id")
         })
     })
     .delete(function (req, res) {
+        /**
+         * Route for deleting an internship.
+         */
         var user = res.locals.session ? res.locals.session.user : null;
         permissions.check(user, {type: "INTERNSHIP_MANAGE", value: req.params.id}).then(function (result) {
             if (!result) {
