@@ -24,73 +24,74 @@ function check(user, scope) {
             resolve(user);
         }
     }).then(function (user) {
-        if (loggedIn && user.dataValues.isAdmin && scope.type !== "CHANGE_PASSWORD") {
-            // Admin has all permissions
-            return true;
-        }
-        switch (scope.type) {
-            case "PAGE_VIEW":
-                // Everyone allowed to view pages
-                return true;
-            case "PAGE_MANAGE":
-                // Only admins allowed to manage pages
-                return false;
-            case "ACTIVITY_VIEW":
-                return Activity.findByPk(scope.value).then(function (activity) {
-                    if (!activity) {
-                        return false;
-                    }
-                    if (activity.published) {
-                        // published activities allowed to be viewed by anyone
-                        return true;
-                    }
-                    // Unpublished activities only allowed to be viewed by organizers and admins
-                    return loggedIn ? user.hasGroup(activity.OrganizerId) : false;
-                });
-            case "ACTIVITY_EDIT":
-                return Activity.findByPk(scope.value).then(function (activity) {
-                    // Activities only allowed to be edited by organizers and admins
-                    return loggedIn ? user.hasGroup(activity.OrganizerId) : false;
-                });
-            case "GROUP_ORGANIZE":
-                if (!loggedIn) return false;
-                return Group.findByPk(scope.value).then(function (group) {
-                    // Check whether group is allowed to organize
-                    if (!group.canOrganize) return false;
-                    // If the group is allowed to organize, return whether user is member of the group
-                    return user.hasGroup(group.id);
-                });
-            case "USER_VIEW":
-                return User.findByPk(scope.value).then(function (user_considered) {
-                    if (!user_considered) {
-                        return false;
-                    }
-                    // Non-admin users can only view their own account
-                    return user.id === user_considered.id;
-                });
-            case "CHANGE_PASSWORD":
-                return User.findByPk(scope.value).then(function (user_considered) {
-                    if (!user_considered) {
-                        return false;
-                    }
-                    // Everyone can only change their own password
-                    return user.id === user_considered.id;
-                });
-            case "USER_MANAGE":
-                // Only admins allowed to manage users
-                return false;
-            case "CREATE_USER":
-                // Everyone is allowed to submit a request for an account
-                return true;
-            case "GROUP_MANAGE":
-                // Only admins are allowed to manage groups
-                return false;
-            case "GROUP_VIEW":
-                // Everyone is allowed to see groups
-                return true;
-            default:
-                throw new Error("Unknown scope type");
-        }
+        return user.role.permissions[scope];
+        // if (loggedIn && user.dataValues.isAdmin && scope.type !== "CHANGE_PASSWORD") {
+        //     // Admin has all permissions
+        //     return true;
+        // }
+        // switch (scope.type) {
+        //     case "PAGE_VIEW":
+        //         // Everyone allowed to view pages
+        //         return true;
+        //     case "PAGE_MANAGE":
+        //         // Only admins allowed to manage pages
+        //         return false;
+        //     case "ACTIVITY_VIEW":
+        //         return Activity.findByPk(scope.value).then(function (activity) {
+        //             if (!activity) {
+        //                 return false;
+        //             }
+        //             if (activity.published) {
+        //                 // published activities allowed to be viewed by anyone
+        //                 return true;
+        //             }
+        //             // Unpublished activities only allowed to be viewed by organizers and admins
+        //             return loggedIn ? user.hasGroup(activity.OrganizerId) : false;
+        //         });
+        //     case "ACTIVITY_EDIT":
+        //         return Activity.findByPk(scope.value).then(function (activity) {
+        //             // Activities only allowed to be edited by organizers and admins
+        //             return loggedIn ? user.hasGroup(activity.OrganizerId) : false;
+        //         });
+        //     case "GROUP_ORGANIZE":
+        //         if (!loggedIn) return false;
+        //         return Group.findByPk(scope.value).then(function (group) {
+        //             // Check whether group is allowed to organize
+        //             if (!group.canOrganize) return false;
+        //             // If the group is allowed to organize, return whether user is member of the group
+        //             return user.hasGroup(group.id);
+        //         });
+        //     case "USER_VIEW":
+        //         return User.findByPk(scope.value).then(function (user_considered) {
+        //             if (!user_considered) {
+        //                 return false;
+        //             }
+        //             // Non-admin users can only view their own account
+        //             return user.id === user_considered.id;
+        //         });
+        //     case "CHANGE_PASSWORD":
+        //         return User.findByPk(scope.value).then(function (user_considered) {
+        //             if (!user_considered) {
+        //                 return false;
+        //             }
+        //             // Everyone can only change their own password
+        //             return user.id === user_considered.id;
+        //         });
+        //     case "USER_MANAGE":
+        //         // Only admins allowed to manage users
+        //         return false;
+        //     case "CREATE_USER":
+        //         // Everyone is allowed to submit a request for an account
+        //         return true;
+        //     case "GROUP_MANAGE":
+        //         // Only admins are allowed to manage groups
+        //         return false;
+        //     case "GROUP_VIEW":
+        //         // Everyone is allowed to see groups
+        //         return true;
+        //     default:
+        //         throw new Error("Unknown scope type");
+        // }
     });
 }
 
