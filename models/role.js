@@ -41,4 +41,4 @@ var Role = db.define('role', {
 
 Role.sync();
 
-module.exports = User;
+module.exports = Role;
