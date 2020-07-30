@@ -126,7 +126,7 @@ User.belongsToMany(Activity, {through: Subscription, onDelete: 'CASCADE'});
 Activity.belongsToMany(User, {as: "participants",through: Subscription, onDelete: 'CASCADE'});
 
 // Relates a role to a user
-User.belongsTo(Role);
+User.hasOne(Role);
 
 UserGroup.sync();
 Subscription.sync();
