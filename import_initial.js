@@ -11,6 +11,11 @@ if (!fs.existsSync("./data.sqlite")) {
     return console.error("Delete the database (data.sqlite) before generating a new one")
 }
 
+// Standard roles
+let roles = {
+
+
+}
 
 // Initial accounts
 var users = [
