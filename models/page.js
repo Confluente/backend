@@ -22,7 +22,7 @@ var Page = db.define('page', {
     content: Sequelize.TEXT,
 
     /**
-     * Author of hte page.
+     * Author of the page.
      */
     author: Sequelize.STRING
 });

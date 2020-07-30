@@ -82,7 +82,9 @@ var Activity = db.define('activity', {
     required: Sequelize.STRING,
 
     /**
-     * Which questions are private (answers of private questions do not show to everyone)
+     * Which questions are private (answers of private questions do not show to everyone).
+     * For every question the string stores true or false.
+     * Separated by #,#.
      */
     privacyOfQuestions: Sequelize.STRING,
 
@@ -105,7 +107,7 @@ var Activity = db.define('activity', {
     hasCoverImage: Sequelize.BOOLEAN
 });
 
-// relates activities to a group that organizes the activity.
+// Relates activities to a group that organizes the activity.
 Activity.Organizer = Activity.belongsTo(Group, {as: "Organizer", onDelete: 'CASCADE'});
 
 Activity.sync();

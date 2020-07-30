@@ -95,7 +95,6 @@ router.route("/")
 router.route("/:id")
     /**
      * Gets the user and stores it in res.locals.user
-     * @param id of the user that client wants
      */
     .all(function (req, res, next) {
         // Check if client has a session
@@ -298,7 +297,7 @@ router.route("/approve/:approvalString")
             return res.send(401);
         }
 
-        // Find the user in the database of which this link is
+        // Find the user whose approval string matches the url
         User.findOne({where: {approvingHash: approvalString}}).then(function (user) {
             if (!user) {
                 // If the same link is clicked again in the email

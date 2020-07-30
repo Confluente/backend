@@ -39,7 +39,7 @@ router.route("/")
 
 router.route("/login")
     /**
-     * Function for login a user in.
+     * Function for logging a user in.
      */
     .post(function (req, res, next) {
         // Check if both the email and password field were filled in

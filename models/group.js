@@ -4,7 +4,7 @@ var db = require("./db");
 var Group = db.define('group', {
 
     /**
-     * Display name of the group.
+     * Display name of the group (shorter than fullName but identifiable).
      */
     displayName: Sequelize.STRING,
 
@@ -29,7 +29,7 @@ var Group = db.define('group', {
     email: Sequelize.STRING,
 
     /**
-     * The type of the group (Board/Committee).
+     * The type of the group.
      */
     type: Sequelize.STRING
 });

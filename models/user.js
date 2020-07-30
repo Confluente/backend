@@ -55,6 +55,7 @@ var User = db.define('user', {
      * Campus card number of the user.
      */
     campusCardNumber: Sequelize.STRING,
+
     /**
      * Mobile phone number of the user.
      */
@@ -79,7 +80,7 @@ var User = db.define('user', {
     passwordSalt: Sequelize.BLOB,
 
     /**
-     * Whether the user is an admin
+     * Whether the user is an admin.
      */
     isAdmin: {
         type: Sequelize.BOOLEAN,
@@ -115,6 +116,9 @@ var UserGroup = db.define('user_group', {
 var Subscription = db.define('subscription', {
     answers: Sequelize.STRING
 });
+
+// All relationships defined hereafter are onDelete 'CASCADE' to make sure that when an instance is deleted,
+// the relations that instance has to other models are also deleted.
 
 // Relates a user to a group through a UserGroup
 User.belongsToMany(Group, {through: UserGroup, onDelete: 'CASCADE'});
