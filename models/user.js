@@ -19,10 +19,6 @@ var User = sequelize.define('user', {
     displayName: Sequelize.STRING,
     passwordHash: Sequelize.BLOB,
     passwordSalt: Sequelize.BLOB,
-    isAdmin: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
-    },
     approved: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
@@ -31,6 +27,7 @@ var User = sequelize.define('user', {
 });
 var Group = require("./group");
 var Activity = require("./activity");
+var Role = require("./role");
 
 var UserGroup = sequelize.define('user_group', {
     func: Sequelize.STRING
@@ -44,11 +41,13 @@ User.belongsToMany(Group, {through: UserGroup});
 Group.belongsToMany(User, {as: "members", through: UserGroup});
 User.belongsToMany(Activity, {through: Subscription});
 Activity.belongsToMany(User, {as: "participants",through: Subscription});
+User.belongsTo(Role);
 UserGroup.sync();
 Subscription.sync();
 User.sync();
 Group.sync();
 Activity.sync();
+Role.sync();
 sequelize.sync();
 
 module.exports = User;
