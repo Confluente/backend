@@ -134,7 +134,5 @@ User.sync();
 Group.sync();
 Activity.sync();
 Role.sync();
-sequelize.sync();
-db.sync();
 
 module.exports = User;
