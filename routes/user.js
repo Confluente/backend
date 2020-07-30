@@ -1,44 +1,66 @@
 var express = require("express");
-const nodemailer = require("nodemailer");
-
+var nodemailer = require("nodemailer");
 var User = require("../models/user");
 var Group = require("../models/group");
 var permissions = require("../permissions");
 var authHelper = require("../authHelper");
 
 var router = express.Router();
-var log = require("../logger");
 
 router.route("/")
-    // Get all users
+    /**
+     * Gets all users from the database
+     */
     .get(function (req, res, next) {
+        // Check if the client is logged in
         var userId = res.locals.session ? res.locals.session.user : null;
+
+        // Check if the client has permission to manage users
         permissions.check(userId, {
             type: "USER_MANAGE",
             value: userId
         }).then(function (result) {
+            // If no result, then the client has no permission
             if (!result) res.sendStatus(403);
+
+            // If client has permission, find all users in database
             User.findAll({
                 attributes: ["id", "displayName", "email", "isAdmin"],
                 order: [
                     ["id", "ASC"]
                 ]
             }).then(function (results) {
+                // Send the users back to the client
                 res.send(results);
             });
         }).done();
     })
+
+    /**
+     * Creates a new user in the database
+     */
     .post(function (req, res, next) {
+        // Check if required fields are filled in
         if (!req.body.displayName || !req.body.email || !req.body.password) {
             return res.sendStatus(400);
         }
+
+        // generate approvingHash, passwordSalt and passwordHash
         req.body.approvingHash = authHelper.generateSalt(24);
-        req.body.passwordSalt = authHelper.generateSalt(16); // Create salt of 16 characters
-        req.body.passwordHash = authHelper.getPasswordHashSync(req.body.password, req.body.passwordSalt); // Get password hash
-        delete req.body.password; // Delete password permanently
+        req.body.passwordSalt = authHelper.generateSalt(16);
+        req.body.passwordHash = authHelper.getPasswordHashSync(req.body.password, req.body.passwordSalt);
+
+        // Delete password permanently
+        delete req.body.password;
+
+        // Set admin status false
         req.body.isAdmin = false;
+
+        // Create new user in database
         return User.create(req.body).then(function (result) {
+            // Send approval email to email
             nodemailer.createTestAccount().then(function () {
+
                 let transporter = nodemailer.createTransport({
                     service: 'gmail',
                     type: "SMTP",
@@ -50,7 +72,9 @@ router.route("/")
                         pass: ''
                     }
                 });
+
                 const link = "https://www.hsaconfluente.nl/api/user/approve/" + req.body.approvingHash;
+
                 transporter.sendMail({
                     from: '"website" <web@hsaconfluente.nl>',
                     to: req.body.email,
@@ -62,34 +86,52 @@ router.route("/")
             });
             res.status(201).send(result);
         }).catch(function (err) {
+
             res.status(406).send("Account with identical email already exists");
         }).done();
     });
 
 // Specific user route
 router.route("/:id")
+    /**
+     * Gets the user and stores it in res.locals.user
+     */
     .all(function (req, res, next) {
+        // Check if client has a session
         var user = res.locals.session ? res.locals.session.user : null;
+
+        // If client does not have a session, he does not have permission
         if (user === null) return res.send(403);
-        var id = req.params.id;
+
+        // Get user from database
         User.findByPk(req.params.id, {
             attributes: ["id", "firstName", "lastName", "displayName", "major", "address", "track", "honorsGeneration", "honorsMembership", "campusCardNumber", "mobilePhoneNumber", "email", "isAdmin", "consentWithPortraitRight"],
         }).then(function (user) {
+            // Return if user not found
             if (user === null) {
                 res.status(404).send({status: "Not Found"});
             } else {
+                // Store user and go to next function
                 res.locals.user = user;
+
                 next();
             }
         });
     })
-    // Get specific user
+
+    /**
+     * Get a specific user from the database and return to the client
+     */
     .get(function (req, res) {
-        var user = res.locals.session ? res.locals.session.user : null;
+        // store user in variable
+        var user = res.locals.session.user;
+
+        // Check whether user has permission to see the information of the user requested
         permissions.check(user, {type: "USER_VIEW", value: req.params.id}).then(function (result) {
-            if (!result) {
-                return res.sendStatus(403);
-            }
+            // If no permission, return 403
+            if (!result) return res.sendStatus(403);
+
+            // If permission, find all groups in the database, that the requested user is a member of.
             Group.findAll({
                 attributes: ["id", "fullName"],
                 include: [
@@ -103,22 +145,30 @@ router.route("/:id")
                     }
                 ]
             }).then(function (dbGroups) {
-                var user = res.locals.user;
-
                 // Send user together with group back to client
-                res.send([user, dbGroups])
+                res.send([res.locals.user, dbGroups])
             });
         });
     })
+
+    /**
+     * Edit a user
+     */
     .put(function (req, res) {
-        var user = res.locals.session ? res.locals.session.user : null;
+        // Store user in variable
+        var user = res.locals.session.user
+
+        // Check whether the client has permission to manage (edit) users
         permissions.check(user, {
             type: "USER_MANAGE",
             value: res.locals.user.id
         }).then(function (result) {
+            // If no permission, send 403
             if (!result) {
                 return res.sendStatus(403);
             }
+
+            // Find all groups that the user edited is currently a member of
             Group.findAll({
                 attributes: ["id", "fullName"],
                 include: [
@@ -132,11 +182,13 @@ router.route("/:id")
                     }
                 ]
             }).then(function (group) {
+                // Remove all existing group relations from the database
                 var i;
                 for (i = 0; i < group.length; i++) {
                     group[i].members[0].user_group.destroy();
                 }
 
+                // Add all groups as stated in the request
                 req.body[1].forEach(function (groupData) {
                     if (groupData.selected) {
                         Group.findByPk(groupData.id).then(function (specificGroup) {
@@ -144,7 +196,10 @@ router.route("/:id")
                         })
                     }
                 });
+
+                // Update the user in the database
                 return res.locals.user.update(req.body[0]).then(function (user) {
+                    // Send edited user back to the client.
                     res.send(user);
                 }, function (err) {
                     console.error(err);
@@ -153,15 +208,23 @@ router.route("/:id")
 
         });
     })
+
+    /**
+     * Delete user from the database
+     */
     .delete(function (req, res) {
-        var user = res.locals.session ? res.locals.session.user : null;
+        // Store user in variable
+        var user = res.locals.session.user
+
+        // Check if client has the permission to manage (delete) users
         permissions.check(user, {
             type: "USER_MANAGE",
             value: res.locals.user.id
         }).then(function (result) {
-            if (!result) {
-                return res.sendStatus(403);
-            }
+            // If no permission, send 403
+            if (!result) return res.sendStatus(403)
+
+            // Destory user in database
             return res.locals.user.destroy();
         }).then(function () {
             res.status(204).send({status: "Successful"});
@@ -169,33 +232,49 @@ router.route("/:id")
     });
 
 router.route("/changePassword/:id")
+    /**
+     * Change the password of a user
+     */
     .put(function (req, res) {
+        // Check if client has a session
         var user = res.locals.session ? res.locals.session.user : null;
+
+        // Check if client has permission to change password of user
         permissions.check(user, {type: "CHANGE_PASSWORD", value: req.params.id}).then(function (result) {
-            if (!result) {
-                return res.sendStatus(403);
-            }
+            // If no permission, send 403
+            if (!result) return res.sendStatus(403)
+
+            // Get user from database
             User.findByPk(req.params.id, {
                 attributes: ["id", "displayName", "email", "isAdmin", "passwordHash", "passwordSalt"],
             }).then(function (userFound) {
+                // If user does not exist, send 404
                 if (userFound === null) {
                     return res.status(404).send({status: "Not Found"});
                 } else {
-                    var inputtedPassword = authHelper.getPasswordHashSync(req.body.password, userFound.passwordSalt);
+                    // Get the hash of the (original) password the user put
+                    var inputtedPasswordHash = authHelper.getPasswordHashSync(req.body.password, userFound.passwordSalt);
 
-                    if (Buffer.compare(inputtedPassword, userFound.passwordHash) !== 0) {
+                    // Check if it is indeed the correct password
+                    if (Buffer.compare(inputtedPasswordHash, userFound.passwordHash) !== 0) {
                         return res.status(406).send({status: "Not equal passwords"});
                     }
+
+                    // Check if both newly inputted passwords are the same
                     if (req.body.passwordNew !== req.body.passwordNew2) {
                         return res.status(406).send({status: "Not equal new passwords"});
                     }
-                    var passwordSal = authHelper.generateSalt(16); // Create salt of 16 characters
-                    var passwordHas = authHelper.getPasswordHashSync(req.body.passwordNew, passwordSal); // Get password hash
 
+                    // Generate new salt and hash
+                    var passwordSalt = authHelper.generateSalt(16); // Create salt of 16 characters
+                    var passwordHash = authHelper.getPasswordHashSync(req.body.passwordNew, passwordSalt); // Get password hash
+
+                    // Update user in database with new password and hash
                     return userFound.update({
-                        passwordHash: passwordHas,
-                        passwordSalt: passwordSal
+                        passwordHash: passwordHash,
+                        passwordSalt: passwordSalt
                     }).then(function (user) {
+                        // Send updated user to the client
                         return res.send(user);
                     }, function (err) {
                         console.error(err);
@@ -206,9 +285,19 @@ router.route("/changePassword/:id")
     });
 
 router.route("/approve/:approvalString")
+    /**
+     * Function for approving a user account based on the approvalString
+     */
     .all(function (req, res) {
+        // Get the approval string
         const approvalString = req.params.approvalString;
-        if (approvalString.length !== 24) return res.send(401);
+
+        // Check if it has the correct length
+        if (approvalString.length !== 24) {
+            return res.send(401);
+        }
+
+        // Find the user whose approval string matches the url
         User.findOne({where: {approvingHash: approvalString}}).then(function (user) {
             if (!user) {
                 // If the same link is clicked again in the email
