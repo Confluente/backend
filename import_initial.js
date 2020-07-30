@@ -1,8 +1,10 @@
 var Q = require("q");
 
 var User = require("./models/user");
+let Role = require("./models/role");
 var Group = require("./models/group");
 var Activity = require("./models/activity");
+var dictionaryHelper = require("./helpers/dictionaryHelper");
 var fs = require('fs')
 
 if (!fs.existsSync("./data.sqlite")) {
@@ -11,11 +13,118 @@ if (!fs.existsSync("./data.sqlite")) {
     return console.error("Delete the database (data.sqlite) before generating a new one")
 }
 
-// Standard roles
-let roles = {
-
-
+let permissionsSuperAdmin = {
+    // Pages
+    "PAGE_VIEW": true,
+    "PAGE_MANAGE": true,
+    // Users
+    "USER_CREATE": true,
+    "USER_VIEW_ALL": true,
+    "USER_MANAGE": true,
+    "CHANGE_ALL_PASSWORDS": true,
+    // Roles
+    "ROLE_VIEW": true,
+    "ROLE_MANAGE": true,
+    // Groups
+    "GROUP_VIEW": true,
+    "GROUP_MANAGE": true,
+    "GROUP_ORGANIZE_WITH_ALL": true,
+    // Activities
+    "ACTIVITY_VIEW_PUBLISHED": true,
+    "ACTIVITY_VIEW_ALL_UNPUBLISHED": true,
+    "ACTIVITY_MANAGE": true
 }
+
+let permissionsAdmin = {
+    // Pages
+    "PAGE_VIEW": true,
+    "PAGE_MANAGE": true,
+    // Users
+    "USER_CREATE": true,
+    "USER_VIEW_ALL": false,
+    "USER_MANAGE": false,
+    "CHANGE_ALL_PASSWORDS": false,
+    // Roles
+    "ROLE_VIEW": true,
+    "ROLE_MANAGE": false,
+    // Groups
+    "GROUP_VIEW": true,
+    "GROUP_MANAGE": false,
+    "GROUP_ORGANIZE_WITH_ALL": false,
+    // Activities
+    "ACTIVITY_VIEW_PUBLISHED": true,
+    "ACTIVITY_VIEW_ALL_UNPUBLISHED": false,
+    "ACTIVITY_MANAGE": false
+}
+
+let permissionsRegularMember = {
+    // Pages
+    "PAGE_VIEW": true,
+    "PAGE_MANAGE": false,
+    // Users
+    "USER_CREATE": true,
+    "USER_VIEW_ALL": false,
+    "USER_MANAGE": false,
+    "CHANGE_ALL_PASSWORDS": false,
+    // Roles
+    "ROLE_VIEW": false,
+    "ROLE_MANAGE": false,
+    // Groups
+    "GROUP_VIEW": true,
+    "GROUP_MANAGE": false,
+    "GROUP_ORGANIZE_WITH_ALL": false,
+    // Activities
+    "ACTIVITY_VIEW_PUBLISHED": true,
+    "ACTIVITY_VIEW_ALL_UNPUBLISHED": false,
+    "ACTIVITY_MANAGE": false
+}
+
+let permissionsBoardMember = {
+    // Pages
+    "PAGE_VIEW": true,
+    "PAGE_MANAGE": false,
+    // Users
+    "USER_CREATE": true,
+    "USER_VIEW_ALL": true,
+    "USER_MANAGE": true,
+    "CHANGE_ALL_PASSWORDS": false,
+    // Roles
+    "ROLE_VIEW": false,
+    "ROLE_MANAGE": false,
+    // Groups
+    "GROUP_VIEW": true,
+    "GROUP_MANAGE": true,
+    "GROUP_ORGANIZE_WITH_ALL": true,
+    // Activities
+    "ACTIVITY_VIEW_PUBLISHED": true,
+    "ACTIVITY_VIEW_ALL_UNPUBLISHED": true,
+    "ACTIVITY_MANAGE": true
+}
+
+
+// Standard roles
+let roles = [
+    {
+        id: 1,
+        name: "Super admin",
+        permissions: dictionaryHelper.stringifyDictionaryOfBooleans(permissionsSuperAdmin)
+    },
+    {
+        id: 2,
+        name: "Admin",
+        permissions: dictionaryHelper.stringifyDictionaryOfBooleans(permissionsAdmin)
+    },
+    {
+        id: 3,
+        name: "Regular member",
+        permissions: dictionaryHelper.stringifyDictionaryOfBooleans(permissionsRegularMember)
+    },
+    {
+        id: 4,
+        name: "Board member",
+        permissions: dictionaryHelper.stringifyDictionaryOfBooleans(permissionsBoardMember)
+    }
+];
 
 // Initial accounts
 var users = [
@@ -198,6 +307,10 @@ var activities = [
 
 // Import initial administrator and initial group to database
 Q.all([
+    Role.bulkCreate(roles).then(function (result) {
+        console.log("Created roles")
+    }),
+
     User.bulkCreate(users).then(function (result) {
         console.log("Created users");
     }),
