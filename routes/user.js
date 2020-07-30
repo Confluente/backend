@@ -224,7 +224,7 @@ router.route("/:id")
             // If no permission, send 403
             if (!result) return res.sendStatus(403)
 
-            // Destory user in database
+            // Destroy user in database
             return res.locals.user.destroy();
         }).then(function () {
             res.status(204).send({status: "Successful"});
