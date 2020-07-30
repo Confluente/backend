@@ -89,7 +89,7 @@ function check(user, scope) {
                 // Everyone is allowed to see groups
                 return true;
             case "INTERNSHIP_VIEW":
-                // Everyone is allowed to see internships
+                // Everyone is allowed to see any internship
                 return true;
             case "INTERNSHIP_MANAGE":
                 // Only members of the acquisition committee are allowed to manage internships

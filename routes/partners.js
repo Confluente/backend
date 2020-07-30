@@ -42,7 +42,7 @@ router.route("/internships")
                 res.sendStatus(400).send("Something went wrong in creating the internship. " +
                     "Check the logs for a detailed message.")
             })
-        }
+        })
     })
 
 router.route("/internships/:id")
@@ -61,7 +61,7 @@ router.route("/internships/:id")
          * Route for getting a specific internship.
          */
         var user = res.locals.session ? res.locals.session.user : null;
-        permissions.check(user, {type: "INTERNSHIP_VIEW"}).then(function (result) {
+        permissions.check(user, {type: "INTERNSHIP_VIEW", value: req.params.id}).then(function (result) {
             if (!result) {
                 return res.sendStatus(403);
             }
