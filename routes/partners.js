@@ -6,30 +6,43 @@ var internships = require("../models/companyOpportunity");
 var router = express.Router();
 
 router.route("/internships")
-    .all(permissions.requireAll({type: "INTERNSHIP_MANAGE"}))
     .get(function (req, res) {
         /**
          * Route for getting all internships from the database.
          */
-        internships.findAll({
-            order: [
-                ["id", "ASC"]
-            ]
-        }).then(function (results) {
-            res.send(results);
+        var user = res.locals.session ? res.locals.session.user : null;
+        permissions.check(user, {type: "INTERNSHIP_VIEW"}).then(function (result) {
+            if (!result) {
+                res.status(403).send("You are not allowed to get all internships");
+            }
+
+            internships.findAll({
+                order: [
+                    ["id", "ASC"]
+                ]
+            }).then(function (results) {
+                res.send(results);
+            })
         })
     })
     .post(function (req, res) {
         /**
          * Route for creating an internship.
          */
-        return internships.create(req.body).then(function (result) {
-            res.status(201).send(result);
-        }).catch(function (err) {
-            console.error(err);
-            res.sendStatus(400).send("Something went wrong in creating the internship. " +
-                "Check the logs for a detailed message.")
-        })
+        var user = res.locals.session ? res.locals.session.user : null;
+        permissions.check(user, {type: "INTERNSHIP_MANAGE", value: req.params.id}).then(function (result) {
+            if (!result) {
+                res.status(403).send("You do not have permissions to create an internship");
+            }
+
+            return internships.create(req.body).then(function (internship) {
+                res.status(201).send(internship);
+            }).catch(function (err) {
+                console.error(err);
+                res.sendStatus(400).send("Something went wrong in creating the internship. " +
+                    "Check the logs for a detailed message.")
+            })
+        }
     })
 
 router.route("/internships/:id")
