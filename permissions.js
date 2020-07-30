@@ -91,8 +91,19 @@ function check(user, scope) {
             case "INTERNSHIP_VIEW":
                 return true;
             case "INTERNSHIP_MANAGE":
-                // TODO IMPLEMENT MANAGE ACCESS FOR ACQUISITION COMMITTEE
-                return false;
+                return Group.findAll({
+                    where: {
+                        email: 'acquisition@hsaconfluente.nl'
+                    }
+                }).then(function (group) {
+                    for (var i = 0; i < group.members.length; i++) {
+                        if (group.members[i].id === user.id) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                })
             default:
                 throw new Error("Unknown scope type");
         }
