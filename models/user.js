@@ -29,7 +29,6 @@ var User = sequelize.define('user', {
     },
     approvingHash: Sequelize.STRING
 });
-
 var Group = require("./group");
 var Activity = require("./activity");
 
