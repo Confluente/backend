@@ -1,8 +1,8 @@
 var crypto = require("crypto");
 var Q = require("q");
 
-var User = require("./models/user");
-var Session = require("./models/session");
+var User = require("../models/user");
+var Session = require("../models/session");
 
 var getRandomBytes = Q.nfbind(crypto.randomBytes);
 

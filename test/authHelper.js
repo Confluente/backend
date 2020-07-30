@@ -1,7 +1,7 @@
 var assert = require("assert");
 
 var testData = require("./testData");
-var authHelper = require("../authHelper");
+var authHelper = require("../helpers/authHelper");
 
 describe("authHelper", function () {
 

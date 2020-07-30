@@ -4,7 +4,7 @@ const nodemailer = require("nodemailer");
 var User = require("../models/user");
 var Group = require("../models/group");
 var permissions = require("../permissions");
-var authHelper = require("../authHelper");
+var authHelper = require("../helpers/authHelper");
 
 var router = express.Router();
 var log = require("../logger");
