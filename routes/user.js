@@ -2,8 +2,9 @@ var express = require("express");
 var nodemailer = require("nodemailer");
 var User = require("../models/user");
 var Group = require("../models/group");
+var Role = require("../models/role");
 var permissions = require("../permissions");
-var authHelper = require("../authHelper");
+var authHelper = require("../helpers/authHelper");
 
 var router = express.Router();
 
@@ -23,9 +24,10 @@ router.route("/")
             // If no result, then the client has no permission
             if (!result) res.sendStatus(403);
 
-            // If client has permission, find all users in database
+            // If client h`as permission, find all users in database
             User.findAll({
-                attributes: ["id", "displayName", "email", "isAdmin"],
+                attributes: ["id", "displayName", "email"],
+                include: Role,
                 order: [
                     ["id", "ASC"]
                 ]
@@ -53,8 +55,12 @@ router.route("/")
         // Delete password permanently
         delete req.body.password;
 
-        // Set admin status false
-        req.body.isAdmin = false;
+        // Set role to be the default member role
+        req.body.role = Role.findOne({
+            where: {
+                name: 'Member'
+            }
+        });
 
         // Create new user in database
         return User.create(req.body).then(function (result) {
@@ -105,7 +111,8 @@ router.route("/:id")
 
         // Get user from database
         User.findByPk(req.params.id, {
-            attributes: ["id", "firstName", "lastName", "displayName", "major", "address", "track", "honorsGeneration", "honorsMembership", "campusCardNumber", "mobilePhoneNumber", "email", "isAdmin", "consentWithPortraitRight"],
+            attributes: ["id", "firstName", "lastName", "displayName", "major", "address", "track", "honorsGeneration", "honorsMembership", "campusCardNumber", "mobilePhoneNumber", "email", "consentWithPortraitRight"],
+            include: Role
         }).then(function (user) {
             // Return if user not found
             if (user === null) {
@@ -224,7 +231,7 @@ router.route("/:id")
             // If no permission, send 403
             if (!result) return res.sendStatus(403)
 
-            // Destory user in database
+            // Destroy user in database
             return res.locals.user.destroy();
         }).then(function () {
             res.status(204).send({status: "Successful"});
@@ -246,7 +253,8 @@ router.route("/changePassword/:id")
 
             // Get user from database
             User.findByPk(req.params.id, {
-                attributes: ["id", "displayName", "email", "isAdmin", "passwordHash", "passwordSalt"],
+                attributes: ["id", "displayName", "email", "passwordHash", "passwordSalt"],
+                include: Role
             }).then(function (userFound) {
                 // If user does not exist, send 404
                 if (userFound === null) {

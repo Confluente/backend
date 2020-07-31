@@ -2,7 +2,7 @@ var express = require("express");
 
 var User = require("../models/user");
 var Group = require("../models/group");
-var authHelper = require("../authHelper");
+var authHelper = require("../helpers/authHelper");
 
 var router = express.Router();
 

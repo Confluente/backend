@@ -24,70 +24,66 @@ function check(user, scope) {
             resolve(user);
         }
     }).then(function (user) {
-        if (loggedIn && user.dataValues.isAdmin && scope.type !== "CHANGE_PASSWORD") {
-            // Admin has all permissions
-            return true;
-        }
+        // return user.role.permissions[scope];
+
         switch (scope.type) {
             case "PAGE_VIEW":
-                // Everyone allowed to view pages
-                return true;
+                return user.role.permissions[scope.type];
             case "PAGE_MANAGE":
-                // Only admins allowed to manage pages
-                return false;
+                return user.role.permissions[scope.type];
+            case "USER_CREATE":
+                return user.role.permissions[scope.type]
+            case "USER_VIEW":
+                return User.findByPk(scope.value).then(function (user_considered) {
+                    if (!user_considered) {
+                        return false;
+                    }
+                    // Users can view their own account
+                    let ownAccount = (user.id === user_considered.id);
+                    return ownAccount || user.role.permissions["USER_VIEW_ALL"]
+                });
+            case "USER_MANAGE":
+                return user.role.permissions[scope.type]
+            case "CHANGE_PASSWORD":
+                return User.findByPk(scope.value).then(function (user_considered) {
+                    if (!user_considered) {
+                        return false;
+                    }
+                    // Users can change their own password
+                    let ownAccount = (user.id === user_considered.id);
+                    return ownAccount || user.role.permissions["CHANGE_ALL_PASSWORDS"]
+                });
+            case "GROUP_VIEW":
+                return user.role.permissions[scope.type]
+            case "GROUP_MANAGE":
+                return user.role.permissions[scope.type]
+            case "GROUP_ORGANIZE":
+                if (!loggedIn) return false;
+                return Group.findByPk(scope.value).then(function (group) {
+                    // Check whether group is allowed to organize
+                    if (!group.canOrganize) return false;
+                    // If the group is allowed to organize, members are allowed to organize
+                    let member = user.hasGroup(group.id);
+                    return member || user.role.permissions["GROUP_ORGANIZE_WITH_ALL"]
+                });
             case "ACTIVITY_VIEW":
                 return Activity.findByPk(scope.value).then(function (activity) {
                     if (!activity) {
                         return false;
                     }
                     if (activity.published) {
-                        // published activities allowed to be viewed by anyone
-                        return true;
+                        return user.role.permissions["ACTIVITY_VIEW_PUBLISHED"]
                     }
-                    // Unpublished activities only allowed to be viewed by organizers and admins
-                    return loggedIn ? user.hasGroup(activity.OrganizerId) : false;
+                    // Unpublished activities allowed to be seen by organizers
+                    let organizing = loggedIn ? user.hasGroup(activity.OrganizerId) : false;
+                    return organizing || user.role.permissions["ACTIVITY_VIEW_ALL_UNPUBLISHED"];
                 });
             case "ACTIVITY_EDIT":
                 return Activity.findByPk(scope.value).then(function (activity) {
-                    // Activities only allowed to be edited by organizers and admins
-                    return loggedIn ? user.hasGroup(activity.OrganizerId) : false;
+                    // Activities allowed to be edited by organizers
+                    let organizing = loggedIn ? user.hasGroup(activity.OrganizerId) : false;
+                    return organizing || user.role.permissions["ACTIVITY_MANAGE"]
                 });
-            case "GROUP_ORGANIZE":
-                if (!loggedIn) return false;
-                return Group.findByPk(scope.value).then(function (group) {
-                    // Check whether group is allowed to organize
-                    if (!group.canOrganize) return false;
-                    // If the group is allowed to organize, return whether user is member of the group
-                    return user.hasGroup(group.id);
-                });
-            case "USER_VIEW":
-                return User.findByPk(scope.value).then(function (user_considered) {
-                    if (!user_considered) {
-                        return false;
-                    }
-                    // Non-admin users can only view their own account
-                    return user.id === user_considered.id;
-                });
-            case "CHANGE_PASSWORD":
-                return User.findByPk(scope.value).then(function (user_considered) {
-                    if (!user_considered) {
-                        return false;
-                    }
-                    // Everyone can only change their own password
-                    return user.id === user_considered.id;
-                });
-            case "USER_MANAGE":
-                // Only admins allowed to manage users
-                return false;
-            case "CREATE_USER":
-                // Everyone is allowed to submit a request for an account
-                return true;
-            case "GROUP_MANAGE":
-                // Only admins are allowed to manage groups
-                return false;
-            case "GROUP_VIEW":
-                // Everyone is allowed to see groups
-                return true;
             default:
                 throw new Error("Unknown scope type");
         }

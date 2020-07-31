@@ -6,7 +6,7 @@ var User = require("../models/user");
 var Group = require("../models/group");
 var Activity = require("../models/activity");
 
-var authHelper = require("../authHelper");
+var authHelper = require("../helpers/authHelper");
 var tester = require("./tester");
 
 var testUser = {

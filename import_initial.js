@@ -1,8 +1,10 @@
 var Q = require("q");
 
 var User = require("./models/user");
+let Role = require("./models/role");
 var Group = require("./models/group");
 var Activity = require("./models/activity");
+var dictionaryHelper = require("./helpers/dictionaryHelper");
 var fs = require('fs')
 
 if (!fs.existsSync("./data.sqlite")) {
@@ -11,52 +13,186 @@ if (!fs.existsSync("./data.sqlite")) {
     return console.error("Delete the database (data.sqlite) before generating a new one")
 }
 
+let permissionsSuperAdmin = {
+    // Pages
+    "PAGE_VIEW": true,
+    "PAGE_MANAGE": true,
+    // Users
+    "USER_CREATE": true,
+    "USER_VIEW_ALL": true,
+    "USER_MANAGE": true,
+    "CHANGE_ALL_PASSWORDS": true,
+    // Roles
+    "ROLE_VIEW": true,
+    "ROLE_MANAGE": true,
+    // Groups
+    "GROUP_VIEW": true,
+    "GROUP_MANAGE": true,
+    "GROUP_ORGANIZE_WITH_ALL": true,
+    // Activities
+    "ACTIVITY_VIEW_PUBLISHED": true,
+    "ACTIVITY_VIEW_ALL_UNPUBLISHED": true,
+    "ACTIVITY_MANAGE": true
+}
+
+let permissionsAdmin = {
+    // Pages
+    "PAGE_VIEW": true,
+    "PAGE_MANAGE": true,
+    // Users
+    "USER_CREATE": true,
+    "USER_VIEW_ALL": false,
+    "USER_MANAGE": false,
+    "CHANGE_ALL_PASSWORDS": false,
+    // Roles
+    "ROLE_VIEW": true,
+    "ROLE_MANAGE": false,
+    // Groups
+    "GROUP_VIEW": true,
+    "GROUP_MANAGE": false,
+    "GROUP_ORGANIZE_WITH_ALL": false,
+    // Activities
+    "ACTIVITY_VIEW_PUBLISHED": true,
+    "ACTIVITY_VIEW_ALL_UNPUBLISHED": false,
+    "ACTIVITY_MANAGE": false
+}
+
+let permissionsRegularMember = {
+    // Pages
+    "PAGE_VIEW": true,
+    "PAGE_MANAGE": false,
+    // Users
+    "USER_CREATE": true,
+    "USER_VIEW_ALL": false,
+    "USER_MANAGE": false,
+    "CHANGE_ALL_PASSWORDS": false,
+    // Roles
+    "ROLE_VIEW": false,
+    "ROLE_MANAGE": false,
+    // Groups
+    "GROUP_VIEW": true,
+    "GROUP_MANAGE": false,
+    "GROUP_ORGANIZE_WITH_ALL": false,
+    // Activities
+    "ACTIVITY_VIEW_PUBLISHED": true,
+    "ACTIVITY_VIEW_ALL_UNPUBLISHED": false,
+    "ACTIVITY_MANAGE": false
+}
+
+let permissionsBoardMember = {
+    // Pages
+    "PAGE_VIEW": true,
+    "PAGE_MANAGE": false,
+    // Users
+    "USER_CREATE": true,
+    "USER_VIEW_ALL": true,
+    "USER_MANAGE": true,
+    "CHANGE_ALL_PASSWORDS": false,
+    // Roles
+    "ROLE_VIEW": false,
+    "ROLE_MANAGE": false,
+    // Groups
+    "GROUP_VIEW": true,
+    "GROUP_MANAGE": true,
+    "GROUP_ORGANIZE_WITH_ALL": true,
+    // Activities
+    "ACTIVITY_VIEW_PUBLISHED": true,
+    "ACTIVITY_VIEW_ALL_UNPUBLISHED": true,
+    "ACTIVITY_MANAGE": true
+}
+
+
+// Standard roles
+let roles = [
+    {
+        id: 1,
+        name: "Super admin",
+        permissions: dictionaryHelper.stringifyDictionaryOfBooleans(permissionsSuperAdmin)
+    },
+    {
+        id: 2,
+        name: "Admin",
+        permissions: dictionaryHelper.stringifyDictionaryOfBooleans(permissionsAdmin)
+    },
+    {
+        id: 3,
+        name: "Regular member",
+        permissions: dictionaryHelper.stringifyDictionaryOfBooleans(permissionsRegularMember)
+    },
+    {
+        id: 4,
+        name: "Board member",
+        permissions: dictionaryHelper.stringifyDictionaryOfBooleans(permissionsBoardMember)
+    }
+];
 
 // Initial accounts
 var users = [
     {
         id: 1,
+        email: "superadmin",
+        displayName: "Super Administrator",
+        passwordHash: Buffer.from("tfExQFTNNT/gMWGfe5Z8CGz2bvBjoAoE7Mz7pmWd6/g=", "base64"),
+        passwordSalt: Buffer.from("LAFU0L7mQ0FhEmPybJfHDiF11OAyBFjEIj8/oBzVZrM=", "base64"),
+        approved: true,
+        RoleId: 1,
+        groups: [10],
+        functions: ["Chair"]
+    },
+    {
+        id: 2,
         email: "admin",
         displayName: "Administrator",
         passwordHash: Buffer.from("tfExQFTNNT/gMWGfe5Z8CGz2bvBjoAoE7Mz7pmWd6/g=", "base64"),
         passwordSalt: Buffer.from("LAFU0L7mQ0FhEmPybJfHDiF11OAyBFjEIj8/oBzVZrM=", "base64"),
-        isAdmin: true,
         approved: true,
-        groups: [2],
+        RoleId: 2,
+        groups: [10],
         functions: ["Member"]
     },
     {
-        id: 2,
+        id: 3,
+        email: "boardmember",
+        displayName: "Board Member",
+        passwordHash: Buffer.from("tfExQFTNNT/gMWGfe5Z8CGz2bvBjoAoE7Mz7pmWd6/g=", "base64"),
+        passwordSalt: Buffer.from("LAFU0L7mQ0FhEmPybJfHDiF11OAyBFjEIj8/oBzVZrM=", "base64"),
+        approved: true,
+        RoleId: 4,
+        groups: [1],
+        functions: ["Member"]
+    },
+    {
+        id: 4,
         email: "activemember1@student.tue.nl",
         displayName: "Active1 Member",
         passwordHash: Buffer.from("tfExQFTNNT/gMWGfe5Z8CGz2bvBjoAoE7Mz7pmWd6/g=", "base64"),
         passwordSalt: Buffer.from("LAFU0L7mQ0FhEmPybJfHDiF11OAyBFjEIj8/oBzVZrM=", "base64"),
-        isAdmin: false,
         approved: true,
+        RoleId: 3,
         groups: [3, 4],
         functions: ["Chair", "Secretary"],
         activities: [2],
         answers: ["Active1 Member#,#activemember1@student.tue.nl#,#Kapowowowskies#,#woof"]
     },
     {
-        id: 3,
+        id: 5,
         email: "activemember2@student.tue.nl",
         displayName: "Active2 Member",
         passwordHash: Buffer.from("tfExQFTNNT/gMWGfe5Z8CGz2bvBjoAoE7Mz7pmWd6/g=", "base64"),
         passwordSalt: Buffer.from("LAFU0L7mQ0FhEmPybJfHDiF11OAyBFjEIj8/oBzVZrM=", "base64"),
-        isAdmin: false,
         approved: true,
+        RoleId: 3,
         groups: [3],
         functions: ["Member"]
     },
     {
-        id: 4,
+        id: 6,
         email: "activemember3@student.tue.nl",
         displayName: "Active3 Member",
         passwordHash: Buffer.from("tfExQFTNNT/gMWGfe5Z8CGz2bvBjoAoE7Mz7pmWd6/g=", "base64"),
         passwordSalt: Buffer.from("LAFU0L7mQ0FhEmPybJfHDiF11OAyBFjEIj8/oBzVZrM=", "base64"),
-        isAdmin: false,
         approved: true,
+        RoleId: 3,
         groups: [4],
         functions: ["Treasurer"],
         activities: [2],
@@ -193,6 +329,10 @@ var activities = [
 
 // Import initial administrator and initial group to database
 Q.all([
+    Role.bulkCreate(roles).then(function (result) {
+        console.log("Created roles")
+    }),
+
     User.bulkCreate(users).then(function (result) {
         console.log("Created users");
     }),

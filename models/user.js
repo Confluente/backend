@@ -2,6 +2,7 @@ var Sequelize = require("sequelize");
 var db = require("./db");
 var Group = require("./group");
 var Activity = require("./activity");
+var Role = require("./role");
 
 var User = db.define('user', {
 
@@ -45,7 +46,7 @@ var User = db.define('user', {
      * Year that the user started with honors.
      */
     honorsGeneration: Sequelize.INTEGER,
-    
+
     /**
      * Stores what kind of membership the user has
      */
@@ -78,14 +79,6 @@ var User = db.define('user', {
      * Salt of the password of the user.
      */
     passwordSalt: Sequelize.BLOB,
-
-    /**
-     * Whether the user is an admin.
-     */
-    isAdmin: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
-    },
 
     /**
      * Whether the account of the user is approved
@@ -132,11 +125,14 @@ User.belongsToMany(Activity, {through: Subscription, onDelete: 'CASCADE'});
 // Relates an activity to a user through subscription as participants
 Activity.belongsToMany(User, {as: "participants",through: Subscription, onDelete: 'CASCADE'});
 
+// Relates a role to a user
+User.hasOne(Role);
+
 UserGroup.sync();
 Subscription.sync();
 User.sync();
 Group.sync();
 Activity.sync();
-db.sync();
+Role.sync();
 
 module.exports = User;
