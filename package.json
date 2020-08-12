@@ -32,7 +32,7 @@
     "uglifyjs-webpack-plugin": "^2.2.0"
   },
   "devDependencies": {
-    "nodemon": "^1.19.2",
+    "nodemon": "^1.19.4",
     "supertest": "^4.0.2"
   }
 }

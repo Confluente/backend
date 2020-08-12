@@ -182,6 +182,7 @@ var activities = [
         typeOfQuestion: "name#,#TU/e email#,#☰ text#,#◉ multiple choice",
         questionDescriptions: "Name#,#TU/e email#,#What kind of dog breed do you like?#,#What sound does a dog make?",
         formOptions: "lk#,#lk#,#lk#,#Woof#;#Woofdiedoofdoof#;#Wafferdafdaf",
+        privacyOfQuestions: "false#,#false#,#false#,#false",
         required: "true#,#true#,#true#,#false",
         subscriptionDeadline: (new Date()).setDate((new Date()).getDate() + 1),
         published: true,
