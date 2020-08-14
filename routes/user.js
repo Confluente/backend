@@ -133,7 +133,7 @@ router.route("/:id")
 
             // If permission, find all groups in the database, that the requested user is a member of.
             Group.findAll({
-                attributes: ["id", "fullName"],
+                attributes: ["id", "fullName", "canOrganize"],
                 include: [
                     {
                         model: User,

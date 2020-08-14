@@ -329,8 +329,8 @@ router.route("/subscriptions/:id")
                 }
             }
 
-            // Send confirmation to clinet
-            return res.send(201)
+            // Send confirmation to client
+            return res.send(200)
         }).done()
     });
 
@@ -362,7 +362,7 @@ router.route("/:id")
 
                 next();
             }
-        });
+        }).done();
     })
 
     /**
@@ -428,6 +428,7 @@ router.route("/:id")
      */
     .put(function (req, res) {
         // Check if client is logged in
+        console.log("put reached!");
         var user = res.locals.session ? res.locals.session.user : null;
 
         // Check if client has permission to edit the activity
@@ -459,7 +460,7 @@ router.route("/:id")
                 }
 
                 return res.locals.activity.update(req.body).then(function (activity) {
-                    res.send(activity);
+                    res.sendStatus(200).send(activity);
                 }, function (err) {
                     console.error(err);
                 });

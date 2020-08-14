@@ -35,6 +35,22 @@ if (process.env.NODE_ENV === "test") {
 }
 
 app.use(bodyParser.json({limit: '10mb', extended: false}))
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "http://localhost:4200"); // update to match the domain you will make the request from
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, append,delete,entries,foreach,get,has,keys,set,values,Authorization");
+    res.header("Access-Control-Allow-Credentials", "true")
+    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+    next();
+});
+
+app.options('*', function (req, res) {
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+    res.setHeader('Access-Control-Allow-Methods', "GET, POST, OPTIONS, PUT, DELETE");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.end();
+})
+
 app.use(bodyParser.urlencoded({limit: '10mb', extended: false}))
 app.use(cookieParser());
 app.use(function (req, res, next) {
