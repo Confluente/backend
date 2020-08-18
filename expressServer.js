@@ -78,6 +78,7 @@ app.use(function (req, res, next) {
 //         // acme challenge is used for certificate verification for HTTPS
 //         if (req.url === "/.well-known/acme-challenge/w4MANzrt6vOUT2NSDTvramIFdtMMTJXnxiNiyJPlPTg") {
 //             res.redirect('http://hsaconfluente.nl/www/w4MANzrt6vOUT2NSDTvramIFdtMMTJXnxiNiyJPlPTg');
+//             res.redirect('http://hsaconfluente.nl/assets/documents/acme');
 //         }
 //         res.redirect('https://' + req.headers.host + req.url);
 //         // request was via http, so redirect to https
