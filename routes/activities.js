@@ -428,7 +428,6 @@ router.route("/:id")
      */
     .put(function (req, res) {
         // Check if client is logged in
-        console.log("put reached!");
         var user = res.locals.session ? res.locals.session.user : null;
 
         // Check if client has permission to edit the activity
@@ -440,7 +439,7 @@ router.route("/:id")
             if (!result) return res.sendStatus(403)
 
             // Get the organizing group from the database
-            Group.findOne({where: {displayName: req.body.organizer}}).then(function (group) {
+            Group.findOne({where: {fullName: req.body.organizer}}).then(function (group) {
                 req.body.OrganizerId = group.id;
                 req.body.Organizer = group;
 
@@ -460,7 +459,7 @@ router.route("/:id")
                 }
 
                 return res.locals.activity.update(req.body).then(function (activity) {
-                    res.sendStatus(200).send(activity);
+                    res.send(activity);
                 }, function (err) {
                     console.error(err);
                 });
