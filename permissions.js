@@ -88,6 +88,24 @@ function check(user, scope) {
             case "GROUP_VIEW":
                 // Everyone is allowed to see groups
                 return true;
+            case "INTERNSHIP_VIEW":
+                // Everyone is allowed to see any internship
+                return true;
+            case "INTERNSHIP_MANAGE":
+                // Only members of the acquisition committee are allowed to manage internships
+                return Group.findAll({
+                    where: {
+                        email: 'acquisition@hsaconfluente.nl'
+                    }
+                }).then(function (group) {
+                    for (var i = 0; i < group.members.length; i++) {
+                        if (group.members[i].id === user.id) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                })
             default:
                 throw new Error("Unknown scope type");
         }
