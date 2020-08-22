@@ -13,7 +13,7 @@ const fs = require('fs');
 
 
 // Set port server
-var port = process.env.PORT || 80;
+var port = process.env.PORT || 81;
 
 // Start server
 httpServer.listen(port, function () {

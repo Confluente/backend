@@ -15,11 +15,7 @@ var router = express.Router();
 let Op = Sequelize.Op;
 
 // path where the pictures of the activities are put in in frontend
-if (process.env.NODE_ENV === "dev") {
-    var pathToPictures = '../frontend/src/img/activities/'
-} else {
-    var pathToPictures = '../frontend/build/img/activities/'
-}
+const pathToPictures = '../Frontend-Angular/src/assets/img/activities/'
 
 // Set The Storage Engine
 let storage = multer.diskStorage({
@@ -215,11 +211,11 @@ router.route("/pictures/:id")
      * Edits a picture
      */
     .put(function (req, res, next) {
-        // delete old picture
+        // // delete old picture
         deletePicture(req.params.id);
 
         upload(req, res, function(result) {
-            res.send();
+            res.send({Successful: true})
         })
     });
 
