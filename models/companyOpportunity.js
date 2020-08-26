@@ -1,7 +1,7 @@
 var Sequelize = require("sequelize");
 var sequelize = require("./db");
 
-var CompanyOpportunity = sequelize.define('companyOpportunity', {
+var CompanyOpportunity = sequelize.define('company_opportunity', {
     /**
      * Title of the opportunity.
      */
