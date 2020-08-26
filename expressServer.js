@@ -1,9 +1,7 @@
-var path = require("path");
 var express = require("express");
 var morgan = require("morgan");
 var bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
-var Q = require("q");
 var schedule = require('node-schedule');
 var User = require('./models/user');
 var Sequelize = require('sequelize');
@@ -13,19 +11,12 @@ var log = require("./logger");
 var checkPermission = require("./permissions").check;
 var Session = require("./models/session");
 
-var webroot;
-
 var app = express();
 
 // Set webroot dependent on whether running for tests, development, or production
-if (process.env.NODE_ENV === "test") {
-    console.log("NODE_ENV=test");
-    webroot = path.resolve(__dirname, "www");
-} else if (process.env.NODE_ENV === "dev") {
+if (process.env.NODE_ENV === "dev") {
     app.use(morgan("dev"));
-    webroot = path.resolve(__dirname, "../frontend/src");
 } else {
-    webroot = path.resolve(__dirname, "../frontend/build");
     app.use(morgan("combined", {stream: require("fs").createWriteStream("./access.log", {flags: "a"})}));
 
     app.use(function (req, res, next) {
@@ -112,21 +103,8 @@ app.use("/api/*", function (req, res) {
     res.sendStatus(404);
 });
 
-app.use(express.static('public'));
-app.use(express.static(webroot));
-
-app.get("*", function (req, res, next) {
-
-    if (req.originalUrl.includes(".")) {
-        return res.sendStatus(404);
-    }
-
-    res.sendFile("/index.html", {root: webroot});
-});
-
 app.use(function (err, req, res, next) {
     console.error(err);
-    //throw err;
 });
 
 // This function sends an email to the secretary of H.S.A. Confluente every week if 
@@ -166,7 +144,7 @@ var secretary_email = schedule.scheduleJob('0 0 0 * * 7', function () {
                 });
                 transporter.sendMail({
                     from: '"website" <web@hsaconfluente.nl>',
-                    to: '"secretary of H.S.A. Confluente" <treasurer@hsaconfluente.nl>',
+                    to: '"secretary of H.S.A. Confluente" <secretary@hsaconfluente.nl>',
                     subject: "New members that registered on the website",
                     text: "Heyhoi dear secretary \n \nIn the past week there have been " + number_of_new_users.toString() + " new registrations on the website. \n\nThe names and emails of the new registrations are \n" + data_of_new_users + " \nSincerely, \nThe website \nOn behalf of the Web Committee"
                 }).then(function (info) {
