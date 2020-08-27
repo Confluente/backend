@@ -20,11 +20,8 @@ var app = express();
 if (process.env.NODE_ENV === "test") {
     console.log("NODE_ENV=test");
     webroot = path.resolve(__dirname, "www");
-} else if (process.env.NODE_ENV === "dev") {
-    app.use(morgan("dev"));
-    webroot = path.resolve(__dirname, "../Angular-Frontend/src/");
 } else {
-    webroot = path.resolve(__dirname, "../Angular-Frontend/dist/frontend");
+    webroot = path.resolve(__dirname, "dist/frontend");
     app.use(morgan("combined", {stream: require("fs").createWriteStream("./access.log", {flags: "a"})}));
 
     app.use(function (req, res, next) {
