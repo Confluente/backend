@@ -3,7 +3,6 @@ var express = require("express");
 var morgan = require("morgan");
 var bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
-var Q = require("q");
 var schedule = require('node-schedule');
 var User = require('./models/user');
 var Sequelize = require('sequelize');
@@ -23,9 +22,9 @@ if (process.env.NODE_ENV === "test") {
     webroot = path.resolve(__dirname, "www");
 } else if (process.env.NODE_ENV === "dev") {
     app.use(morgan("dev"));
-    webroot = path.resolve(__dirname, "../frontend/src");
+    webroot = path.resolve(__dirname, "../Angular-Frontend/src/");
 } else {
-    webroot = path.resolve(__dirname, "../frontend/build");
+    webroot = path.resolve(__dirname, "../Angular-Frontend/dist/frontend");
     app.use(morgan("combined", {stream: require("fs").createWriteStream("./access.log", {flags: "a"})}));
 
     app.use(function (req, res, next) {
