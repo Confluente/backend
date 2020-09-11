@@ -6,14 +6,14 @@ const fs = require('fs');
 
 // Only for live website version
 // var httpsServer = https.createServer({
-//     key: fs.readFileSync('../../../etc/letsencrypt/live/hsaconfluente.nl-0001/privkey.pem'),
-//     cert: fs.readFileSync('../../../etc/letsencrypt/live/hsaconfluente.nl-0001/cert.pem'),
-//     ca: fs.readFileSync('../../../etc/letsencrypt/live/hsaconfluente.nl-0001/fullchain.pem')
+//     key: fs.readFileSync('../../../etc/letsencrypt/live/hsaconfluente.nl/privkey.pem'),
+//     cert: fs.readFileSync('../../../etc/letsencrypt/live/hsaconfluente.nl/cert.pem'),
+//     ca: fs.readFileSync('../../../etc/letsencrypt/live/hsaconfluente.nl/fullchain.pem')
 // }, expressServer);
 
 
 // Set port server
-var port = process.env.PORT || 80;
+var port = process.env.PORT || 81;
 
 // Start server
 httpServer.listen(port, function () {

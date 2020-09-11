@@ -72,14 +72,19 @@ app.use(function (req, res, next) {
 //         next();
 //     } else {
 //         // acme challenge is used for certificate verification for HTTPS
-//         if (req.url === "/.well-known/acme-challenge/w4MANzrt6vOUT2NSDTvramIFdtMMTJXnxiNiyJPlPTg") {
-//             res.redirect('http://hsaconfluente.nl/www/w4MANzrt6vOUT2NSDTvramIFdtMMTJXnxiNiyJPlPTg');
+//         if (req.url === "/.well-known/acme-challenge/nPHb2tBcwnLHnTBGzHTtjYZVgoucfI5mLLKrkU4JUFM") {
 //             res.redirect('http://hsaconfluente.nl/assets/documents/acme');
 //         }
+//
+//         if (req.url === "/.well-known/acme-challenge/VSV0B332eYswinjUwESM_9jNY59Se17kCryEzUo28eE") {
+//             res.redirect('http://hsaconfluente.nl/assets/documents/acme2');
+//         }
+//
 //         res.redirect('https://' + req.headers.host + req.url);
 //         // request was via http, so redirect to https
 //     }
 // });
+
 
 
 app.use(function (req, res, next) {
@@ -108,7 +113,6 @@ app.use("/api/*", function (req, res) {
     res.sendStatus(404);
 });
 
-app.use(express.static('public'));
 app.use(express.static(webroot));
 
 app.get("*", function (req, res, next) {
