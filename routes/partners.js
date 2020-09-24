@@ -11,7 +11,7 @@ router.route("/companyOpportunities")
          * Route for getting all companyOpportunities from the database.
          */
         var user = res.locals.session ? res.locals.session.user : null;
-        permissions.check(user, {type: "INTERNSHIP_VIEW"}).then(function (result) {
+        permissions.check(user, {type: "COMPANY_OPPORTUNITY_VIEW"}).then(function (result) {
             if (!result) {
                 res.status(403).send("You are not allowed to get all company opportunities");
             }
@@ -21,6 +21,7 @@ router.route("/companyOpportunities")
                     ["id", "ASC"]
                 ]
             }).then(function (results) {
+                console.log(results);
                 res.send(results);
             })
         })
@@ -30,7 +31,7 @@ router.route("/companyOpportunities")
          * Route for creating a company opportunity.
          */
         var user = res.locals.session ? res.locals.session.user : null;
-        permissions.check(user, {type: "INTERNSHIP_MANAGE", value: req.params.id}).then(function (result) {
+        permissions.check(user, {type: "COMPANY_OPPORTUNITY_MANAGE", value: req.params.id}).then(function (result) {
             if (!result) {
                 res.status(403).send("You do not have permissions to create a company opportunity");
             }
