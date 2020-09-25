@@ -3,7 +3,6 @@ var express = require("express");
 var morgan = require("morgan");
 var bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
-var Q = require("q");
 var schedule = require('node-schedule');
 var User = require('./models/user');
 var Sequelize = require('sequelize');
@@ -21,11 +20,8 @@ var app = express();
 if (process.env.NODE_ENV === "test") {
     console.log("NODE_ENV=test");
     webroot = path.resolve(__dirname, "www");
-} else if (process.env.NODE_ENV === "dev") {
-    app.use(morgan("dev"));
-    webroot = path.resolve(__dirname, "../frontend/src");
 } else {
-    webroot = path.resolve(__dirname, "../frontend/build");
+    webroot = path.resolve(__dirname, "dist/frontend");
     app.use(morgan("combined", {stream: require("fs").createWriteStream("./access.log", {flags: "a"})}));
 
     app.use(function (req, res, next) {
@@ -35,6 +31,22 @@ if (process.env.NODE_ENV === "test") {
 }
 
 app.use(bodyParser.json({limit: '10mb', extended: false}))
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "http://localhost"); // update to match the domain you will make the request from
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, append,delete,entries,foreach,get,has,keys,set,values,Authorization");
+    res.header("Access-Control-Allow-Credentials", "true")
+    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+    next();
+});
+
+app.options('*', function (req, res) {
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost");
+    res.setHeader('Access-Control-Allow-Methods', "GET, POST, OPTIONS, PUT, DELETE");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.end();
+})
+
 app.use(bodyParser.urlencoded({limit: '10mb', extended: false}))
 app.use(cookieParser());
 app.use(function (req, res, next) {
@@ -60,13 +72,19 @@ app.use(function (req, res, next) {
 //         next();
 //     } else {
 //         // acme challenge is used for certificate verification for HTTPS
-//         if (req.url === "/.well-known/acme-challenge/w4MANzrt6vOUT2NSDTvramIFdtMMTJXnxiNiyJPlPTg") {
-//             res.redirect('http://hsaconfluente.nl/www/w4MANzrt6vOUT2NSDTvramIFdtMMTJXnxiNiyJPlPTg');
+//         if (req.url === "/.well-known/acme-challenge/nPHb2tBcwnLHnTBGzHTtjYZVgoucfI5mLLKrkU4JUFM") {
+//             res.redirect('http://hsaconfluente.nl/assets/documents/acme');
 //         }
+//
+//         if (req.url === "/.well-known/acme-challenge/VSV0B332eYswinjUwESM_9jNY59Se17kCryEzUo28eE") {
+//             res.redirect('http://hsaconfluente.nl/assets/documents/acme2');
+//         }
+//
 //         res.redirect('https://' + req.headers.host + req.url);
 //         // request was via http, so redirect to https
 //     }
 // });
+
 
 
 app.use(function (req, res, next) {
@@ -90,11 +108,11 @@ app.use("/api/group", require("./routes/group"));
 app.use("/api/user", require("./routes/user"));
 app.use("/api/page", require("./routes/page"));
 app.use("/api/notifications", require("./routes/notifications"));
+app.use("/api/partners", require("./routes/partners"));
 app.use("/api/*", function (req, res) {
     res.sendStatus(404);
 });
 
-app.use(express.static('public'));
 app.use(express.static(webroot));
 
 app.get("*", function (req, res, next) {

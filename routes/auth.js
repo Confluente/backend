@@ -71,6 +71,7 @@ router.route("/login")
             return authHelper.startSession(user.id, req.ip)
                 .then(function (session) {
                     res.cookie('session', session.token.toString("base64"));
+                    session.token = session.token.toString("base64");
                     res.send(session);
                 });
         }).catch(function (err) {

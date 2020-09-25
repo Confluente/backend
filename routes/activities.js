@@ -15,11 +15,7 @@ var router = express.Router();
 let Op = Sequelize.Op;
 
 // path where the pictures of the activities are put in in frontend
-if (process.env.NODE_ENV === "dev") {
-    var pathToPictures = '../frontend/src/img/activities/'
-} else {
-    var pathToPictures = '../frontend/build/img/activities/'
-}
+const pathToPictures = '../Frontend-Angular/src/assets/img/activities/'
 
 // Set The Storage Engine
 let storage = multer.diskStorage({
@@ -219,7 +215,7 @@ router.route("/pictures/:id")
         deletePicture(req.params.id);
 
         upload(req, res, function(result) {
-            res.send();
+            res.send({Successful: true})
         })
     });
 
@@ -329,8 +325,8 @@ router.route("/subscriptions/:id")
                 }
             }
 
-            // Send confirmation to clinet
-            return res.send(201)
+            // Send confirmation to client
+            return res.send(200)
         }).done()
     });
 
@@ -362,7 +358,7 @@ router.route("/:id")
 
                 next();
             }
-        });
+        }).done();
     })
 
     /**
@@ -439,7 +435,7 @@ router.route("/:id")
             if (!result) return res.sendStatus(403)
 
             // Get the organizing group from the database
-            Group.findOne({where: {displayName: req.body.organizer}}).then(function (group) {
+            Group.findOne({where: {fullName: req.body.organizer}}).then(function (group) {
                 req.body.OrganizerId = group.id;
                 req.body.Organizer = group;
 

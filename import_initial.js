@@ -22,6 +22,9 @@ var users = [
         passwordSalt: Buffer.from("LAFU0L7mQ0FhEmPybJfHDiF11OAyBFjEIj8/oBzVZrM=", "base64"),
         isAdmin: true,
         approved: true,
+        firstName: "adminFirstName",
+        lastName: "adminLastName",
+        major: "something on TU/e",
         groups: [2],
         functions: ["Member"]
     },
