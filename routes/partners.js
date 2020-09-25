@@ -13,7 +13,7 @@ router.route("/internships")
         var user = res.locals.session ? res.locals.session.user : null;
         permissions.check(user, {type: "INTERNSHIP_VIEW"}).then(function (result) {
             if (!result) {
-                res.status(403).send("You are not allowed to get all internships");
+                res.status(403).send("You do not have the permissions to view internships");
             }
 
             internships.findAll({
