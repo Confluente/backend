@@ -211,7 +211,7 @@ router.route("/pictures/:id")
      * Edits a picture
      */
     .put(function (req, res, next) {
-        // // delete old picture
+        // delete old picture
         deletePicture(req.params.id);
 
         upload(req, res, function(result) {

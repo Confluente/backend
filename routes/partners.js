@@ -13,7 +13,7 @@ router.route("/companyOpportunities")
         var user = res.locals.session ? res.locals.session.user : null;
         permissions.check(user, {type: "COMPANY_OPPORTUNITY_VIEW"}).then(function (result) {
             if (!result) {
-                res.status(403).send("You are not allowed to get all company opportunities");
+                res.status(403).send("You do not have the permissions to view internships");
             }
 
             companyOpportunities.findAll({
