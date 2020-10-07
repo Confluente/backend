@@ -74,14 +74,14 @@ module.exports = {
      * @return session
      */
     startSession: function (userId, ip) {
-        var session_lifetime = 24 * 3600 * 1000; //1000 days
+        var session_lifetime = 7; // in days
         return getRandomBytes(32).then(function (bytes) {
             console.log("new session made")
             return Session.create({
                 user: userId,
                 ip: ip,
                 token: bytes,
-                expires: new Date(new Date().valueOf() + session_lifetime)
+                expires: (new Date()).setDate(new Date().getDate() + session_lifetime)
             });
         });
         //.then(function ())
