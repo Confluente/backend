@@ -70,9 +70,8 @@ router.route("/login")
             // start a new session and send that session back to the client
             return authHelper.startSession(user.id, req.ip)
                 .then(function (session) {
-                    res.cookie('session', session.token.toString("base64"));
-                    session.token = session.token.toString("base64");
-                    res.send(session);
+                    res.cookie('session', session.token.toString("base64"), { expires: session.expires });
+                    res.status(200).send({});
                 });
         }).catch(function (err) {
             //throw err
