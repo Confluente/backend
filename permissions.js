@@ -88,11 +88,11 @@ function check(user, scope) {
             case "GROUP_VIEW":
                 // Everyone is allowed to see groups
                 return true;
-            case "INTERNSHIP_VIEW":
-                // Everyone is allowed to see any internship
+            case "COMPANY_OPPORTUNITY_VIEW":
+                // Everyone is allowed to see any company opportunity
                 return true;
-            case "INTERNSHIP_MANAGE":
-                // Only members of the acquisition committee are allowed to manage internships
+            case "COMPANY_OPPORTUNITY_MANAGE":
+                // Only members of the acquisition committee are allowed to manage company opportunities
                 return Group.findAll({
                     where: {
                         email: 'acquisition@hsaconfluente.nl'
