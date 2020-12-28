@@ -23,7 +23,7 @@ if (process.env.NODE_ENV === "test") {
     console.log("NODE_ENV=test");
     webroot = path.resolve(__dirname, "www");
 } else if (process.env.NODE_ENV === "development") {
-    console.log("NODE_ENV=development")
+    console.log("Running in DEVELOPMENT mode!");
 } else {
     webroot = path.resolve(__dirname, "dist/frontend");
     app.use(morgan("combined", {stream: require("fs").createWriteStream("./access.log", {flags: "a"})}));
