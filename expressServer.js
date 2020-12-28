@@ -16,10 +16,14 @@ var webroot;
 
 var app = express();
 
+process.env.NODE_ENV= "development";
+
 // Set webroot dependent on whether running for tests, development, or production
 if (process.env.NODE_ENV === "test") {
     console.log("NODE_ENV=test");
     webroot = path.resolve(__dirname, "www");
+} else if (process.env.NODE_ENV === "development") {
+    console.log("Running in DEVELOPMENT mode!");
 } else {
     webroot = path.resolve(__dirname, "dist/frontend");
     app.use(morgan("combined", {stream: require("fs").createWriteStream("./access.log", {flags: "a"})}));
@@ -65,25 +69,27 @@ app.use(function (req, res, next) {
     }
 });
 
-// HTTPS Rerouting (only for live website version
-// app.use(function (req, res, next) {
-//     if (req.secure) {
-//         // request was via https, so do no special handling
-//         next();
-//     } else {
-//         // acme challenge is used for certificate verification for HTTPS
-//         if (req.url === "/.well-known/acme-challenge/nPHb2tBcwnLHnTBGzHTtjYZVgoucfI5mLLKrkU4JUFM") {
-//             res.redirect('http://hsaconfluente.nl/assets/documents/acme');
-//         }
-//
-//         if (req.url === "/.well-known/acme-challenge/VSV0B332eYswinjUwESM_9jNY59Se17kCryEzUo28eE") {
-//             res.redirect('http://hsaconfluente.nl/assets/documents/acme2');
-//         }
-//
-//         res.redirect('https://' + req.headers.host + req.url);
-//         // request was via http, so redirect to https
-//     }
-// });
+// HTTPS Rerouting (only for production website version)
+if (process.env.NODE_ENV === "production") {
+    app.use(function (req, res, next) {
+        if (req.secure) {
+            // request was via https, so do no special handling
+            next();
+        } else {
+            // acme challenge is used for certificate verification for HTTPS
+            if (req.url === "/.well-known/acme-challenge/nPHb2tBcwnLHnTBGzHTtjYZVgoucfI5mLLKrkU4JUFM") {
+                res.redirect('http://hsaconfluente.nl/assets/documents/acme');
+            }
+
+            if (req.url === "/.well-known/acme-challenge/VSV0B332eYswinjUwESM_9jNY59Se17kCryEzUo28eE") {
+                res.redirect('http://hsaconfluente.nl/assets/documents/acme2');
+            }
+
+            res.redirect('https://' + req.headers.host + req.url);
+            // request was via http, so redirect to https
+        }
+    });
+}
 
 
 
@@ -113,7 +119,9 @@ app.use("/api/*", function (req, res) {
     res.sendStatus(404);
 });
 
-app.use(express.static(webroot));
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static(webroot));
+}
 
 app.get("*", function (req, res, next) {
 
