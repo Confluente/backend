@@ -16,10 +16,14 @@ var webroot;
 
 var app = express();
 
+process.env.NODE_ENV= "development";
+
 // Set webroot dependent on whether running for tests, development, or production
 if (process.env.NODE_ENV === "test") {
     console.log("NODE_ENV=test");
     webroot = path.resolve(__dirname, "www");
+} else if (process.env.NODE_ENV === "development") {
+    console.log("NODE_ENV=development")
 } else {
     webroot = path.resolve(__dirname, "dist/frontend");
     app.use(morgan("combined", {stream: require("fs").createWriteStream("./access.log", {flags: "a"})}));
@@ -113,7 +117,9 @@ app.use("/api/*", function (req, res) {
     res.sendStatus(404);
 });
 
-app.use(express.static(webroot));
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static(webroot));
+}
 
 app.get("*", function (req, res, next) {
 
