@@ -69,25 +69,27 @@ app.use(function (req, res, next) {
     }
 });
 
-// HTTPS Rerouting (only for live website version
-// app.use(function (req, res, next) {
-//     if (req.secure) {
-//         // request was via https, so do no special handling
-//         next();
-//     } else {
-//         // acme challenge is used for certificate verification for HTTPS
-//         if (req.url === "/.well-known/acme-challenge/nPHb2tBcwnLHnTBGzHTtjYZVgoucfI5mLLKrkU4JUFM") {
-//             res.redirect('http://hsaconfluente.nl/assets/documents/acme');
-//         }
-//
-//         if (req.url === "/.well-known/acme-challenge/VSV0B332eYswinjUwESM_9jNY59Se17kCryEzUo28eE") {
-//             res.redirect('http://hsaconfluente.nl/assets/documents/acme2');
-//         }
-//
-//         res.redirect('https://' + req.headers.host + req.url);
-//         // request was via http, so redirect to https
-//     }
-// });
+// HTTPS Rerouting (only for production website version)
+if (process.env.NODE_ENV === "production") {
+    app.use(function (req, res, next) {
+        if (req.secure) {
+            // request was via https, so do no special handling
+            next();
+        } else {
+            // acme challenge is used for certificate verification for HTTPS
+            if (req.url === "/.well-known/acme-challenge/nPHb2tBcwnLHnTBGzHTtjYZVgoucfI5mLLKrkU4JUFM") {
+                res.redirect('http://hsaconfluente.nl/assets/documents/acme');
+            }
+
+            if (req.url === "/.well-known/acme-challenge/VSV0B332eYswinjUwESM_9jNY59Se17kCryEzUo28eE") {
+                res.redirect('http://hsaconfluente.nl/assets/documents/acme2');
+            }
+
+            res.redirect('https://' + req.headers.host + req.url);
+            // request was via http, so redirect to https
+        }
+    });
+}
 
 
 
