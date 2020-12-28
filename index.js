@@ -15,7 +15,12 @@ if (process.env.NODE_ENV === "production") {
 
 
 // Set port server
-var port = process.env.PORT || 81;
+let port;
+if (process.env.NODE_ENV === "production") {
+    port = process.env.PORT || 80;
+} else {
+    port = process.env.PORT || 81;
+}
 
 // Start server
 httpServer.listen(port, function () {
